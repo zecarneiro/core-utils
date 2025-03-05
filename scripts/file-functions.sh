@@ -75,8 +75,8 @@ function filecontain {
 function openmarkdown {
     local file="${1}"
     if [[ $(fileexists "$file") == true ]]; then
-        if [ "$(commandexists "ghostwriter")" == true ]; then
-            ghostwriter "$file" &
+        if [ "$(commandexists "okular")" == true ]; then
+            okular "$file" &
         else
             cat "$file"
         fi

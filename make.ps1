@@ -1,4 +1,4 @@
-$VERSION = "1.0.0"
+$VERSION = "1.0.1"
 $SCRIPT_UTILS_DIR = ($PSScriptRoot)
 $SHELL_SCRIPT_DIR = "${SCRIPT_UTILS_DIR}\scripts"
 $SHELL_SCRIPT_TEMP_DIR = "$([System.IO.Path]::GetTempPath())core-utils"
@@ -69,10 +69,7 @@ function process_scoop_packages {
     evaladvanced "scoop install main/which"
     evaladvanced "scoop install main/dos2unix"
     evaladvanced "scoop bucket add extras"
-    if (!(__commandexists -command "ghostwriter")) {
-        log "`nInstall Ghostwriter - https://invent.kde.org/office/ghostwriter"
-        evaladvanced "scoop install extras/ghostwriter"
-    }
+    evaladvanced "scoop install extras/okular"
     delalias "cp"
     delalias "cat"
     delalias "mkdir"
