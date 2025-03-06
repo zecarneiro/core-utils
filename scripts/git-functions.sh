@@ -66,6 +66,7 @@ function gitsetconfig() {
         "core.logAllRefUpdates true"
         "core.ignorecase true"
         "pull.rebase true"
+        "--unset safe.directory"
         "--add safe.directory '*'"
         "merge.ff false"
     )

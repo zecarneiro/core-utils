@@ -1,4 +1,4 @@
-$VERSION = "1.0.1"
+$VERSION = "1.0.2"
 $SCRIPT_UTILS_DIR = ($PSScriptRoot)
 $SHELL_SCRIPT_DIR = "${SCRIPT_UTILS_DIR}\scripts"
 $SHELL_SCRIPT_TEMP_DIR = "$([System.IO.Path]::GetTempPath())core-utils"
