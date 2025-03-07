@@ -244,3 +244,4 @@ function changedefaultjdk {
     evaladvanced "echo \"export PATH=\\$PATH:\\${JAVA_HOME_DEFAULT}/bin\" | sudo tee -a ${java_default_script_name}"
     evaladvanced "source ${java_default_script_name}"
 }
+alias chmod-777="chmod -R 777"
