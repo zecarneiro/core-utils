@@ -1,131 +1,63 @@
-$VERSION = "1.0.3"
+$release = $false
+$installStep = 0
+
+$VERSION = "1.0.4"
 $SCRIPT_UTILS_DIR = ($PSScriptRoot)
 $SHELL_SCRIPT_DIR = "${SCRIPT_UTILS_DIR}\scripts"
-$SHELL_SCRIPT_TEMP_DIR = "$([System.IO.Path]::GetTempPath())core-utils"
+$LIBS_DIR = "${SCRIPT_UTILS_DIR}\libs"
+$BIN_DIR = "${SCRIPT_UTILS_DIR}\bin"
 
-function __commandexists($command) {
-    $oldPreference = $ErrorActionPreference
-    $ErrorActionPreference = 'SilentlyContinue'
-    try {
-        if (Get-Command $command) {
-            RETURN $true
-        }
-    } Catch {
-        RETURN $false
-    } Finally {
-        $ErrorActionPreference = $oldPreference
-    }
+if ($args[0] -eq "-r" -or $args[0] -eq "--release") {
+    $release=$true
+}
+if ($args[0] -eq "-i" -or $args[0] -eq "--install-step") {
+    $installStep = $args[1]
 }
 
-function release {
-    $releasePackageName = "$SCRIPT_UTILS_DIR\core-utils-${VERSION}.zip"  
-    Write-Host "INFO: Create release package"
-    Compress-Archive "$SHELL_SCRIPT_DIR\*" -DestinationPath "$releasePackageName" -Force
+function process-release {
+    $releasePackageName = "$SCRIPT_UTILS_DIR\core-utils-${VERSION}.zip"
+    $releaseDir = "$SCRIPT_UTILS_DIR\release"
+
+    infolog "Create release package"
+    evaladvanced "mkdir '$releaseDir'"
+    evaladvanced "cpdir '$SHELL_SCRIPT_DIR' '$releaseDir'"
+    evaladvanced "cpdir '$LIBS_DIR' '$releaseDir'"
+    evaladvanced "cpdir '$BIN_DIR' '$releaseDir'"
+    evaladvanced "Copy-Item -Path '$SCRIPT_UTILS_DIR\make.ps1' -Destination '$releaseDir'"
+    evaladvanced "Copy-Item -Path '$SCRIPT_UTILS_DIR\make.sh' -Destination '$releaseDir'"
+    evaladvanced "Compress-Archive '$releaseDir\*' -DestinationPath '$releasePackageName' -Force"
 }
 
-function install_scripts {
-    $shellScriptsInstallDir = "${OTHER_APPS_DIR}\shell-scripts"
-    Write-Host "INFO: Install core-utils scripts release package"
-
-    Remove-Item -Recurse -Force "$shellScriptsInstallDir" -ErrorAction SilentlyContinue
-    New-Item -Path "$shellScriptsInstallDir" -ItemType Directory -Force
-    # Add powershell profiles
-    Get-ChildItem -Path "$SHELL_SCRIPT_TEMP_DIR" -Filter *.ps1 -Recurse -File | ForEach-Object {
-        $fullName = $_.FullName
-        $name = $_.Name
-        $fullInstallName = "$shellScriptsInstallDir\_$name"
-        cp "$fullName" "$fullInstallName"
-        $data = "Import-Module '$fullInstallName' -ErrorAction SilentlyContinue"
-        if (!(filecontain "$MY_CUSTOM_SHELL_PROFILE" "$data")) {
-            writefile "$MY_CUSTOM_SHELL_PROFILE" "$data" -append
-        }
-    }
+function usage {
+    Write-Host "Usage: make.ps1 [OPTIONS]... [STEP-VALUE]"
+    Write-Host "OPTIONS:
+     -r|--release`tCreate release package
+     -i|--install-step`tProcess install by given step to process
+     `tStep 1: Will
+     `t`t- Set user bin dir
+     `t`t- Install scoop and winget
+     `tStep 2: Will
+     `t`t- Install scoop and winget packages
+     `t`t- Start all configurations for scoop and winget
+     `tStep 3: Will
+     `t`t- Create user powershell profile file
+     `t`t- Install scripts profile
+     `tStep 4: Will
+     `t`t- Install Visual-C-Runtimes
+     `t`t- Install Development packages. User will decide wich to install
+    "
 }
 
-function create_profile_file_powershell {
-    if ((fileexists "$MY_SHELL_PROFILE")) {
-        mv "$MY_SHELL_PROFILE" "${MY_SHELL_PROFILE}.bk"
-    } else {
-        infolog "Creating Powershell Script profile to run when powrshell start: $MY_SHELL_PROFILE"
-        New-Item "$MY_SHELL_PROFILE" -ItemType file -Force
-    }
-    if (!(filecontain "$MY_SHELL_PROFILE" "$MY_CUSTOM_SHELL_PROFILE")) {
-        writefile "$MY_SHELL_PROFILE" ". '$MY_CUSTOM_SHELL_PROFILE'" -append
-    }
-    if (!(fileexists "$MY_CUSTOM_SHELL_PROFILE")) {
-        infolog "Creating Powershell Script profile to run when powrshell start: $MY_CUSTOM_SHELL_PROFILE"
-        New-Item "$MY_CUSTOM_SHELL_PROFILE" -ItemType file -Force
-    } 
-}
-
-function process_scoop_packages {
-    evaladvanced "scoop install main/coreutils"
-    evaladvanced "scoop install main/git"
-    evaladvanced "scoop install main/vim"
-    evaladvanced "scoop install main/nano"
-    evaladvanced "scoop install main/curl"
-    evaladvanced "scoop install main/grep"
-    evaladvanced "scoop install main/sed"
-    evaladvanced "scoop install main/which"
-    evaladvanced "scoop install main/dos2unix"
-    evaladvanced "scoop bucket add extras"
-    evaladvanced "scoop install extras/okular"
-    delalias "cp"
-    delalias "cat"
-    delalias "mkdir"
-    delalias "ls"
-    delalias "mv"
-    delalias "ps"
-    delalias "rm"
-    delalias "rmdir"
-    delalias "sleep"
-    delalias "sort"
-    delalias "tee"
-    delalias "curl"
-    delalias "grep"
-    delalias "sed"
-}
-
-function install_scoop {
-    if (!(__commandexists scoop)) {
-        Write-Host "INFO: Install Scoop ..."
-        Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
-        Install-Module -AllowClobber -Name scoop-completion -Scope CurrentUser # Project URL - https://github.com/Moeologist/scoop-completion
-    }
-}
-
-function set_user_bin_dir {
-    $pathKey = "Path"
-    if (!(Test-Path -Path "$USER_BIN_DIR")) {
-        New-Item -ItemType Directory -Path "$USER_BIN_DIR" | Out-Null
-    }
-    $pathEnvArr = ([Environment]::GetEnvironmentVariable($pathKey, [System.EnvironmentVariableTarget]::User) -split ';')
-    if (!("$USER_BIN_DIR" -in $pathEnvArr)) {
-        $pathEnvArr += "$USER_BIN_DIR"
-        [Environment]::SetEnvironmentVariable($pathKey, ($pathEnvArr -join ";"), [System.EnvironmentVariableTarget]::User)
-        infolog "Please, Restart the Terminal to change take effect!"
-    }
-}
-
-function downloadCoreUtilsScripts {
-    $coreUtilPackage = "$([System.IO.Path]::GetTempPath())core-utils.zip"
-    $url = "https://github.com/zecarneiro/core-utils/releases/download/v${VERSION}/core-utils-${VERSION}.zip"
-
-    Write-Host "INFO: Clean core-utils scripts release package"
-    Remove-Item "$SHELL_SCRIPT_TEMP_DIR" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item "$coreUtilPackage" -Recurse -Force -ErrorAction SilentlyContinue
-
-    Write-Host "INFO: Download core-utils scripts release package"
-    Invoke-WebRequest "$url" -OutFile "$coreUtilPackage"
-    Expand-Archive -Path "$coreUtilPackage" -DestinationPath "$SHELL_SCRIPT_TEMP_DIR"
-}
-
-if ($global:installStep -eq 1) {
-    downloadCoreUtilsScripts
-}
-if ($global:installStep -eq 1 -or $global:installStep -eq 2 -or $global:release) {
+if ($release -or $installStep -gt 0) {
     Write-Host "INFO: Load scripts..."
-    Get-ChildItem ("${SHELL_SCRIPT_TEMP_DIR}\*.ps1") | ForEach-Object {
+    Get-ChildItem ("${SHELL_SCRIPT_DIR}\*.ps1") | ForEach-Object {
+        $fullname = $_.FullName
+        Write-Host "Loading: $fullname"
+        . "$fullname"
+    }
+
+    infolog "Load libs..."
+    Get-ChildItem ("${LIBS_DIR}\*.ps1") | ForEach-Object {
         $fullname = $_.FullName
         Write-Host "Loading: $fullname"
         . "$fullname"
@@ -133,24 +65,28 @@ if ($global:installStep -eq 1 -or $global:installStep -eq 2 -or $global:release)
 }
 
 function main {
-    Write-Host "INFO: Received arguments: InstallStep=${global:installStep}, Release=${release}"
-    $message = "INFO: Please, restart your terminal."
-    if ($global:installStep -eq 1) {
-        set_user_bin_dir
-        install_scoop
-        Write-Host "$message"
-    } elseif ($global:installStep -eq 2) {
-        . reloadprofile
-        process_scoop_packages
-        . reloadprofile
-        create_profile_file_powershell
-        install_scripts
-        setautoloadmodule "scoop-completion"
-        Write-Host "$message"
-    } elseif ($global:release) {
-        release
+    $message = "Please, restart your terminal."
+    if ($release) {
+        process-release
+    } elseif ($installStep -eq 1) {
+        set-user-bin-dir
+        install-scoop
+        install-winget
+        warnlog "$message"
+    } elseif ($installStep -eq 2) {
+        install-scoop-packages
+        config-all
+        warnlog "$message"
+    } elseif ($installStep -eq 3) {
+        create-profile-file-powershell
+        install-profile-scripts
+        warnlog "$message"
+    } elseif ($installStep -eq 4) {
+        install-visual-c-runtimes
+        install-development-package
+        warnlog "$message"
     } else {
-        Write-Host "Usage: make.ps1 - Global Vars [installStep|release]=[$true|]"
+        usage
     }
 }
 main

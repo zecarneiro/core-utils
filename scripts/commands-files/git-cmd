@@ -1,0 +1,9 @@
+###### ALL ######
+git config core.autocrlf input
+git config core.fileMode false
+git config core.logAllRefUpdates true
+git config core.ignorecase true
+git config pull.rebase true
+git config --unset safe.directory
+git config --add safe.directory '*'
+git config merge.ff false

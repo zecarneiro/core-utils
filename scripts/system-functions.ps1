@@ -315,3 +315,6 @@ function setautoloadmodule {
     writefile "$MY_CUSTOM_SHELL_PROFILE" "loadmodule $name" -append
   }
 }
+function whichsh($name) {
+  Get-Command "$name" | Select-Object -ExpandProperty Definition
+}

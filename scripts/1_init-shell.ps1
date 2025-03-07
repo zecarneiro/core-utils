@@ -32,25 +32,25 @@ try {
 }
 
 function prompt {
-  $hasError = $?
+  $hasNoError = $?
   if ((isadmin)) {
     "[" + (Get-Location) + "] # "
   }
   else {
-    $actualLocation = "$(Get-Location)"
-    $actualLocation = $actualLocation.replace("${home}",'~')
+    $promptChar = "$([char]0x276F)"
+    $promptCharColor = "Green"
+    $actualLocation = "$(Get-Location)".replace("${home}",'~')
+    if (-not $hasNoError) {
+      # Last command failed
+      $promptCharColor = "Red"
+    }
     if ($global:IS_INIT_PROMPT) {
-      Write-Host "$actualLocation" -ForegroundColor "Cyan";
       $global:IS_INIT_PROMPT=$false
     } else {
-      Write-Host "`n$actualLocation" -ForegroundColor "Cyan";
+      $actualLocation = "`n$actualLocation"
     }
-    if ($hasError) {
-        Write-Host -NoNewline "$([char]0x276F)" -ForegroundColor "Green";
-    } else {
-        # Last command failed
-        Write-Host -NoNewline "$([char]0x276F)" -ForegroundColor "Red"
-    }
+    Write-Host "$actualLocation" -ForegroundColor "Cyan"
+    Write-Host "${promptChar}" -ForegroundColor "${promptCharColor}" -NoNewline
     " "
   }
 }

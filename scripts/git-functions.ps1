@@ -66,31 +66,23 @@ function githubchangeurl() {
     git remote set-url origin "$url"
 }
 function gitsetconfig() {
-    $configArr = @(
-        "core.autocrlf input"
-        "core.fileMode false"
-        "core.logAllRefUpdates true"
-        "core.ignorecase true"
-        "pull.rebase true"
-        "--unset safe.directory"
-        "--add safe.directory '*'"
-        "merge.ff false"
-    )
-    foreach ($configCmd in $configArr) {
-        evaladvanced "git config --global $configCmd"
-    }
+    $scriptRootDir = ($PSScriptRoot)
+    $commandRootDir = "${scriptRootDir}\commands-files"
+    runlineascommand "${commandRootDir}\git-global-cmd"
     if ((directoryexists "$PWD/.git") -or (fileexists "$PWD/.git")) {
         infolog "Set local configurations"
-        foreach ($configCmd in $configArr) {
-            evaladvanced "git config $configCmd"
-        }
+        runlineascommand "${commandRootDir}\git-cmd"
     }
 }
 function gitconfiguser() {
-    $username = Read-Host "Username: "
-    $email = Read-Host "Email: "
-    evaladvanced "git config user.name `"$username`""
-    evaladvanced "git config user.email `"$email`""
+    $username = Read-Host "Username"
+    $email = Read-Host "Email"
+    $global_var = "--global"
+    if ((directoryexists "$PWD/.git") -or (fileexists "$PWD/.git")) {
+        $global_var = ""
+    }
+    evaladvanced "git config ${global_var} user.name `"$username`""
+    evaladvanced "git config ${global_var} user.email `"$email`""
 }
 function gitcommit($commit) {
     git commit -m "$commit"
