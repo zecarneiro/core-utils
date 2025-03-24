@@ -69,11 +69,11 @@ function wsllist($filter) {
 # ---------------------------------------------------------------------------- #
 #                               UPDATERS SCRIPTS                               #
 # ---------------------------------------------------------------------------- #
-function installupdater($updater_script, $scriptname) {
+function installupdater($updater_script) {
 	$updater_dir = "$home\.otherapps\updaters"
 	$scriptname = $(basename "$updater_script")
 	mkdir "$updater_dir"
-	infolog "Installing '$scriptname'"
+	infolog "Installing '$scriptname' from '$updater_script'"
 	Copy-Item "$updater_script" "$updater_dir"
 	oklog "Done"
 }

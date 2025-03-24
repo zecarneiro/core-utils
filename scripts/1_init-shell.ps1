@@ -1,19 +1,15 @@
-# Author: José M. C. Noronha
+﻿# Author: José M. C. Noronha
 # IMPORTANT: Save this script with UTF-8 with BOM if you have problems with characters
 
 # Global Vars
 $IS_INIT_PROMPT=$true
-$MY_SHELL_PROFILE = $profile.CurrentUserAllHosts
-$MY_CUSTOM_SHELL_PROFILE = "$home\.powershell-profile-custom.ps1"
-$MY_ALIAS = "$home\.powershell_aliases.ps1"
-$CONFIG_DIR = "$home\.config"
-$OTHER_APPS_DIR = "$home\.otherapps"
-$USER_BIN_DIR = "$home\.local\bin"
 
 # BASH-LIKE TAB COMPLETION IN POWERSHELL
+Set-PsFzfOption -EnableFd:$true
 Set-PSReadlineKeyHandler -Key Tab -Function Complete
 Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 
 $OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
 function isadmin {
@@ -32,25 +28,42 @@ try {
 }
 
 function prompt {
-  $hasNoError = $?
   if ((isadmin)) {
     "[" + (Get-Location) + "] # "
   }
   else {
-    $promptChar = "$([char]0x276F)"
-    $promptCharColor = "Green"
-    $actualLocation = "$(Get-Location)".replace("${home}",'~')
-    if (-not $hasNoError) {
-      # Last command failed
-      $promptCharColor = "Red"
-    }
-    if ($global:IS_INIT_PROMPT) {
-      $global:IS_INIT_PROMPT=$false
+    # prompt vars
+    $unionStartChar = "["
+    $unionEndChar = "]"
+    $username = "$([System.Environment]::UserName)"
+    $hostname = "$([System.Environment]::MachineName)"
+    $workingDir = "$(Get-Location)".replace("${home}",'~')
+    $arrow = "$([char]0x276F)"
+    $unionLineStart="╭─"
+    $unionLineEnd="╰─"
+
+    ### Build prompt ###
+    if (!$global:IS_INIT_PROMPT) {
+      Write-Host ""
     } else {
-      $actualLocation = "`n$actualLocation"
+      $global:IS_INIT_PROMPT=$false
     }
-    Write-Host "$actualLocation" -ForegroundColor "Cyan"
-    Write-Host "${promptChar}" -ForegroundColor "${promptCharColor}" -NoNewline
+    Write-Host "$unionLineStart" -NoNewline
+    # Username
+    Write-Host $unionStartChar -ForegroundColor "$DarkGrayColor" -NoNewline
+    Write-Host "$username" -ForegroundColor "$RedColor" -NoNewline
+    Write-Host $unionEndChar -ForegroundColor "$DarkGrayColor" -NoNewline
+    # Hostname
+    Write-Host $unionStartChar -ForegroundColor "$DarkGrayColor" -NoNewline
+    Write-Host "$hostname" -ForegroundColor "$GreenColor" -NoNewline
+    Write-Host $unionEndChar -ForegroundColor "$DarkGrayColor" -NoNewline
+    # Working Dir
+    Write-Host $unionStartChar -ForegroundColor "$DarkGrayColor" -NoNewline
+    Write-Host "$workingDir" -ForegroundColor "$CyanColor" -NoNewline
+    Write-Host $unionEndChar -ForegroundColor "$DarkGrayColor"
+    # Prompt
+    Write-Host $unionLineEnd -NoNewline
+    Write-Host "${arrow}" -ForegroundColor "${GreenColor}" -NoNewline
     " "
   }
 }

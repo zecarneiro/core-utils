@@ -162,14 +162,9 @@ function runlineascommand {
                 canRun=false
             fi
         fi
-        if [[ -n "${string}" ]]; then
-            echo "string is not empty"
-        fi
-        if [[ "${canRun}" == "true" ]]&&[[ -n "${line}" ]]; then
-            if [[ "${line}" == "${prefix_sufix_key}"* ]]; then
-                echo "$line"
-            else
-                evaladvanced "$line"
+        if [[ "${canRun}" == "true" ]]&&[[ -n "${line}" ]]; then            
+            if [[ "${line}" != "${prefix_sufix_key}"* ]]; then
+                evaladvanced "$line" 
             fi
         fi
     done <"$file"

@@ -1,7 +1,7 @@
 $release = $false
-$installStep = 0
+$start = $false
 
-$VERSION = "1.0.4"
+$VERSION = "1.0.5"
 $SCRIPT_UTILS_DIR = ($PSScriptRoot)
 $SHELL_SCRIPT_DIR = "${SCRIPT_UTILS_DIR}\scripts"
 $LIBS_DIR = "${SCRIPT_UTILS_DIR}\libs"
@@ -10,11 +10,30 @@ $BIN_DIR = "${SCRIPT_UTILS_DIR}\bin"
 if ($args[0] -eq "-r" -or $args[0] -eq "--release") {
     $release=$true
 }
-if ($args[0] -eq "-i" -or $args[0] -eq "--install-step") {
-    $installStep = $args[1]
+if ($args[0] -eq "-s" -or $args[0] -eq "--start") {
+    $start = $true
+}
+
+function import-libs {
+    Write-Host "INFO: Load scripts..."
+    Get-ChildItem ("${SHELL_SCRIPT_DIR}\*.ps1") | ForEach-Object {
+        $fullname = $_.FullName
+        . "$fullname"
+    }
+
+    infolog "Load libs..."
+    Get-ChildItem ("${LIBS_DIR}\*.ps1") | ForEach-Object {
+        $fullname = $_.FullName
+        . "$fullname"
+    }
+}
+
+function exitScript {
+    exit 0
 }
 
 function process-release {
+    . import-libs
     $releasePackageName = "$SCRIPT_UTILS_DIR\core-utils-${VERSION}.zip"
     $releaseDir = "$SCRIPT_UTILS_DIR\release"
 
@@ -32,59 +51,79 @@ function usage {
     Write-Host "Usage: make.ps1 [OPTIONS]... [STEP-VALUE]"
     Write-Host "OPTIONS:
      -r|--release`tCreate release package
-     -i|--install-step`tProcess install by given step to process
-     `tStep 1: Will
-     `t`t- Set user bin dir
-     `t`t- Install scoop and winget
-     `tStep 2: Will
-     `t`t- Install scoop and winget packages
-     `t`t- Start all configurations for scoop and winget
-     `tStep 3: Will
-     `t`t- Create user powershell profile file
-     `t`t- Install scripts profile
-     `tStep 4: Will
-     `t`t- Install Visual-C-Runtimes
-     `t`t- Install Development packages. User will decide wich to install
+     -s|--start`tProcess install and config by user
     "
 }
 
-if ($release -or $installStep -gt 0) {
-    Write-Host "INFO: Load scripts..."
-    Get-ChildItem ("${SHELL_SCRIPT_DIR}\*.ps1") | ForEach-Object {
-        $fullname = $_.FullName
-        Write-Host "Loading: $fullname"
-        . "$fullname"
-    }
+function printMenu {
+    Write-Host "1. Will
+    - Enable Sudo
+    - Set user bin dir
+    - Install scoop and winget
+    - Install PowershellGet Module
+2. Will
+    - Install scoop and winget packages
+    - Install Powershell Modules
+    - Start all configurations for scoop and winget
+3. Will
+    - Create user powershell profile file
+    - Install scripts profile
+4. Will
+    - Install Visual-C-Runtimes
+    - Install Development packages. User will decide wich to install
+---
+5. Exit"
+}
 
-    infolog "Load libs..."
-    Get-ChildItem ("${LIBS_DIR}\*.ps1") | ForEach-Object {
-        $fullname = $_.FullName
-        Write-Host "Loading: $fullname"
-        . "$fullname"
+function initProcess {
+    $message = "Please, restart your terminal."
+    for (;;) {
+        printMenu
+        $option = Read-Host "Insert an option"
+        if ($option -gt 0 -and $option -lt 5) {
+            . import-libs
+        }
+        switch ($option) {
+            1 {
+                enable-sudo
+                set-user-bin-dir
+                install-scoop
+                install-winget
+                install-powershellget
+                warnlog "$message"
+                exitScript
+            }
+            2 {
+                install-scoop-packages
+                install-modules
+                config-all
+                warnlog "$message"
+                exitScript
+            }
+            3 {
+                create-profile-file-powershell
+                install-profile-scripts
+                warnlog "$message"
+                exitScript
+            }
+            4 {
+                install-visual-c-runtimes
+                install-development-package
+                warnlog "$message"
+                exitScript
+            }
+            5 { exitScript }
+            Default { Write-Host "WARN: Please, insert a valid option!" }
+        }
     }
+    
 }
 
 function main {
-    $message = "Please, restart your terminal."
     if ($release) {
         process-release
-    } elseif ($installStep -eq 1) {
-        set-user-bin-dir
-        install-scoop
-        install-winget
-        warnlog "$message"
-    } elseif ($installStep -eq 2) {
-        install-scoop-packages
-        config-all
-        warnlog "$message"
-    } elseif ($installStep -eq 3) {
-        create-profile-file-powershell
-        install-profile-scripts
-        warnlog "$message"
-    } elseif ($installStep -eq 4) {
-        install-visual-c-runtimes
-        install-development-package
-        warnlog "$message"
+    } elseif ($start) {
+        initProcess
     } else {
         usage
     }

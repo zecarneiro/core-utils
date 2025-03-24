@@ -66,8 +66,4 @@ function install-profile-scripts {
 
 function config-all {
     config-scoop-all
-    $res = Read-Host "For Windows 11 only. Do you want to enable sudo? [y/N]"
-    if ("$res" -eq "y" -or "$res" -eq "Y") {
-        powershell -Command "Start-Process -Wait PowerShell -Verb RunAs -ArgumentList 'sudo.exe config --enable enable'"
-    }
 }

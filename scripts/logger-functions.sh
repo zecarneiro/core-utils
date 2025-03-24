@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Author: José M. C. Noronha
 
-declare NO_COLOR='\033[0m'
 function log {
     local message="$1"
     local keep_line=$2
@@ -14,38 +13,31 @@ function log {
 function errorlog {
     local message="$1"
     local keep_line=$2
-    local RED_COLOR='\033[0;31m'
-    log "[${RED_COLOR}ERROR${NO_COLOR}] ${message}" "$keep_line"
+    log "[${RedColor}ERROR${ResetColor}] ${message}" "$keep_line"
 }
 function infolog {
     local message="$1"
     local keep_line=$2
-    local BLUE_COLOR='\033[0;34m'
-    log "[${BLUE_COLOR}INFO${NO_COLOR}] ${message}" "$keep_line"
+    log "[${BlueColor}INFO${ResetColor}] ${message}" "$keep_line"
 }
 function debuglog {
     local message="$1"
     local keep_line=$2
-    local YELLOW_COLOR='\033[0;33m'
     log "[DEBUG] ${message}" "$keep_line"
 }
 function warnlog {
     local message="$1"
     local keep_line=$2
-    local YELLOW_COLOR='\033[0;33m'
-    log "[${YELLOW_COLOR}WARN${NO_COLOR}] ${message}" "$keep_line"
+    log "[${YellowColor}WARN${ResetColor}] ${message}" "$keep_line"
 }
 function oklog {
     local message="$1"
     local keep_line=$2
-    local GREEN_COLOR='\033[0;32m'
-    log "[${GREEN_COLOR}OK${NO_COLOR}] ${message}" "$keep_line"
+    log "[${GreenColor}OK${ResetColor}] ${message}" "$keep_line"
 }
 function promptlog {
     local message="$1"
-    local DARKGRAY_COLOR='\033[1;30m'
-    declare BOLD_FOR_COLOR='\e[0m'
-    log "${DARKGRAY_COLOR}>>>${BOLD_FOR_COLOR}${NO_COLOR} ${BOLD_FOR_COLOR}${message}${NO_COLOR}"
+    log "${DarkGrayColor}>>>${BoldColor}${ResetColor} ${BoldColor}${message}${ResetColor}"
 }
 function titlelog {
     local message="$1"

@@ -116,7 +116,7 @@ function installupdater {
     # shellcheck disable=SC2155
     local scriptname=$(basename "$updater_script")
     mkdir -p "$updater_dir"
-    infolog "Installing '$scriptname'"
+    infolog "Installing '$scriptname' '$updater_script'"
     cp "$updater_script" "$updater_dir"
     chmod -R 777 "$updater_dir"
     oklog "Done"
@@ -130,7 +130,7 @@ function updatersupgrade {
     if [ -d "$updater_dir" ]; then
         for script in "$updater_dir"/*; do
             # shellcheck disable=SC2155
-            local updatername=$(basename "$script")   
+            local updatername=$(basename "$script")
             if [[ -z "${scriptname}" ]]||[[ "${scriptname}" == "${updatername}" ]]; then
                 promptlog "$script"
                 # shellcheck disable=SC1090

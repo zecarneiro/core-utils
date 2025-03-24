@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 # Author: José M. C. Noronha
+# shellcheck disable=SC2154
 
 # Global Vars
 declare IS_INIT_PROMPT=true
-declare MY_SHELL_PROFILE="$HOME/.bashrc"
-declare MY_CUSTOM_SHELL_PROFILE="$HOME/.bash-profile-custom.sh"
-declare MY_ALIAS="$HOME/.bash_aliases"
-declare CONFIG_DIR="$HOME/.config"
-declare OTHER_APPS_DIR="$HOME/.otherapps"
-declare USER_BIN_DIR="$HOME/.local/bin"
 
 function isadmin {
     if [ "$(id -u)" -eq 0 ]; then
@@ -19,25 +14,24 @@ function isadmin {
 }
 
 build_prompt() {
-    EXIT=$?               # save exit code of last command
-    red='\[\e[0;31m\]'    # colors
-    green='\[\e[0;32m\]'
-    cyan='\[\e[1;36m\]'
-    reset='\[\e[0m\]'
-    PS1='${debian_chroot:+($debian_chroot)}'  # begin prompt
+    # prompt vars
+    unionStartChar="${DarkGrayColor}[${BoldColor}${ResetColor}"
+    unionEndChar="${DarkGrayColor}]${BoldColor}${ResetColor}"
+    username="${unionStartChar}${RedColor}\u${ResetColor}${unionEndChar}"
+    hostname="${unionStartChar}${GreenColor}\h${ResetColor}${unionEndChar}"
+    workingDir="${unionStartChar}${CyanColor}\w${ResetColor}${unionEndChar}"
+    arrow="${GreenColor}❯${BoldColor}${ResetColor}"
+    unionLineStart="╭─"
+    unionLineEnd="╰─"
+    windowsTitle="\[\e]0;Bash \v\a\]"
 
-    if [ "$IS_INIT_PROMPT" == "true" ]; then
-        PS1+="$cyan\w$reset\n"
+    ### Build prompt ###
+    promptBuilder="${unionLineStart}${username}${hostname}${workingDir}\n${unionLineEnd}${arrow} "
+    if [ "$IS_INIT_PROMPT" == "false" ]; then
+        promptBuilder="\n${promptBuilder}"
+    else
         IS_INIT_PROMPT=false
-    else
-        PS1+="\n$cyan\w$reset\n"
     fi
-
-    if [ $EXIT != 0 ]; then  # add arrow color dependent on exit code
-        PS1+="$red"
-    else
-        PS1+="$green"
-    fi
-    PS1+="→$reset " # construct rest of prompt
+    PS1="${debian_chroot:+($debian_chroot)}${windowsTitle}${promptBuilder}"  # begin prompt
 }
 PROMPT_COMMAND=build_prompt

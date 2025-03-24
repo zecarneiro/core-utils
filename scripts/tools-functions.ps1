@@ -247,9 +247,7 @@ function runlineascommand {
 			}
 		}
 		if ($canRun -and ![string]::IsNullOrEmpty($line)) {
-			if (($line -like "${prefix_sufix_key}*")) {
-				Write-Host "$line"
-			} else {
+			if (!($line -like "${prefix_sufix_key}*")) {
 				evaladvanced "$line"
 			}
 		}

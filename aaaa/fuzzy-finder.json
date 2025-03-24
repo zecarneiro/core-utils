@@ -1,0 +1,26 @@
+{
+    "name": "Fuzzy Finder",
+    "description": "Interactive Unix filter for command-line - https://github.com/junegunn/fzf and https://github.com/kelleyma49/PSFzf",
+    "autoStart": true,
+    "isDisabled": false,
+    "platforms": [
+        {
+            "name": "ubuntu",
+            "type": "script",
+            "group": "base",
+            "filename": "fuzzy-finder.sh"
+        },
+        {
+            "name": "windows",
+            "type": "script",
+            "group": "base",
+            "filename": "fuzzy-finder.ps1"
+        },
+        {
+            "name": "windows",
+            "type": "script",
+            "group": "configuration",
+            "filename": "fuzzy-finder-configuration.ps1"
+        }
+    ]
+}

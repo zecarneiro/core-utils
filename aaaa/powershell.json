@@ -1,0 +1,14 @@
+{
+    "name": "PowerShell",
+    "description": "",
+    "autoStart": true,
+    "isDisabled": false,
+    "platforms": [
+        {
+            "name": "ubuntu",
+            "type": "commands",
+            "group": "base",
+            "cmdList": ["sudo snap install powershell --classic"]
+        }
+    ]
+}

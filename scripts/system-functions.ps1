@@ -17,7 +17,7 @@ function evaladvanced($expression, $onlyRun) {
   if (!$onlyRun) {
     promptlog "$expression"
   }
-  Invoke-Expression $expression
+  Invoke-Expression "$expression"
 }
 function commandexists($command) {
   $oldPreference = $ErrorActionPreference

@@ -17,11 +17,12 @@ function install-scoop-packages {
     evaladvanced "scoop install main/dos2unix"
     evaladvanced "scoop install main/7zip"
     evaladvanced "scoop install main/gsudo"
+    evaladvanced "scoop install main/fzf"
 
     evaladvanced "scoop bucket add extras"
+    evaladvanced "scoop install extras/psfzf"
     evaladvanced "scoop install extras/okular"
     evaladvanced "scoop install extras/git-credential-manager"
-    # evaladvanced "scoop install extras/scoop-completion" # Project URL - https://github.com/Moeologist/scoop-completion
     evaladvanced "scoop bucket add alkuzad_unxutils-separated https://github.com/alkuzad/unxutils-separated"
     evaladvanced "scoop install alkuzad_unxutils-separated/unxutils-xargs"
 }
