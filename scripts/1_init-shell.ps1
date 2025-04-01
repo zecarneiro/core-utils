@@ -3,13 +3,19 @@
 
 # Global Vars
 $IS_INIT_PROMPT=$true
+$IS_ADMIN_ROLE=$false
 
-# BASH-LIKE TAB COMPLETION IN POWERSHELL
-Set-PsFzfOption -EnableFd:$true
-Set-PSReadlineKeyHandler -Key Tab -Function Complete
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+# ENABLE FZF AND READLINE
+try {
+  Set-PsFzfOption -EnableFd:$true
+  Set-PSReadlineKeyHandler -Key Tab -Function Complete
+  Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+  Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+  Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+}
+catch {
+  # Do Nothing
+}
 
 $OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
 function isadmin {
@@ -17,18 +23,19 @@ function isadmin {
   return ($currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))
 }
 
-# Find out if the current user identity is elevated (has admin rights)
-$Host.UI.RawUI.WindowTitle = "PowerShell {0}" -f $PSVersionTable.PSVersion.ToString()
 try {
-  if ((isadmin)) {
-    $Host.UI.RawUI.WindowTitle += " [ADMIN]"
-  }
+  $IS_ADMIN_ROLE = (isadmin)
 } catch {
-  errorlog "An error occurred, when tray to check if is admin and set [ADMIN] on title of windows terminal"
+  $IS_ADMIN_ROLE = $false
+}
+if ($IS_ADMIN_ROLE) {
+  $Host.UI.RawUI.WindowTitle += " [ADMIN]"
 }
 
+# Find out if the current user identity is elevated (has admin rights)
+$Host.UI.RawUI.WindowTitle = "PowerShell {0}" -f $PSVersionTable.PSVersion.ToString()
 function prompt {
-  if ((isadmin)) {
+  if ($IS_ADMIN_ROLE) {
     "[" + (Get-Location) + "] # "
   }
   else {

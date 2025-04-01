@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 # Author: José M. C. Noronha
 
+# --------------------------------- BASE VARS -------------------------------- #
 declare MY_SHELL_PROFILE="$HOME/.bashrc"
 declare MY_CUSTOM_SHELL_PROFILE="$HOME/.bash-profile-custom.sh"
 declare MY_ALIAS="$HOME/.bash_aliases"
+
+# ----------------------------------- DIRS ----------------------------------- #
 declare CONFIG_DIR="$HOME/.config"
 declare OTHER_APPS_DIR="$HOME/.otherapps"
 declare USER_BIN_DIR="$HOME/.local/bin"
+declare TEMP_DIR="$(dirname $(mktemp -u))"
 
-# COLORS
+# ---------------------------------- COLORS ---------------------------------- #
 declare ResetColor='\033[0m'           # Text Reset
 declare BoldColor='\033[0;1m'
-declare BackgroundColor="\033[0;101m"
+declare BackgroundColor='\033[0;101m'
 # Regular Colors
 declare BlackColor='\033[0;30m'        # Black
 declare RedColor='\033[0;31m'          # Red

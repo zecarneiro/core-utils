@@ -145,5 +145,23 @@ function updatersupgrade {
 # ---------------------------------------------------------------------------- #
 #                                SYSTEM PACKAGES                               #
 # ---------------------------------------------------------------------------- #
-alias systemupgrade="npmupgrade; log; aptupgrade; log; flatpakupgrade; log; snapupgrade; log; debgetupgrade; updatersupgrade"
+alias systemupgrade="npmupgrade; log; aptupgrade; log; flatpakupgrade; log; snapupgrade; log; debgetupgrade; updatersupgrade; log; evaladvanced \"pipx upgrade-all\""
 alias systemclean="aptclean; log; flatpakclean; log; snapclean; log; debgetclean"
+
+# ---------------------------------------------------------------------------- #
+#                                   APPIMAGE                                   #
+# ---------------------------------------------------------------------------- #
+gearlever-bin-manager() {
+    local configDir="$HOME/.config"
+    local configFile="$configDir/gearlever.binaries.map"
+    local commandGearlever="gearlever"
+    local installedApps=$(gearlever --list-installed | awk '{ print $6; }')
+    if [ ! -f "${configFile}" ]; then
+        touch "${configFile}"
+    fi
+    for app in $installedApps; do
+        
+        command2 on $OUTPUT
+        commandN
+    done
+}

@@ -61,7 +61,7 @@ function addalias {
   }
 }
 function editalias {
-  nano.exe "$MY_ALIAS"
+  nano "$MY_ALIAS"
 }
 function delalias {
   param(
@@ -86,10 +86,10 @@ function delalias {
   }
 }
 function editprofile {
-  nano.exe "$MY_SHELL_PROFILE"
+  nano "$MY_SHELL_PROFILE"
 }
 function editcustomprofile {
-  nano.exe "$MY_CUSTOM_SHELL_PROFILE"
+  nano "$MY_CUSTOM_SHELL_PROFILE"
 }
 #Example: . reloadprofile
 function reloadprofile {
@@ -199,7 +199,7 @@ function uptime {
   }
 }
 function ix($file) {
-  curl.exe -F "f:1=@$file" ix.io
+  Invoke-WebRequest -F "f:1=@$file" ix.io
 }
 function export($expression) {
   if ([string]::IsNullOrEmpty($expression)) {
@@ -243,7 +243,7 @@ function createtask {
 
   # Action to execute
   if ($isPowershellScript) {
-    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy ByPass & '${executable}' '${arguments}'"
+    $action = New-ScheduledTaskAction -Execute "powershell" -Argument "-WindowStyle Hidden -ExecutionPolicy ByPass & '${executable}' '${arguments}'"
   } else {
     $action = New-ScheduledTaskAction -Execute "$executable" -Argument "$arguments"
   }
@@ -290,10 +290,10 @@ function removeduplicatedenvval {
   }
 }
 function sudopwsh {
-  sudo powershell.exe -Command $args
+  sudo powershell -Command $args
 }
 function gsudopwsh {
-  gsudo powershell.exe -Command $args
+  gsudo powershell -Command $args
 }
 function startapps($filter) {
 	$command_to_run = "Get-StartApps"

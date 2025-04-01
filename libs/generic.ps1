@@ -18,11 +18,22 @@ function __show_install_message_question {
     return $userInput
 }
 
+function __create_dirs {
+    $dirs = @("$OTHER_APPS_DIR", "$CONFIG_DIR", "$USER_STARTUP_DIR", "$USER_BIN_DIR")
+    Foreach ($dir in $dirs) {
+        if (!(Test-Path -Path "$dir")) {
+            New-Item -ItemType Directory -Force -Path "$dir" | Out-Null
+            Write-Host "Created directory: $dir"
+        }
+    }
+}
+
+function __exit_script {
+    exit 0
+}
+
 function set-user-bin-dir {
     $pathKey = "Path"
-    if (!(Test-Path -Path "$USER_BIN_DIR")) {
-        New-Item -ItemType Directory -Path "$USER_BIN_DIR" | Out-Null
-    }
     $pathEnvArr = ([Environment]::GetEnvironmentVariable($pathKey, [System.EnvironmentVariableTarget]::User) -split ';')
     if (!("$USER_BIN_DIR" -in $pathEnvArr)) {
         $pathEnvArr += "$USER_BIN_DIR"
@@ -49,11 +60,11 @@ function create-profile-file-powershell {
 
 function install-profile-scripts {
     $shellScriptsInstallDir = "${OTHER_APPS_DIR}\shell-scripts"
-    infolog "Install core-utils scripts release package"
-
-    Remove-Item -Recurse -Force "$shellScriptsInstallDir" -ErrorAction SilentlyContinue
-    cpdir "$SHELL_SCRIPT_DIR" "${OTHER_APPS_DIR}"
-    Rename-Item "${OTHER_APPS_DIR}\scripts" "$shellScriptsInstallDir"
+    if (!$onlyProfile) {
+        infolog "Install core-utils scripts release package"
+        Remove-Item -Recurse -Force "$shellScriptsInstallDir" -ErrorAction SilentlyContinue
+        cpdir "$SHELL_SCRIPT_DIR" "$shellScriptsInstallDir"
+    }
     # Add powershell profiles
     Get-ChildItem -Path "$shellScriptsInstallDir" -Filter *.ps1 -Recurse -File | ForEach-Object {
         $fullName = $_.FullName
@@ -61,6 +72,13 @@ function install-profile-scripts {
         if (!(filecontain "$MY_CUSTOM_SHELL_PROFILE" "$data")) {
             writefile "$MY_CUSTOM_SHELL_PROFILE" "$data" -append
         }
+    }
+}
+
+function enable-sudo {
+    $res = Read-Host "For Windows 11 only. Do you want to enable sudo? [y/N]"
+    if ("$res" -eq "y" -or "$res" -eq "Y") {
+        powershell -Command "Start-Process -Wait PowerShell -Verb RunAs -ArgumentList 'sudo.exe config --enable enable'"
     }
 }
 

@@ -102,6 +102,7 @@ function systemupgrade {
 	log; scoopupgrade
 	log; wslupgrade
 	log; updatersupgrade
+	log; evaladvanced "pipx upgrade-all"
 }
 function systemclean {
 	scoopclean

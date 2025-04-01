@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Author: José M. C. Noronha
 # shellcheck disable=SC2164
+# shellcheck disable=SC2155
 
 function cutadvanced {
     local delimiter data direction # direction = L/R
@@ -47,9 +48,14 @@ function cutadvanced {
 function extract {
     local file="$1"
     local destination="$2"
+    local force="$3"
 
     if [[ -z "${destination}" ]]; then
         destination="$PWD"
+    else
+        if [[ "${force}" == "true" ]]; then
+            rm -rf "$destination"
+        fi
     fi
     local currentDirectory="$destination"
     mkdir "$destination"
@@ -116,7 +122,7 @@ function download {
         case "${1}" in
             --url) url="$2"; shift 2 ;;
             --file) file="$2"; shift 2 ;;
-						--help) log "download -url URL -file FILE"; return ;;
+			--help) log "download --url URL --file FILE"; return ;;
             *) shift ;;
         esac
     done
@@ -214,7 +220,7 @@ function nautilus-install-script-context-menu {
     nautilus-uninstall-script-context-menu "$scriptName"
 
     echo "#!/usr/bin/env bash" > "$scriptInstall"
-    for scriptCommand in "${scriptCommands}"; do
+    for scriptCommand in "${scriptCommands[@]}"; do
         infolog "Insert into $scriptName the command: $scriptCommand"
         echo "$scriptCommand" | tee -a "$scriptInstall" >/dev/null
     done
@@ -240,3 +246,11 @@ function changedefaultjdk {
     evaladvanced "source ${java_default_script_name}"
 }
 alias chmod-777="chmod -R 777"
+function unix-to-win-path {
+    local winPath="$(cygpath -w "$1")"
+    echo "$winPath"
+}
+function win-to-unix-path {
+    local unixPath="$(cygpath -u "$1")"
+    echo "$unixPath"
+}

@@ -4,6 +4,22 @@
 
 # Global Vars
 declare IS_INIT_PROMPT=true
+declare FZF_KEY_BINDINGS_EXAMPLE_FILE="/usr/share/doc/fzf/examples/key-bindings.bash"
+declare FZF_KEY_BINDINGS_COMPLETION_FILE="/usr/share/bash-completion/completions/fzf-key-bindings"
+
+# ENABLE FZF
+if [ -f "$FZF_KEY_BINDINGS_EXAMPLE_FILE" ]; then
+    # shellcheck source=/dev/null
+    source "$FZF_KEY_BINDINGS_EXAMPLE_FILE"
+fi
+if [ -f "$FZF_KEY_BINDINGS_COMPLETION_FILE" ]; then
+    # shellcheck source=/dev/null
+    source "$FZF_KEY_BINDINGS_COMPLETION_FILE"
+fi
+# Do if on Windows SO
+if [[ "$OSTYPE" == "cygwin" ]]||[[ "$OSTYPE" == "msys" ]]||[[ "$OSTYPE" == "win32" ]]; then
+    export LANG=C.UTF-8
+fi
 
 function isadmin {
     if [ "$(id -u)" -eq 0 ]; then
@@ -14,19 +30,27 @@ function isadmin {
 }
 
 build_prompt() {
+    # colors vars
+    local darkGrayColor="\[${DarkGrayColor}\]"
+    local boldColor="\[${BoldColor}\]"
+    local redColor="\[${RedColor}\]"
+    local greenColor="\[${GreenColor}\]"
+    local resetColor="\[${ResetColor}\]"
+    local cyanColor="\[${CyanColor}\]"
+
     # prompt vars
-    unionStartChar="${DarkGrayColor}[${BoldColor}${ResetColor}"
-    unionEndChar="${DarkGrayColor}]${BoldColor}${ResetColor}"
-    username="${unionStartChar}${RedColor}\u${ResetColor}${unionEndChar}"
-    hostname="${unionStartChar}${GreenColor}\h${ResetColor}${unionEndChar}"
-    workingDir="${unionStartChar}${CyanColor}\w${ResetColor}${unionEndChar}"
-    arrow="${GreenColor}❯${BoldColor}${ResetColor}"
-    unionLineStart="╭─"
-    unionLineEnd="╰─"
-    windowsTitle="\[\e]0;Bash \v\a\]"
+    local unionStartChar="${darkGrayColor}[${boldColor}${resetColor}"
+    local unionEndChar="${darkGrayColor}]${boldColor}${resetColor}"
+    local username="${unionStartChar}${redColor}\u${resetColor}${unionEndChar}"
+    local hostname="${unionStartChar}${greenColor}\h${resetColor}${unionEndChar}"
+    local workingDir="${unionStartChar}${cyanColor}\w${resetColor}${unionEndChar}"
+    local arrow="${greenColor}❯${boldColor}${resetColor}"
+    local unionLineStart="╭─"
+    local unionLineEnd="╰─"
+    local windowsTitle="\[\e]0;Bash \v\a\]"
 
     ### Build prompt ###
-    promptBuilder="${unionLineStart}${username}${hostname}${workingDir}\n${unionLineEnd}${arrow} "
+    local promptBuilder="${unionLineStart}${username}${hostname}${workingDir}\n${unionLineEnd}${arrow} "
     if [ "$IS_INIT_PROMPT" == "false" ]; then
         promptBuilder="\n${promptBuilder}"
     else

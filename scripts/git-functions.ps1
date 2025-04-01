@@ -100,10 +100,9 @@ function gitlatestversionrepo() {
         $urlsufix=""
     }
     $url="https://api.github.com/repos/$owner/$repo/releases${urlsufix}"
-    infolog "Get latest version from GitHub API at ${url}"
-    $version=$(curl.exe -s "$url" | ConvertFrom-Json)[0].tag_name
+    $version=$(curl -s "$url" | ConvertFrom-Json)[0].tag_name
     if (!([string]::IsNullOrEmpty($version)) -and $version.StartsWith("v")) {
-        $version=$($version | grep -Po 'v\K.*')
+        $version=$($version.TrimStart("v"))
     }
     return $version
 }

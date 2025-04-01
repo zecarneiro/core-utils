@@ -27,7 +27,7 @@ function writefile {
     local append="$3"
     if [[ "--help" == "${file}" ]]||[[ "-h" == "${file}" ]]; then
         log "writefile FILE CONTENT [ |APPEND]"
-    elif
+    else
         if [[ ! -f "$file" ]]||[[ $append == false ]]; then
             echo -e "$content" | tee "$file" >/dev/null
         else
@@ -75,8 +75,8 @@ function filecontain {
 function openmarkdown {
     local file="${1}"
     if [[ $(fileexists "$file") == true ]]; then
-        if [ "$(commandexists "okular")" == true ]; then
-            okular "$file" &
+        if [ "$(commandexists "frogmouth")" == true ]; then
+            frogmouth "$file"
         else
             cat "$file"
         fi

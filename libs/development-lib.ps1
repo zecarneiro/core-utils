@@ -1,5 +1,5 @@
 function install-development-package {
-    __install_node_typescript_javascript
+    __install_typescript
     __install_python
     __install_java
     __install_maven
@@ -11,10 +11,9 @@ function install-development-package {
     __install_shell_language_server
 }
 
-function __install_node_typescript_javascript {
-    if ((__show_install_message_question "NodeJS/Javascript/Typescript") -eq "y") {
-        evaladvanced "scoop bucket add main"
-        evaladvanced "scoop install main/nodejs-lts"
+function __install_typescript {
+    if ((__show_install_message_question "Typescript") -eq "y") {
+        install-npm
         . reloadprofile
         evaladvanced "npm install -g typescript"
     }
@@ -24,7 +23,6 @@ function __install_python {
     if ((__show_install_message_question "Python3/PIP") -eq "y") {
         evaladvanced "scoop bucket add main"
         evaladvanced "scoop install main/python"
-        evaladvanced "pip install virtualenv"
     }
 }
 
@@ -99,4 +97,12 @@ function __install_shell_language_server {
     if ((__show_install_message_question "Bash language server") -eq "y") {
         evaladvanced "npm install -g bash-language-server"
     }
+}
+
+function __install_features_for_wsl {
+    infolog "Enable Virtual Machine Platform feature"
+    evaladvanced "sudopwsh dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart"
+
+    infolog "Enable WSL feature"
+    evaladvanced "sudopwsh dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart"
 }

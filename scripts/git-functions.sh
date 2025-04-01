@@ -98,12 +98,11 @@ function gitlatestversionrepo() {
         urlsufix=""
     fi
     local url="https://api.github.com/repos/$owner/$repo/releases${urlsufix}"
-    infolog "Get latest version from GitHub API at ${url}"
     local version=$(curl -s "$url" | grep -Po '"tag_name": "\K[^"]*' | head -n 1)
     if [[ -z "${version}" ]]; then
         version=$(curl -s "$url" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | head -n 1)
     fi
-    if [[ "$version" == "v*" ]]; then
+    if [[ "$version" == "v"* ]]; then
         version=$(echo "$version" | grep -Po 'v\K.*')
     fi
     echo "$version"
