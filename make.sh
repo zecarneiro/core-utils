@@ -85,7 +85,7 @@ function process_scoop_packages {
     evaladvanced "scoop install main/which"
     evaladvanced "scoop install main/dos2unix"
     evaladvanced "scoop bucket add extras"
-    evaladvanced "scoop install extras/okular"
+    evaladvanced "scoop install main/glow"
     delalias "cp"
     delalias "cat"
     delalias "mkdir"

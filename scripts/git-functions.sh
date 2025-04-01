@@ -104,7 +104,7 @@ function gitlatestversionrepo() {
         version=$(curl -s "$url" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | head -n 1)
     fi
     if [[ "$version" == "v*" ]]; then
-        version=$(echo "$version" | grep -Po 'v\K.*')
+        version=${version#"v"}
     fi
     echo "$version"
 }

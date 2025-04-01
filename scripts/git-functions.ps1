@@ -103,7 +103,7 @@ function gitlatestversionrepo() {
     infolog "Get latest version from GitHub API at ${url}"
     $version=$(curl.exe -s "$url" | ConvertFrom-Json)[0].tag_name
     if (!([string]::IsNullOrEmpty($version)) -and $version.StartsWith("v")) {
-        $version=$($version | grep -Po 'v\K.*')
+        $version=$($version.TrimStart("v"))
     }
     return $version
 }

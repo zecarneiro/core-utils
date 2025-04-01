@@ -147,3 +147,29 @@ function updatersupgrade {
 # ---------------------------------------------------------------------------- #
 alias systemupgrade="npmupgrade; log; aptupgrade; log; flatpakupgrade; log; snapupgrade; log; debgetupgrade; updatersupgrade"
 alias systemclean="aptclean; log; flatpakclean; log; snapclean; log; debgetclean"
+
+appimage-install() {
+    local installDir="$OTHER_APPS_DIR/appimage"
+    local file
+    local command
+    while [ "$#" -ne 0 ] ; do
+        case "${1}" in
+            --cmd) command="$2"; shift 2 ;;
+            --file) file="$2"; shift 2 ;;
+			--help) log "appimage-install --file FILE --cmd COMMAND"; return ;;
+            *) shift ;;
+        esac
+    done
+    evaladvanced "mkdir \"$installDir\""
+    if [ -f "$file" ]; then
+        local filename="$(basename "$file")"
+        if [[ -z "${command}" ]]; then
+            command="$filename"
+        fi
+        local scriptFile="$USER_BIN_DIR/$command"
+        evaladvanced "cp '$file' '$installDir'"
+        evaladvanced "chmod u+x '${installDir}/$filename'"
+        evaladvanced "chmod u+x '${installDir}/$filename'"
+    fi
+    
+}

@@ -28,12 +28,17 @@ function extract {
     param(
         [string] $file,
         [Alias("d")]
-        [string] $destination
+        [string] $destination,
+        [Alias("f")]
+        [bool] $force
     )
     if ((fileexists "$file")) {
         if ([string]::IsNullOrEmpty($destination) -or $destination -eq " ") {
             $destination = "$pwd"
         } else {
+            if ($force) {
+                deletedirectory "$destination"
+            }
             mkdir "$destination"
         }
         switch (fileextension "$file") {
@@ -403,4 +408,12 @@ function chmod-777 {
     } else {
         Unblock-File -Path "$file"
     }
+}
+function unix-to-win-path {
+    param([string] $pathstr)
+    cygpath -w "$pathstr"
+}
+function win-to-unix-path {
+    param([string] $pathstr)
+    cygpath -u "$pathstr"
 }

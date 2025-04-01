@@ -99,8 +99,8 @@ function filecontain {
 function openmarkdown {
     param ([string] $file)
     if ((fileexists "$file")) {
-        if ((commandexists "okular.exe")) {
-            & okular.exe "$file"
+        if ((commandexists "mdview.exe")) {
+            & mdview.exe "$file"
         } else {
             Get-Content "$file"
         }

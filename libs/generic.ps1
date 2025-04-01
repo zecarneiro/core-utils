@@ -18,11 +18,18 @@ function __show_install_message_question {
     return $userInput
 }
 
+function __create_dirs {
+    $dirs = @("$OTHER_APPS_DIR", "$CONFIG_DIR", "$USER_STARTUP_DIR", "$USER_BIN_DIR")
+    Foreach ($dir in $dirs) {
+        if (!(Test-Path -Path "$dir")) {
+            New-Item -ItemType Directory -Force -Path "$dir" | Out-Null
+            Write-Host "Created directory: $dir"
+        }
+    }
+}
+
 function set-user-bin-dir {
     $pathKey = "Path"
-    if (!(Test-Path -Path "$USER_BIN_DIR")) {
-        New-Item -ItemType Directory -Path "$USER_BIN_DIR" | Out-Null
-    }
     $pathEnvArr = ([Environment]::GetEnvironmentVariable($pathKey, [System.EnvironmentVariableTarget]::User) -split ';')
     if (!("$USER_BIN_DIR" -in $pathEnvArr)) {
         $pathEnvArr += "$USER_BIN_DIR"

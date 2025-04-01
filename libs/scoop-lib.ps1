@@ -21,10 +21,14 @@ function install-scoop-packages {
 
     evaladvanced "scoop bucket add extras"
     evaladvanced "scoop install extras/psfzf"
-    evaladvanced "scoop install extras/okular"
     evaladvanced "scoop install extras/git-credential-manager"
+
     evaladvanced "scoop bucket add alkuzad_unxutils-separated https://github.com/alkuzad/unxutils-separated"
     evaladvanced "scoop install alkuzad_unxutils-separated/unxutils-xargs"
+
+    # Markdown apps
+    # evaladvanced "scoop install extras/marktext" # https://github.com/marktext/marktext
+    evaladvanced "scoop install https://github.com/c3er/mdview/releases/latest/download/mdview.json" # https://github.com/c3er/mdview
 }
 
 function config-scoop-all {

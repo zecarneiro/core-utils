@@ -100,3 +100,11 @@ function __install_shell_language_server {
         evaladvanced "npm install -g bash-language-server"
     }
 }
+
+function __install_features_for_wsl {
+    infolog "Enable Virtual Machine Platform feature"
+    evaladvanced "sudo dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart"
+
+    infolog "Enable WSL feature"
+    evaladvanced "sudo dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart"
+}

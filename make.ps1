@@ -1,5 +1,6 @@
 $release = $false
 $start = $false
+$onlyProfile = $false
 
 $VERSION = "1.0.5"
 $SCRIPT_UTILS_DIR = ($PSScriptRoot)
@@ -12,6 +13,9 @@ if ($args[0] -eq "-r" -or $args[0] -eq "--release") {
 }
 if ($args[0] -eq "-s" -or $args[0] -eq "--start") {
     $start = $true
+}
+if ($args[1] -eq "--only-profile-shell") {
+    $onlyProfile = $true
 }
 
 function import-libs {
@@ -65,10 +69,12 @@ function printMenu {
     - Install scoop and winget packages
     - Install Powershell Modules
     - Start all configurations for scoop and winget
+    - Install Features for WSL
 3. Will
     - Create user powershell profile file
     - Install scripts profile
 4. Will
+    - Change Full Name of user. User will decide wich to install
     - Install Visual-C-Runtimes
     - Install Development packages. User will decide wich to install
 ---
@@ -78,10 +84,20 @@ function printMenu {
 function initProcess {
     $message = "Please, restart your terminal."
     for (;;) {
-        printMenu
-        $option = Read-Host "Insert an option"
+        $option = -1
+        if (!($onlyProfile)) {
+            printMenu
+            $option = Read-Host "Insert an option"
+        } else {
+            $option = 3
+        }
         if ($option -gt 0 -and $option -lt 5) {
             . import-libs
+            if (!(is_valid_home_dir)) {
+                show_rules_username
+                exitScript
+            }
+            __create_dirs
         }
         switch ($option) {
             1 {
@@ -97,6 +113,7 @@ function initProcess {
                 install-scoop-packages
                 install-modules
                 config-all
+                __install_features_for_wsl
                 warnlog "$message"
                 exitScript
             }
@@ -107,10 +124,10 @@ function initProcess {
                 exitScript
             }
             4 {
+                change_user_full_name
                 install-visual-c-runtimes
                 install-development-package
-                warnlog "$message"
-                exitScript
+                reboot
             }
             5 { exitScript }
             Default { Write-Host "WARN: Please, insert a valid option!" }
