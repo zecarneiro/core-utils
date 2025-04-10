@@ -31,26 +31,18 @@ function isadmin {
 
 build_prompt() {
     # colors vars
-    local darkGrayColor="\[${DarkGrayColor}\]"
     local boldColor="\[${BoldColor}\]"
-    local redColor="\[${RedColor}\]"
     local greenColor="\[${GreenColor}\]"
     local resetColor="\[${ResetColor}\]"
     local cyanColor="\[${CyanColor}\]"
 
     # prompt vars
-    local unionStartChar="${darkGrayColor}[${boldColor}${resetColor}"
-    local unionEndChar="${darkGrayColor}]${boldColor}${resetColor}"
-    local username="${unionStartChar}${redColor}\u${resetColor}${unionEndChar}"
-    local hostname="${unionStartChar}${greenColor}\h${resetColor}${unionEndChar}"
-    local workingDir="${unionStartChar}${cyanColor}\w${resetColor}${unionEndChar}"
+    local workingDir="${cyanColor}\w${resetColor}"
     local arrow="${greenColor}❯${boldColor}${resetColor}"
-    local unionLineStart="╭─"
-    local unionLineEnd="╰─"
     local windowsTitle="\[\e]0;Bash \v\a\]"
 
     ### Build prompt ###
-    local promptBuilder="${unionLineStart}${username}${hostname}${workingDir}\n${unionLineEnd}${arrow} "
+    local promptBuilder="${workingDir}\n${arrow} "
     if [ "$IS_INIT_PROMPT" == "false" ]; then
         promptBuilder="\n${promptBuilder}"
     else
