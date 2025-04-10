@@ -175,7 +175,3 @@ function install-pip-pipx {
     evaladvanced "pipx ensurepath --force"
     evaladvanced "pip install virtualenv"
 }
-
-function install-pipx-packages {
-    evaladvanced "pipx install frogmouth --force" # https://github.com/Textualize/frogmouth
-}

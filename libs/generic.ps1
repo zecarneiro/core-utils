@@ -19,7 +19,7 @@ function __show_install_message_question {
 }
 
 function __create_dirs {
-    $dirs = @("$OTHER_APPS_DIR", "$CONFIG_DIR", "$USER_STARTUP_DIR", "$USER_BIN_DIR")
+    $dirs = @("$CONFIG_DIR", "$OTHER_APPS_DIR", "$USER_BIN_DIR", "$USER_STARTUP_DIR", "$USER_TEMP_DIR", "$TEMP_DIR")
     Foreach ($dir in $dirs) {
         if (!(Test-Path -Path "$dir")) {
             New-Item -ItemType Directory -Force -Path "$dir" | Out-Null

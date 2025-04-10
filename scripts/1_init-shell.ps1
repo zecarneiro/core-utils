@@ -40,36 +40,18 @@ function prompt {
   }
   else {
     # prompt vars
-    $unionStartChar = "["
-    $unionEndChar = "]"
-    $username = "$([System.Environment]::UserName)"
-    $hostname = "$([System.Environment]::MachineName)"
     $workingDir = "$(Get-Location)".replace("${home}",'~')
     $arrow = "$([char]0x276F)"
-    $unionLineStart="╭─"
-    $unionLineEnd="╰─"
-
+    
     ### Build prompt ###
     if (!$global:IS_INIT_PROMPT) {
       Write-Host ""
     } else {
       $global:IS_INIT_PROMPT=$false
     }
-    Write-Host "$unionLineStart" -NoNewline
-    # Username
-    Write-Host $unionStartChar -ForegroundColor "$DarkGrayColor" -NoNewline
-    Write-Host "$username" -ForegroundColor "$RedColor" -NoNewline
-    Write-Host $unionEndChar -ForegroundColor "$DarkGrayColor" -NoNewline
-    # Hostname
-    Write-Host $unionStartChar -ForegroundColor "$DarkGrayColor" -NoNewline
-    Write-Host "$hostname" -ForegroundColor "$GreenColor" -NoNewline
-    Write-Host $unionEndChar -ForegroundColor "$DarkGrayColor" -NoNewline
     # Working Dir
-    Write-Host $unionStartChar -ForegroundColor "$DarkGrayColor" -NoNewline
-    Write-Host "$workingDir" -ForegroundColor "$CyanColor" -NoNewline
-    Write-Host $unionEndChar -ForegroundColor "$DarkGrayColor"
+    Write-Host "$workingDir" -ForegroundColor "$CyanColor"
     # Prompt
-    Write-Host $unionLineEnd -NoNewline
     Write-Host "${arrow}" -ForegroundColor "${GreenColor}" -NoNewline
     " "
   }

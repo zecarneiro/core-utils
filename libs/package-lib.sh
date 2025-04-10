@@ -72,6 +72,7 @@ function install-flatpak {
 }
 function install-flatpak-package {
     evaladvanced "flatpak install flathub it.mijorus.gearlever -y"
+    evaladvanced "sudo flatpak override it.mijorus.gearlever --filesystem=host"
     addalias "gearlever" "flatpak run it.mijorus.gearlever"
 }
 
@@ -95,6 +96,10 @@ function install-appimage {
     infolog "Enable AppImage Support in Ubuntu"
     evaladvanced "sudo apt install libfuse2 -y"
     evaladvanced "sudo apt install libfuse2t64 -y"
+}
+
+function install-appimage-packages {
+    appimage-install --url "https://github.com/c3er/mdview/releases/download/v3.2.0/mdview-3.2.0-x86_64.AppImage"
 }
 
 # ---------------------------------------------------------------------------- #
@@ -138,8 +143,3 @@ function install-pip-pipx {
     evaladvanced "sudo apt install pipx -y"
     evaladvanced "pipx ensurepath --force"
 }
-
-function install-pipx-packages {
-    evaladvanced "pipx install frogmouth --force" # https://github.com/Textualize/frogmouth
-}
-

@@ -106,6 +106,16 @@ function snaplist {
 }
 
 # ---------------------------------------------------------------------------- #
+#                                   PACSTALL                                   #
+# ---------------------------------------------------------------------------- #
+function pacstalllist {
+    evaladvanced "pacstall --list"
+}
+function pacstallupgrade {
+    evaladvanced 'sudo pacstall -Up'
+}
+
+# ---------------------------------------------------------------------------- #
 #                               UPDATERS SCRIPTS                               #
 # ---------------------------------------------------------------------------- #
 function installupdater {
@@ -145,23 +155,105 @@ function updatersupgrade {
 # ---------------------------------------------------------------------------- #
 #                                SYSTEM PACKAGES                               #
 # ---------------------------------------------------------------------------- #
-alias systemupgrade="npmupgrade; log; aptupgrade; log; flatpakupgrade; log; snapupgrade; log; debgetupgrade; updatersupgrade; log; evaladvanced \"pipx upgrade-all\""
-alias systemclean="aptclean; log; flatpakclean; log; snapclean; log; debgetclean"
+function systemupgrade {
+    npmupgrade
+    log; aptupgrade
+    log; flatpakupgrade
+    log; snapupgrade
+    log; pacstallupgrade
+    log; evaladvanced "pipx upgrade-all"
+    updatersupgrade ""
+}
+function systemclean {
+    aptclean
+    log; flatpakclean
+    log; snapclean
+}
 
 # ---------------------------------------------------------------------------- #
 #                                   APPIMAGE                                   #
 # ---------------------------------------------------------------------------- #
-gearlever-bin-manager() {
-    local configDir="$HOME/.config"
-    local configFile="$configDir/gearlever.binaries.map"
-    local commandGearlever="gearlever"
-    local installedApps=$(gearlever --list-installed | awk '{ print $6; }')
-    if [ ! -f "${configFile}" ]; then
-        touch "${configFile}"
-    fi
-    for app in $installedApps; do
-        
-        command2 on $OUTPUT
-        commandN
+appimage-install() {
+    local url=""
+    local file="$(mktemp -ut appimagetoinstallXXX).appimage"
+    while [ "$#" -ne 0 ] ; do
+        case "${1}" in
+            --url) url="$2"; shift 2 ;;
+            --file)
+                file="$2"; shift 2
+            ;;
+			--help) log "Will install appimage with gearlever\n>>> appimage-install --url URL|--file FILE"; return ;;
+            *) shift ;;
+        esac
     done
+    if [[ -n "$url" ]]; then
+        file="$(basename "$file")"
+        file="$USER_TEMP_DIR/$file"
+        download --url "$url" --file "$file"
+    else
+        if [[ ! -f "$file" ]]; then
+            errorlog "Invalid given file"
+            return
+        fi
+    fi
+    flatpak run it.mijorus.gearlever --integrate "$file" -y
+    headerlog "Update commands with news Gearlever apps"
+    appimage-command-manager --
+    if [[ -f "$file" ]]; then
+        rm "$file"
+    fi
+}
+
+appimage-command-manager() {
+    local installedAppsDir=""
+    local uninstallOperation=false
+    local listInstalled=false
+    local binDir="$HOME/.local/bin"
+    local userDesktopFilesDir="$HOME/.local/share/applications"
+    local lineTag="# Inserted by core-utils, zecarneiro"
+    local listApps=($(flatpak run it.mijorus.gearlever --list-installed))
+    if [ ! -d "$binDir" ]; then
+        errorlog "Not found: '$binDir'"
+        exit 1
+    fi
+    while [ "$#" -ne 0 ] ; do
+        case "${1}" in
+            --installed-dir) installedAppsDir="$2"; shift 2 ;;
+            --uninstall) uninstallOperation=true; shift ;;
+            --list-installed) listInstalled=true; shift ;;
+			--help) log "gearlever-bin-manager |--installed-dir 'GEARLEVER_INSTALLED_APPS_DIR' |--uninstall |--list-installed"; return ;;
+            *) shift ;;
+        esac
+    done
+    if [[ "${listInstalled}" == true ]]; then
+        find "$binDir" -type f -print0 | xargs -0 grep -l "$lineTag"
+        return
+    fi
+
+    # Uninstall all commands
+    find "$binDir" -type f -exec grep -q -l "$lineTag" '{}' \; -delete
+    if [[ "${uninstallOperation}" == true ]]; then
+        oklog "Done."
+        return
+    fi
+    
+    # Install all commands
+    if [[ -z "${installedAppsDir}" ]]; then
+        installedAppsDir="$HOME/AppImages"
+    fi
+    for app in "${listApps[@]}"; do
+        local commandName="$(filename "$(basename "$app")")"
+        if [[ "${app}" == *"$installedAppsDir"* ]]; then
+            local commandFile="$binDir/$commandName"
+            local desktopFile="$(find "$userDesktopFilesDir" -type f -print0 | xargs -0 grep -l "${app}")"
+            local nosandboxArg="--no-sandbox"
+            if [[ $(cat "$desktopFile" | grep -c "no-sandbox") -eq 0 ]]; then
+                nosandboxArg=""
+            fi
+            echo -e "#!/bin/bash\n${lineTag}\n${app} ${nosandboxArg} \$*" | tee "$commandFile" >/dev/null
+            chmod +x "$commandFile"
+            oklog "Installed command: $commandName"
+        fi
+    done
+    oklog "Done."
 }

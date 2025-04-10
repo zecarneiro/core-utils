@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-declare release=false
 declare start=false
 declare onlyProfile=false
 
@@ -9,9 +8,6 @@ declare SHELL_SCRIPT_DIR="${SCRIPT_UTILS_DIR}/scripts"
 declare LIBS_DIR="${SCRIPT_UTILS_DIR}/libs"
 declare BIN_DIR="${SCRIPT_UTILS_DIR}/bin"
 
-if [[ "${1}" == "-r" ]]||[[ "${1}" == "--release" ]]; then
-    release=true
-fi
 if [[ "${1}" == "-s" ]]||[[ "${1}" == "--start" ]]; then
     start=true
 fi
@@ -32,14 +28,9 @@ done
 # ---------------------------------------------------------------------------- #
 #                                     MAIN                                     #
 # ---------------------------------------------------------------------------- #
-function process-release {
-    echo "AAA"
-}
-
 function usage {
     echo "Usage: make.ps1 [OPTIONS]... [STEP-VALUE]"
     echo -e "OPTIONS:
--r|--release\tCreate release package
 -s|--start\tProcess install and config by user"
 }
 
@@ -61,7 +52,7 @@ function printMenu {
     - Create user powershell profile file
     - Install scripts profile
 5. Will
-    - Install PIPX packages
+    - Install Appimage packages
     - Install Development packages. User will decide wich to install
 ---
 6. Exit"
@@ -69,6 +60,7 @@ function printMenu {
 
 function initProcess {
     local message="Please, restart your terminal."
+    __create_dirs
     while true; do
         local option=-1
         if [[ "${onlyProfile}" == false ]]; then
@@ -111,7 +103,7 @@ function initProcess {
                 __exit_script
             ;;
             5)
-                install-pipx-packages
+                install-appimage-packages
                 install-development-package
                 warnlog "$message"
                 __exit_script
@@ -123,9 +115,7 @@ function initProcess {
 }
 
 function main {
-    if [[ "${release}" == true ]]; then
-        process-release
-    elif [[ "${start}" == true ]]; then
+    if [[ "${start}" == true ]]; then
         initProcess
     else
         usage

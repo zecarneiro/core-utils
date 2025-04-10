@@ -10,6 +10,8 @@ declare MY_ALIAS="$HOME/.bash_aliases"
 declare CONFIG_DIR="$HOME/.config"
 declare OTHER_APPS_DIR="$HOME/.otherapps"
 declare USER_BIN_DIR="$HOME/.local/bin"
+declare USER_STARTUP_DIR="$CONFIG_DIR/autostart"
+declare USER_TEMP_DIR="$HOME/.local/tmp"
 declare TEMP_DIR="$(dirname $(mktemp -u))"
 
 # ---------------------------------- COLORS ---------------------------------- #

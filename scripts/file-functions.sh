@@ -75,8 +75,8 @@ function filecontain {
 function openmarkdown {
     local file="${1}"
     if [[ $(fileexists "$file") == true ]]; then
-        if [ "$(commandexists "frogmouth")" == true ]; then
-            frogmouth "$file"
+        if [ "$(commandexists "markdown_viewer")" == true ]; then
+            markdown_viewer "$file"
         else
             cat "$file"
         fi

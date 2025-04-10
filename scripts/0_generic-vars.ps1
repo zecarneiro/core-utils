@@ -10,7 +10,8 @@ $CONFIG_DIR = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromP
 $OTHER_APPS_DIR = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$home\.otherapps")
 $USER_BIN_DIR = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$home\.local\bin")
 $USER_STARTUP_DIR = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("${home}\Start Menu\Programs\Startup")
-$TEMP_DIR = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$([System.IO.Path]::GetTempPath())".TrimEnd("\").TrimEnd("/"))
+$USER_TEMP_DIR = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$([System.IO.Path]::GetTempPath())".TrimEnd("\").TrimEnd("/"))
+$TEMP_DIR = "$USER_TEMP_DIR"
 
 # ---------------------------------- COLORS ---------------------------------- #
 # User Write-Host to print colored text

@@ -1,4 +1,3 @@
-$release = $false
 $start = $false
 $onlyProfile = $false
 
@@ -8,9 +7,6 @@ $SHELL_SCRIPT_DIR = "${SCRIPT_UTILS_DIR}\scripts"
 $LIBS_DIR = "${SCRIPT_UTILS_DIR}\libs"
 $BIN_DIR = "${SCRIPT_UTILS_DIR}\bin"
 
-if ($args[0] -eq "-r" -or $args[0] -eq "--release") {
-    $release=$true
-}
 if ($args[0] -eq "-s" -or $args[0] -eq "--start") {
     $start = $true
 }
@@ -30,25 +26,9 @@ Get-ChildItem ("${LIBS_DIR}\*.ps1") | ForEach-Object {
     . "$fullname"
 }
 
-function process-release {
-    . import-libs
-    $releasePackageName = "$SCRIPT_UTILS_DIR\core-utils-${VERSION}.zip"
-    $releaseDir = "$SCRIPT_UTILS_DIR\release"
-
-    infolog "Create release package"
-    evaladvanced "mkdir '$releaseDir'"
-    evaladvanced "cpdir '$SHELL_SCRIPT_DIR' '$releaseDir'"
-    evaladvanced "cpdir '$LIBS_DIR' '$releaseDir'"
-    evaladvanced "cpdir '$BIN_DIR' '$releaseDir'"
-    evaladvanced "Copy-Item -Path '$SCRIPT_UTILS_DIR\make.ps1' -Destination '$releaseDir'"
-    evaladvanced "Copy-Item -Path '$SCRIPT_UTILS_DIR\make.sh' -Destination '$releaseDir'"
-    evaladvanced "Compress-Archive '$releaseDir\*' -DestinationPath '$releasePackageName' -Force"
-}
-
 function usage {
     Write-Host "Usage: make.ps1 [OPTIONS]... [STEP-VALUE]"
     Write-Host "OPTIONS:
-     -r|--release`tCreate release package
      -s|--start`tProcess install and config by user
     "
 }
@@ -80,7 +60,6 @@ function printMenu {
 
 function initProcess {
     $message = "Please, restart your terminal."
-
     __create_dirs
     if (!(is_valid_home_dir)) {
         show_rules_username
@@ -128,7 +107,6 @@ function initProcess {
             4 {
                 config-all
                 change_user_full_name
-                install-pipx-packages
                 install-development-package
                 reboot
             }
@@ -140,9 +118,7 @@ function initProcess {
 }
 
 function main {
-    if ($release) {
-        process-release
-    } elseif ($start) {
+    if ($start) {
         initProcess
     } else {
         usage

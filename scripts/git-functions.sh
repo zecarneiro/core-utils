@@ -83,8 +83,12 @@ function gitsetconfig() {
 function gitconfiguser() {
     read -p "Username: " username
     read -p "Email: " email
-    evaladvanced "git config user.name \"$username\""
-    evaladvanced "git config user.email \"$email\""
+    local global_var="--global"
+    if [[ -d "$PWD/.git" ]]||[[ -f "$PWD/.git" ]]; then
+        global_var=""
+    fi
+    evaladvanced "git config ${global_var} user.name \"$username\""
+    evaladvanced "git config ${global_var} user.email \"$email\""
 }
 alias gitcommit="git commit -m"
 alias gitstageall="git add ."

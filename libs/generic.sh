@@ -5,6 +5,16 @@ function __show_install_message_question {
     echo "$userInput"
 }
 
+function __create_dirs {
+    local dirs=("$CONFIG_DIR" "$OTHER_APPS_DIR" "$USER_BIN_DIR" "$USER_STARTUP_DIR" "$USER_TEMP_DIR" "$TEMP_DIR")
+    for dir in "${dirs[@]}"; do
+        if [[ ! -d "${dir}" ]]; then
+            mkdir "$dir"
+            echo "Created directory: $dir"
+        fi
+    done
+}
+
 function __exit_script {
     exit 0
 }
