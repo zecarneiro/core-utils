@@ -7,6 +7,7 @@ declare VERSION="$(cat "$SCRIPT_UTILS_DIR/version")"
 declare SHELL_SCRIPT_DIR="${SCRIPT_UTILS_DIR}/scripts"
 declare LIBS_DIR="${SCRIPT_UTILS_DIR}/libs"
 declare BIN_DIR="${SCRIPT_UTILS_DIR}/bin"
+declare IMAGES_DIR="${SCRIPT_UTILS_DIR}/images"
 
 if [[ "${1}" == "-s" ]]||[[ "${1}" == "--start" ]]; then
     start=true
@@ -39,21 +40,19 @@ function printMenu {
     - Add important APT repository
     - Install APT packages
 2. Will
+    - Install APPIMAGE
     - Install FLATPAK
     - Install SNAP
     - Install PACSTALL
-    - Install APPIMAGE
-    - Install GDEBI, ALIEN and ZAP
 3. Will
-    - Install Snap and Flatpak packages
-    - Install PIP/PIPX
-    - Install NPM
+    - Install Flatpak packages
 4. Will
     - Create user powershell profile file
     - Install scripts profile
 5. Will
     - Install Appimage packages
     - Install Development packages. User will decide wich to install
+    - Start all necessary configurations
 ---
 6. Exit"
 }
@@ -71,30 +70,26 @@ function initProcess {
         fi
         case "${option}" in
             1)
-                install-apt
+                __install_apt
                 warnlog "$message"
                 __exit_script
             ;;
             2)
-                install-flatpak
-                install-snap
-                install-pacstall
-                install-appimage
-                install-linstallers
+                __install_appimage
+                __install_flatpak
+                __install_snap
+                __install_pacstall
                 warnlog "$message"
                 __exit_script
             ;;
             3)
-                install-snap-package
-                install-flatpak-package
-                install-pip-pipx
-                install-npm
+                __install_flatpak_package
                 warnlog "$message"
                 __exit_script
             ;;
             4)
-                create-profile-file-bash
-                install-profile-scripts
+                __create_profile_file_bash
+                __install_profile_scripts
                 if [[ "${onlyProfile}" == false ]]; then
                     cd "$SCRIPT_UTILS_DIR" || __exit_script
                     pwsh -command ".\make.ps1 --start --only-profile-shell"
@@ -103,8 +98,9 @@ function initProcess {
                 __exit_script
             ;;
             5)
-                install-appimage-packages
-                install-development-package
+                __install_appimage_packages
+                __install_development_package
+                __config_all
                 warnlog "$message"
                 __exit_script
             ;;

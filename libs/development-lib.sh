@@ -2,8 +2,8 @@
 # Author: José M. C. Noronha
 # shellcheck disable=SC2155
 
-function install-development-package {
-    __install_typescript
+function __install_development_package {
+    __install_nodejs_javascript_typescript
     __install_python
     __install_java
     __install_maven
@@ -15,19 +15,27 @@ function install-development-package {
     __install_shell_language_server
 }
 
-function __install_typescript {
-    if [[ $(__show_install_message_question "Typescript") == "y" ]]; then
-        install-npm
-        # shellcheck source=/dev/null
+# shellcheck source=/dev/null
+function __install_nodejs_javascript_typescript {
+    if [[ $(__show_install_message_question "NodeJS/Javascript/Typescript") == "y" ]]; then
+        local lastVersion="$(gitlatestversionrepo "nvm-sh" "nvm" true)"
+        evaladvanced "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${lastVersion}/install.sh | bash"
+        source "$HOME/.nvm/nvm.sh"
+        evaladvanced "nvm install --lts"
         source "$HOME/.nvm/nvm.sh"
         evaladvanced "npm install -g typescript"
     fi
 }
 
 function __install_python {
-    if [[ $(__show_install_message_question "Python3") == "y" ]]; then
+    if [[ $(__show_install_message_question "Python3/Pip/Pipx") == "y" ]]; then
         evaladvanced "sudo apt install python3 -y"
-        evaladvanced "sudo apt install python-is-python3 -y"        
+        evaladvanced "sudo apt install python-is-python3 -y"
+        evaladvanced "sudo apt install python3-pip -y"
+        evaladvanced "sudo apt install python3-venv -y"
+        evaladvanced "python3 -m venv $HOME/.venv/anynamehere"
+        evaladvanced "sudo apt install pipx -y"
+        evaladvanced "pipx ensurepath --force"    
     fi
 }
 

@@ -2,7 +2,7 @@
 #                                    WINGET                                    #
 # ---------------------------------------------------------------------------- #
 # This function copied from the original: https://www.powershellgallery.com/packages/WingetTools/1.3.0
-function install-winget {
+function __install_winget {
     #Install the latest package from GitHub
     [cmdletbinding(SupportsShouldProcess)]
     [alias("iwg")]
@@ -69,21 +69,21 @@ function install-winget {
     }
 }
 
-function install-winget-packages {
+function __install_winget_packages {
     evaladvanced "winget install --id=chrisant996.Clink --accept-source-agreements --accept-package-agreements"
 }
 
 # ---------------------------------------------------------------------------- #
 #                                     SCOOP                                    #
 # ---------------------------------------------------------------------------- #
-function install-scoop {
+function __install_scoop {
     if (!(commandexists scoop)) {
         Write-Host "INFO: Install Scoop ..."
         Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
     }
 }
 
-function install-scoop-packages {
+function __install_scoop_packages {
     evaladvanced "scoop install main/coreutils"
     evaladvanced "scoop install main/git"
     evaladvanced "scoop install main/vim"
@@ -109,41 +109,14 @@ function install-scoop-packages {
     evaladvanced "scoop install https://github.com/c3er/mdview/releases/latest/download/mdview.json" # https://github.com/c3er/mdview
 }
 
-function config-scoop-all {
-    evaladvanced "gsudo config CacheMode auto"
-    
-    # Delete all system alias
-    delalias "cp"
-    delalias "cat"
-    delalias "mkdir"
-    delalias "ls"
-    delalias "mv"
-    delalias "ps"
-    delalias "rm"
-    delalias "rmdir"
-    delalias "sleep"
-    delalias "sort"
-    delalias "tee"
-    delalias "curl"
-    delalias "grep"
-    delalias "sed"
-
-    # Docs
-    titlelog "Integrate 7zip on context menu"
-    log "Step 1: Open 7-Zip File Manager(As Admin) by typing 7-Zip in Start menu or Start screen and then pressing Enter key."
-    log "Step 2: Next, navigate to Tools menu and then click Options to open Options dialog."
-    log "Step 3: Here, under 7-Zip tab, make sure that Integrate 7-Zip to shell context menu option is selected. If not, please select the option and then click Apply button. You might need to reboot your PC or restart Windows Explorer to see 7-Zip in the context menu."
-    pause
-}
-
 # ---------------------------------------------------------------------------- #
 #                               POWERSHELL MODULE                              #
 # ---------------------------------------------------------------------------- #
-function install-powershellget {
+function __install_powershellget {
     evaladvanced "sudopwsh Install-Module -Name PowerShellGet -Force"
 }
 
-function install-modules {
+function __install_modules {
     evaladvanced "Install-Module -AllowClobber -Name scoop-completion -Scope CurrentUser -Force" # Project URL - https://github.com/Moeologist/scoop-completion"
     evaladvanced "Install-Module PSReadLine -Repository PSGallery -Scope CurrentUser -Force" # https://github.com/PowerShell/PSReadLine
 }
@@ -151,7 +124,7 @@ function install-modules {
 # ---------------------------------------------------------------------------- #
 #                                    OTHERS                                    #
 # ---------------------------------------------------------------------------- #
-function install-visual-c-runtimes {
+function __install_visual_c_runtimes {
     $batScript = "$BIN_DIR\Visual-C-Runtimes-All-in-One\install_all.bat"
     if ((__show_install_message_question "Visual-C-Runtimes") -eq "y") {
         infolog "Install Visual-C-Runtimes"
@@ -159,19 +132,10 @@ function install-visual-c-runtimes {
     }
 }
 
-# ------------------------------- DEPENDS SCOOP ------------------------------ #
-function install-npm {
-    infolog "Install NPM(Include Javascript by default)"
-    evaladvanced "scoop bucket add main"
-    evaladvanced "scoop install main/nodejs-lts"
-}
+function __install_features_for_wsl {
+    infolog "Enable Virtual Machine Platform feature"
+    evaladvanced "sudopwsh dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart"
 
-# ------------------------ DEPENDS OF SCOOP AND PYTHON ----------------------- #
-function install-pip-pipx {
-    infolog "Install Pip/Pipx"
-    warnlog "To continue, please install Python"
-    __install_python
-    evaladvanced "scoop install pipx"
-    evaladvanced "pipx ensurepath --force"
-    evaladvanced "pip install virtualenv"
+    infolog "Enable WSL feature"
+    evaladvanced "sudopwsh dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart"
 }

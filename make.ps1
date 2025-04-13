@@ -6,6 +6,7 @@ $VERSION = (Get-Content "$SCRIPT_UTILS_DIR\version")
 $SHELL_SCRIPT_DIR = "${SCRIPT_UTILS_DIR}\scripts"
 $LIBS_DIR = "${SCRIPT_UTILS_DIR}\libs"
 $BIN_DIR = "${SCRIPT_UTILS_DIR}\bin"
+$IMAGES_DIR = "${SCRIPT_UTILS_DIR}\images"
 
 if ($args[0] -eq "-s" -or $args[0] -eq "--start") {
     $start = $true
@@ -43,17 +44,13 @@ function printMenu {
     - Install Scoop and Winget packages
     - Install Powershell Modules
     - Install Visual-C-Runtimes
-    - Install PIP/PIPX(Depends python language)
-    - Install NPM(Include Javascript by default)
     - Install Features for WSL
 3. Will
     - Create user powershell profile file
     - Install scripts profile
 4. Will
-    - Start all configurations for Scoop and Winget
-    - Change Full Name of user. User will decide wich to install
-    - Install PIPX packages
     - Install Development packages. User will decide wich to install
+    - Start all necessary configurations
 ---
 5. Exit"
 }
@@ -61,8 +58,8 @@ function printMenu {
 function initProcess {
     $message = "Please, restart your terminal."
     __create_dirs
-    if (!(is_valid_home_dir)) {
-        show_rules_username
+    if (!(__is_valid_home_dir)) {
+        __show_rules_username
         __exit_script
     }
     for (;;) {
@@ -75,28 +72,26 @@ function initProcess {
         }
         switch ($option) {
             1 {
-                enable-sudo
-                set-user-bin-dir
-                install-scoop
-                install-winget
-                install-powershellget
+                __enable_sudo
+                __set_user_bin_dir
+                __install_scoop
+                __install_winget
+                __install_powershellget
                 warnlog "$message"
                 __exit_script
             }
             2 {
-                install-scoop-packages
-                install-winget-packages
-                install-modules
-                install-visual-c-runtimes
-                install-pip-pipx
-                install-npm
+                __install_scoop_packages
+                __install_winget_packages
+                __install_modules
+                __install_visual_c_runtimes
                 __install_features_for_wsl
                 warnlog "After reboot, continue with option 3"
                 reboot
             }
             3 {
-                create-profile-file-powershell
-                install-profile-scripts
+                __create_profile_file_powershell
+                __install_profile_scripts
                 if (!$onlyProfile) {
                     Set-Location "$SCRIPT_UTILS_DIR"
                     bash -c "./make.sh --start --only-profile-shell"
@@ -105,9 +100,8 @@ function initProcess {
                 __exit_script
             }
             4 {
-                config-all
-                change_user_full_name
-                install-development-package
+                __install_development_package
+                __config_all
                 reboot
             }
             5 { __exit_script }

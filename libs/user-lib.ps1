@@ -3,7 +3,7 @@
 
 $HOME_DIR_INVALID_REGEX = '[!@#$%^&*(),?"":{}|<>=´]|[à-ü]|[À-Ü]'
 
-function is_valid_home_dir {
+function __is_valid_home_dir {
     $homeDirBasename = [System.IO.Path]::GetFileName("$home")
     $isValid = $true
     switch -regex ($homeDirBasename){
@@ -24,7 +24,7 @@ function is_valid_home_dir {
     return $isValid
 }
 
-function show_rules_username {
+function __show_rules_username {
     titlelog "Usernames must"
     log "-> Start with an alphabetic character"
     log "-> Not contain spaces or `"@`""
@@ -34,7 +34,7 @@ function show_rules_username {
     log "-> When setting for a Windows device, usernames can't end with a period (.) or else they will not appear on the device login screen"
 }
 
-function change_user_full_name {
+function __change_user_full_name {
     $username = $env:username
     Get-WmiObject Win32_UserAccount | ForEach-Object {
         $name = $_.Name

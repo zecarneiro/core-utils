@@ -19,7 +19,7 @@ function __exit_script {
     exit 0
 }
 
-function create-profile-file-bash {
+function __create_profile_file_bash {
     if [ ! -f "$MY_SHELL_PROFILE" ]; then
         touch "$MY_SHELL_PROFILE"
     fi
@@ -32,7 +32,7 @@ function create-profile-file-bash {
     fi
 }
 
-function install-profile-scripts {
+function __install_profile_scripts {
     local shellScriptsInstallDir="${OTHER_APPS_DIR}/shell-scripts"
     local scriptsList=($(find "$shellScriptsInstallDir" -maxdepth 1 -type f -name '*.sh'))
     if [[ "${onlyProfile}" == false ]]; then
@@ -48,3 +48,42 @@ function install-profile-scripts {
         fi
     done
 }
+
+function __define_default_system_dir {
+    read -p "Insert all User Dirs? (y/N)" result
+    if [[ "${result}" == "y" ]]; then
+        local -A user_dirs
+        result=$(read_user_keyboard_autocomplete "Insert DOWNLOAD (Or ENTER to cancel)")
+        if [ -d "$result" ]; then
+            user_dirs[DOWNLOAD]="$result"
+        fi
+        result=$(read_user_keyboard_autocomplete "Insert TEMPLATES (Or ENTER to cancel)")
+        if [ -d "$result" ]; then
+            user_dirs[TEMPLATES]="$result"
+        fi
+        result=$(read_user_keyboard_autocomplete "Insert DOCUMENTS (Or ENTER to cancel)")
+        if [ -d "$result" ]; then
+            user_dirs[DOCUMENTS]="$result"
+        fi
+        result=$(read_user_keyboard_autocomplete "Insert MUSIC (Or ENTER to cancel)")
+        if [ -d "$result" ]; then
+            user_dirs[MUSIC]="$result"
+        fi
+        result=$(read_user_keyboard_autocomplete "Insert PICTURES (Or ENTER to cancel)")
+        if [ -d "$result" ]; then
+            user_dirs[PICTURES]="$result"
+        fi
+        result=$(read_user_keyboard_autocomplete "Insert VIDEOS (Or ENTER to cancel)")
+        if [ -d "$result" ]; then
+            user_dirs[VIDEOS]="$result"
+        fi
+        for key in "${!user_dirs[@]}"; do
+            evaladvanced "xdg-user-dirs-update --set $key \"${user_dirs[$key]}\""
+        done
+    fi
+}
+
+function __config_all {
+    __define_default_system_dir
+}
+
