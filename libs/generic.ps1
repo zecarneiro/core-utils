@@ -19,11 +19,13 @@ function __show_install_message_question {
 }
 
 function __create_dirs {
-    $dirs = @("$CONFIG_DIR", "$OTHER_APPS_DIR", "$USER_BIN_DIR", "$USER_STARTUP_DIR", "$USER_TEMP_DIR", "$TEMP_DIR")
-    Foreach ($dir in $dirs) {
-        if (!(Test-Path -Path "$dir")) {
-            New-Item -ItemType Directory -Force -Path "$dir" | Out-Null
-            Write-Host "Created directory: $dir"
+    if (!$onlyProfile) {
+        $dirs = @("$CONFIG_DIR", "$OTHER_APPS_DIR", "$USER_BIN_DIR", "$USER_STARTUP_DIR", "$USER_TEMP_DIR", "$TEMP_DIR")
+        Foreach ($dir in $dirs) {
+            if (!(Test-Path -Path "$dir")) {
+                New-Item -ItemType Directory -Force -Path "$dir" | Out-Null
+                Write-Host "Created directory: $dir"
+            }
         }
     }
 }
@@ -150,6 +152,4 @@ function __config_all {
     titlelog "Integrate 7zip on context menu"
     openimage "$IMAGES_DIR\7zip.png"
     pause
-    __define_default_system_dir
-    __change_user_full_name
 }

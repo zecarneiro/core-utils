@@ -1,4 +1,4 @@
-﻿# Author: José M. C. Noronha
+# Author: José M. C. Noronha
 # IMPORTANT: Save this script with UTF-8 with BOM if you have problems with characters
 
 # Global Vars
@@ -17,7 +17,7 @@ catch {
   # Do Nothing
 }
 
-$OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
+$OutputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $False
 function isadmin {
   $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
   return ($currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))

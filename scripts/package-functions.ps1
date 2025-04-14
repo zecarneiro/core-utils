@@ -1,4 +1,5 @@
 # Author: José M. C. Noronha
+# This script depends on https://github.com/uutils/coreutils
 
 # ---------------------------------------------------------------------------- #
 #                                      NPM                                     #
@@ -70,16 +71,17 @@ function wsllist($filter) {
 #                               UPDATERS SCRIPTS                               #
 # ---------------------------------------------------------------------------- #
 function installupdater($updater_script) {
-	$updater_dir = "$home\.otherapps\updaters"
+	$updater_dir = "$OTHER_APPS_DIR\updaters"
 	$scriptname = $(basename "$updater_script")
 	mkdir "$updater_dir"
 	infolog "Installing '$scriptname' from '$updater_script'"
 	Copy-Item "$updater_script" "$updater_dir"
+	updatersupgrade "$scriptname"
 	oklog "Done"
 }
 function updatersupgrade($scriptname) {
 	$currentdir = "$pwd"
-	$updater_dir = "$home\.otherapps\updaters"
+	$updater_dir = "$OTHER_APPS_DIR\updaters"
 	if (directoryexists "$updater_dir") {
 		Get-ChildItem "$updater_dir" | Foreach-Object {
 			$script = $_.FullName

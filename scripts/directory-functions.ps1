@@ -55,6 +55,3 @@ function cpdir {
     param([string]$src, [string]$dest)
     Copy-Item "$src" -Destination "$dest" -Recurse -Force | Out-Null
 }
-function tempdir {
-    return [System.IO.Path]::GetTempPath()
-}

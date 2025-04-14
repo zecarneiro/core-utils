@@ -48,6 +48,3 @@ function ldir {
 alias countdirs="find . -type d | wc -l"
 alias mkdir="mkdir -p"
 alias cpdir="cp -r"
-function tempdir {
-    echo "/tmp"
-}

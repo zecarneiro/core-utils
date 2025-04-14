@@ -121,7 +121,7 @@ function pacstallupgrade {
 function installupdater {
     # shellcheck disable=SC2116
     # shellcheck disable=SC2155
-    local updater_dir="$(echo "$HOME")/.otherapps/updaters"
+    local updater_dir="$OTHER_APPS_DIR/updaters"
     local updater_script="$1"
     # shellcheck disable=SC2155
     local scriptname=$(basename "$updater_script")
@@ -129,6 +129,7 @@ function installupdater {
     infolog "Installing '$scriptname' '$updater_script'"
     cp "$updater_script" "$updater_dir"
     chmod -R 777 "$updater_dir"
+    updatersupgrade "$scriptname"
     oklog "Done"
 }
 function updatersupgrade {
@@ -136,7 +137,7 @@ function updatersupgrade {
     local currentdir="$PWD"
     # shellcheck disable=SC2116
     # shellcheck disable=SC2155
-    local updater_dir="$(echo "$HOME")/.otherapps/updaters"
+    local updater_dir="$OTHER_APPS_DIR/updaters"
     if [ -d "$updater_dir" ]; then
         for script in "$updater_dir"/*; do
             # shellcheck disable=SC2155

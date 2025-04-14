@@ -59,7 +59,6 @@ function extract {
     fi
     local currentDirectory="$destination"
     mkdir "$destination"
-    cd "$destination"
     if [ -f "$file" ] ; then
         case $file in
             *.tar.bz2)   tar xvjf "$file"    ;;
@@ -70,7 +69,7 @@ function extract {
             *.tar)       tar xvf "$file"     ;;
             *.tbz2)      tar xvjf "$file"    ;;
             *.tgz)       tar xvzf "$file"    ;;
-            *.zip)       unzip "$file"       ;;
+            *.zip)       unzip "$file" -d "$destination" ;;
             *.Z)         uncompress "$file"  ;;
             *.7z)        7z x "$file"        ;;
             *)           infolog "don't know how to extract '$file'..." ;;

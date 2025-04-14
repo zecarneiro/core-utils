@@ -7,6 +7,7 @@ $SHELL_SCRIPT_DIR = "${SCRIPT_UTILS_DIR}\scripts"
 $LIBS_DIR = "${SCRIPT_UTILS_DIR}\libs"
 $BIN_DIR = "${SCRIPT_UTILS_DIR}\bin"
 $IMAGES_DIR = "${SCRIPT_UTILS_DIR}\images"
+$USER_OPTION_INSERTED_FILE = "$SCRIPT_UTILS_DIR\user-option-inserted"
 
 if ($args[0] -eq "-s" -or $args[0] -eq "--start") {
     $start = $true
@@ -27,6 +28,19 @@ Get-ChildItem ("${LIBS_DIR}\*.ps1") | ForEach-Object {
     . "$fullname"
 }
 
+function manageUserOption {
+    param([int] $option, [bool] $isGet)
+    $doneRes = ""
+    if ($isGet) {
+        if ((filecontain "$USER_OPTION_INSERTED_FILE" "$option")) {
+            $doneRes = " - Done"
+        }
+    } else {
+        writefile -file "$USER_OPTION_INSERTED_FILE" -content "$option" -append
+    }
+    return "$doneRes"
+}
+
 function usage {
     Write-Host "Usage: make.ps1 [OPTIONS]... [STEP-VALUE]"
     Write-Host "OPTIONS:
@@ -35,24 +49,30 @@ function usage {
 }
 
 function printMenu {
-    Write-Host "1. Will
+    echo "AAA"
+    $(manageUserOption 3 $true)
+    echo "BBB"
+    Write-Host "1. Will$(manageUserOption 1 $true)
     - Enable Sudo
     - Set user bin dir
     - Install Scoop and Winget
     - Install PowershellGet Module
-2. Will
+2. Will$(manageUserOption 2 $true)
     - Install Scoop and Winget packages
     - Install Powershell Modules
     - Install Visual-C-Runtimes
     - Install Features for WSL
-3. Will
+3. Will$(manageUserOption 3 $true)
     - Create user powershell profile file
     - Install scripts profile
-4. Will
+4. Will$(manageUserOption 4 $true)
     - Install Development packages. User will decide wich to install
     - Start all necessary configurations
+5. Will(Optional)$(manageUserOption 5 $true)
+    - Define/Change default system dirs. Like Documents, Images, etc
+    - Change the user full display name
 ---
-5. Exit"
+6. Exit"
 }
 
 function initProcess {
@@ -78,6 +98,7 @@ function initProcess {
                 __install_winget
                 __install_powershellget
                 warnlog "$message"
+                manageUserOption 1 $false
                 __exit_script
             }
             2 {
@@ -87,6 +108,7 @@ function initProcess {
                 __install_visual_c_runtimes
                 __install_features_for_wsl
                 warnlog "After reboot, continue with option 3"
+                manageUserOption 2 $false
                 reboot
             }
             3 {
@@ -97,14 +119,22 @@ function initProcess {
                     bash -c "./make.sh --start --only-profile-shell"
                     warnlog "$message"
                 }
+                manageUserOption 3 $false
                 __exit_script
             }
             4 {
                 __install_development_package
                 __config_all
+                manageUserOption 4 $false
                 reboot
             }
-            5 { __exit_script }
+            5 {
+                __define_default_system_dir
+                __change_user_full_name
+                manageUserOption 5 $false
+                reboot
+            }
+            6 { __exit_script }
             Default { Write-Host "WARN: Please, insert a valid option!" }
         }
     }

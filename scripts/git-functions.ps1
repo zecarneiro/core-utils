@@ -1,4 +1,5 @@
 # Author: José M. C. Noronha
+# This script depends on https://github.com/uutils/coreutils
 
 function gitresethardorigin {
     $current_branch_name = (git branch --show-current)

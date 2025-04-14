@@ -66,7 +66,7 @@ function filecontain {
         log "filecontain FILE MATCH"
         return
     fi
-    if [ "$(cat "$file" | grep -c "$match")" -ne 0 ]; then
+    if [[ -f "$file" ]]&&[[ "$(cat "$file" | grep -c "$match")" -ne 0 ]]; then
         echo true
     else
         echo false

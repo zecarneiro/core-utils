@@ -84,7 +84,7 @@ function __install_scoop {
 }
 
 function __install_scoop_packages {
-    evaladvanced "scoop install main/coreutils"
+    evaladvanced "scoop install main/uutils-coreutils"
     evaladvanced "scoop install main/git"
     evaladvanced "scoop install main/vim"
     evaladvanced "scoop install main/nano"

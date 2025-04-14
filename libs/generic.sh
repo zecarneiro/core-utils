@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2162
 
 function __show_install_message_question {
     read -p "Do you want to install ${1}? (y/N): " userInput
@@ -6,13 +7,15 @@ function __show_install_message_question {
 }
 
 function __create_dirs {
-    local dirs=("$CONFIG_DIR" "$OTHER_APPS_DIR" "$USER_BIN_DIR" "$USER_STARTUP_DIR" "$USER_TEMP_DIR" "$TEMP_DIR")
-    for dir in "${dirs[@]}"; do
-        if [[ ! -d "${dir}" ]]; then
-            mkdir "$dir"
-            echo "Created directory: $dir"
-        fi
-    done
+    if [[ "${onlyProfile}" == false ]]; then
+        local dirs=("$CONFIG_DIR" "$OTHER_APPS_DIR" "$USER_BIN_DIR" "$USER_STARTUP_DIR" "$USER_TEMP_DIR" "$TEMP_DIR")
+        for dir in "${dirs[@]}"; do
+            if [[ ! -d "${dir}" ]]; then
+                mkdir "$dir"
+                echo "Created directory: $dir"
+            fi
+        done
+    fi
 }
 
 function __exit_script {
@@ -34,13 +37,13 @@ function __create_profile_file_bash {
 
 function __install_profile_scripts {
     local shellScriptsInstallDir="${OTHER_APPS_DIR}/shell-scripts"
-    local scriptsList=($(find "$shellScriptsInstallDir" -maxdepth 1 -type f -name '*.sh'))
     if [[ "${onlyProfile}" == false ]]; then
         infolog "Install core-utils scripts release package"
         rm -rf "$shellScriptsInstallDir"
         cpdir "$SHELL_SCRIPT_DIR" "$shellScriptsInstallDir"
     fi
     # Add bash profiles
+    local scriptsList=($(find "$shellScriptsInstallDir" -maxdepth 1 -type f -name '*.sh'))
     for script in "${scriptsList[@]}"; do
         local data="source '$script'"
         if [ "$(filecontain "$MY_CUSTOM_SHELL_PROFILE" "$data")" == false ]; then
@@ -50,30 +53,30 @@ function __install_profile_scripts {
 }
 
 function __define_default_system_dir {
-    read -p "Insert all User Dirs? (y/N)" result
+    read -p "Insert all User Dirs? (y/N) " result
     if [[ "${result}" == "y" ]]; then
         local -A user_dirs
-        result=$(read_user_keyboard_autocomplete "Insert DOWNLOAD (Or ENTER to cancel)")
+        read -e -p "Insert DOWNLOAD (Or ENTER to cancel) " result
         if [ -d "$result" ]; then
             user_dirs[DOWNLOAD]="$result"
         fi
-        result=$(read_user_keyboard_autocomplete "Insert TEMPLATES (Or ENTER to cancel)")
+        read -e -p "Insert TEMPLATES (Or ENTER to cancel) " result
         if [ -d "$result" ]; then
             user_dirs[TEMPLATES]="$result"
         fi
-        result=$(read_user_keyboard_autocomplete "Insert DOCUMENTS (Or ENTER to cancel)")
+        read -e -p "Insert DOCUMENTS (Or ENTER to cancel) " result
         if [ -d "$result" ]; then
             user_dirs[DOCUMENTS]="$result"
         fi
-        result=$(read_user_keyboard_autocomplete "Insert MUSIC (Or ENTER to cancel)")
+        read -e -p "Insert MUSIC (Or ENTER to cancel) " result
         if [ -d "$result" ]; then
             user_dirs[MUSIC]="$result"
         fi
-        result=$(read_user_keyboard_autocomplete "Insert PICTURES (Or ENTER to cancel)")
+        read -e -p "Insert PICTURES (Or ENTER to cancel) " result
         if [ -d "$result" ]; then
             user_dirs[PICTURES]="$result"
         fi
-        result=$(read_user_keyboard_autocomplete "Insert VIDEOS (Or ENTER to cancel)")
+        read -e -p "Insert VIDEOS (Or ENTER to cancel) " result
         if [ -d "$result" ]; then
             user_dirs[VIDEOS]="$result"
         fi
@@ -84,6 +87,6 @@ function __define_default_system_dir {
 }
 
 function __config_all {
-    __define_default_system_dir
+    echo "Nothing to process"
 }
 

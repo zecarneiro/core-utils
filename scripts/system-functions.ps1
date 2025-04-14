@@ -60,6 +60,7 @@ function addalias {
     }
   }
 }
+# This function depends on https://github.com/uutils/coreutils
 function editalias {
   nano "$MY_ALIAS"
 }
@@ -85,9 +86,11 @@ function delalias {
     writefile "$MY_ALIAS" "$aliasCmd" -append
   }
 }
+# This function depends on https://github.com/uutils/coreutils
 function editprofile {
   nano "$MY_SHELL_PROFILE"
 }
+# This function depends on https://github.com/uutils/coreutils
 function editcustomprofile {
   nano "$MY_CUSTOM_SHELL_PROFILE"
 }
@@ -318,3 +321,4 @@ function setautoloadmodule {
 function whichsh($name) {
   Get-Command "$name" | Select-Object -ExpandProperty Definition
 }
+Set-Alias -Name "bash" -Value "$home\scoop\shims\bash.exe"

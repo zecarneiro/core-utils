@@ -409,10 +409,12 @@ function chmod-777 {
         Unblock-File -Path "$file"
     }
 }
+# This function depends on scoop
 function unix-to-win-path {
     param([string] $pathstr)
     cygpath -w "$pathstr"
 }
+# This function depends on scoop
 function win-to-unix-path {
     param([string] $pathstr)
     cygpath -u "$pathstr"
