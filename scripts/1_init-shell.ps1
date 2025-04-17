@@ -5,12 +5,24 @@
 $IS_INIT_PROMPT=$true
 $IS_ADMIN_ROLE=$false
 
-# ENABLE FZF AND READLINE
+# If is on Windows Server OS, change security protocol
+if ($MY_OS -contains "Server") {
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+}
+
+# ENABLE READLINE
 try {
-  Set-PsFzfOption -EnableFd:$true
   Set-PSReadlineKeyHandler -Key Tab -Function Complete
   Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
   Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+}
+catch {
+  # Do Nothing
+}
+
+# ENABLE FZF
+try {
+  Set-PsFzfOption -EnableFd:$true
   Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 }
 catch {

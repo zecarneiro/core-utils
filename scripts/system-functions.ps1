@@ -298,6 +298,9 @@ function sudopwsh {
 function gsudopwsh {
   gsudo powershell -Command $args
 }
+function sudopwshOld {
+  Start-Process powershell.exe -verb runAs -Args "$args; pause"
+}
 function startapps($filter) {
 	$command_to_run = "Get-StartApps"
 	if (![string]::IsNullOrEmpty($filter)) {

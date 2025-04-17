@@ -87,6 +87,6 @@ function __define_default_system_dir {
 }
 
 function __config_all {
-    echo "Nothing to process"
+    echo "No config to process"
 }
 

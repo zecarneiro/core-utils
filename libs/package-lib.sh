@@ -45,9 +45,10 @@ function __install_apt_package {
     local package_list=()
     if [[ "${step}" == "1" ]]; then
         package_list=(powershell)
+        addalias "powershell" "pwsh -nologo"
     else
         # Base apps
-        package_list=(software-properties-common apt-transport-https wget curl inkscape git zenity libnotify-bin ubuntu-restricted-extras dos2unix fzf)
+        package_list=(software-properties-common apt-transport-https wget curl inkscape git zenity libnotify-bin ubuntu-restricted-extras dos2unix fzf lsb-release)
         # Archive manager
         package_list+=(file-roller packagekit arj lzip lzma lzop ncompress rpm2cpio rzip sharutils unace unalz unar p7zip-full p7zip-rar unrar zip unzip rar uudeview mpack cabextract)
     fi
@@ -119,4 +120,14 @@ function __install_pacstall {
         infolog "Install Pacstall"
         sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
     fi
+}
+
+function __install_deb_get {
+    if [ $(commandexists "deb-get") == false ]; then
+        infolog "Install Deb-Get"
+        curl -sL https://raw.githubusercontent.com/wimpysworld/deb-get/main/deb-get | sudo -E bash -s install deb-get
+    fi
+}
+function __install_deb_get_package {
+    evaladvanced "sudo deb-get install gcm" # git-credential-manager
 }

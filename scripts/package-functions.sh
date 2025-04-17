@@ -169,6 +169,7 @@ function systemclean {
     aptclean
     log; flatpakclean
     log; snapclean
+    log; debgetclean
 }
 
 # ---------------------------------------------------------------------------- #
@@ -257,4 +258,20 @@ appimage-command-manager() {
         fi
     done
     oklog "Done."
+}
+
+# ---------------------------------------------------------------------------- #
+#                                    DEB GET                                   #
+# ---------------------------------------------------------------------------- #
+function debgetlist {
+    evaladvanced "deb-get list"
+}
+function debgetupgrade {
+    evaladvanced 'sudo deb-get upgrade'
+}
+function debgetuninstall {
+    evaladvanced "sudo deb-get purge $1"
+}
+function debgetclean {
+    evaladvanced "sudo deb-get clean"
 }

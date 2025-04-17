@@ -51,6 +51,7 @@ function usage {
 }
 
 function printMenu {
+    titlelog "Start Core Utils"
     echo "1. Will$(manageUserOption 1 true)
     - Add important APT repository
     - Install APT packages
@@ -59,9 +60,11 @@ function printMenu {
     - Install FLATPAK
     - Install SNAP
     - Install PACSTALL
+    - Install Deb-Get
 3. Will$(manageUserOption 3 true)
     - Install Flatpak packages
     - Install Appimage packages
+    - Install Deb-Get packages
 4. Will$(manageUserOption 4 true)
     - Create user powershell profile file
     - Install scripts profile
@@ -97,6 +100,7 @@ function initProcess {
                 __install_flatpak
                 __install_snap
                 __install_pacstall
+                __install_deb_get
                 warnlog "$message"
                 manageUserOption 2 false
                 __exit_script
@@ -104,6 +108,7 @@ function initProcess {
             3)
                 __install_flatpak_package
                 __install_appimage_packages
+                __install_deb_get_package
                 warnlog "$message"
                 manageUserOption 3 false
                 __exit_script

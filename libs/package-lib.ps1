@@ -12,8 +12,8 @@ function __install_winget {
         [Parameter(HelpMessage = "Display the AppxPackage after installation.")]
         [switch]$Passthru
     )
-
-    if (!(commandexists "winget") -or (Read-Host "Winget is already installed, would you like to update it (y/N)") -eq "y") {
+    $isWingetInstalled = (commandexists "winget")
+    if ((!$isWingetInstalled -and (__show_install_message_question "Do you to install Winget") -eq "y") -or ($isWingetInstalled -and (Read-Host "Winget is already installed, would you like to update it (y/N)") -eq "y")) {
         infolog "Install Winget-CLI"
         Write-Verbose "[$((Get-Date).TimeofDay)] Starting $($myinvocation.mycommand)"
 
@@ -70,55 +70,80 @@ function __install_winget {
 }
 
 function __install_winget_packages {
-    evaladvanced "winget install --id=chrisant996.Clink --accept-source-agreements --accept-package-agreements"
+    if ((__show_install_message_question "Do you to install Winget packages") -eq "y") {
+        evaladvanced "winget install --id=chrisant996.Clink --accept-source-agreements --accept-package-agreements"
+    }
 }
 
 # ---------------------------------------------------------------------------- #
 #                                     SCOOP                                    #
 # ---------------------------------------------------------------------------- #
 function __install_scoop {
-    if (!(commandexists scoop)) {
+    if (!(commandexists scoop) -and (__show_install_message_question "Do you to install Winget") -eq "y") {
         Write-Host "INFO: Install Scoop ..."
         Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+        evaladvanced "Install-Module -AllowClobber -Name scoop-completion -Scope CurrentUser -Force" # Project URL - https://github.com/Moeologist/scoop-completion"
     }
 }
 
 function __install_scoop_packages {
-    evaladvanced "scoop install main/uutils-coreutils"
-    evaladvanced "scoop install main/git"
-    evaladvanced "scoop install main/vim"
-    evaladvanced "scoop install main/nano"
-    evaladvanced "scoop install main/curl"
-    evaladvanced "scoop install main/grep"
-    evaladvanced "scoop install main/sed"
-    evaladvanced "scoop install main/which"
-    evaladvanced "scoop install main/dos2unix"
-    evaladvanced "scoop install main/7zip"
-    evaladvanced "scoop install main/gsudo"
-    evaladvanced "scoop install main/fzf"
+    if ((__show_install_message_question "Do you to install Scoop packages") -eq "y") {
+        evaladvanced "scoop install main/uutils-coreutils"
+        evaladvanced "scoop install main/git"
+        evaladvanced "scoop install main/vim"
+        evaladvanced "scoop install main/nano"
+        evaladvanced "scoop install main/curl"
+        evaladvanced "scoop install main/grep"
+        evaladvanced "scoop install main/sed"
+        evaladvanced "scoop install main/which"
+        evaladvanced "scoop install main/dos2unix"
+        evaladvanced "scoop install main/7zip"
+        evaladvanced "scoop install main/gsudo"
+        evaladvanced "scoop install main/fzf"
 
-    evaladvanced "scoop bucket add extras"
-    evaladvanced "scoop install extras/psfzf"
-    evaladvanced "scoop install extras/git-credential-manager"
+        evaladvanced "scoop bucket add extras"
+        evaladvanced "scoop install extras/psfzf"
+        evaladvanced "scoop install extras/git-credential-manager"
+        evaladvanced "scoop install extras/psreadline" # https://github.com/PowerShell/PSReadLine
 
-    evaladvanced "scoop bucket add alkuzad_unxutils-separated https://github.com/alkuzad/unxutils-separated"
-    evaladvanced "scoop install alkuzad_unxutils-separated/unxutils-xargs"
+        evaladvanced "scoop bucket add alkuzad_unxutils-separated https://github.com/alkuzad/unxutils-separated"
+        evaladvanced "scoop install alkuzad_unxutils-separated/unxutils-xargs"
 
-    # Markdown apps
-    # evaladvanced "scoop install extras/marktext" # https://github.com/marktext/marktext
-    evaladvanced "scoop install https://github.com/c3er/mdview/releases/latest/download/mdview.json" # https://github.com/c3er/mdview
+        # Markdown apps
+        # evaladvanced "scoop install extras/marktext" # https://github.com/marktext/marktext
+        evaladvanced "scoop install https://github.com/c3er/mdview/releases/latest/download/mdview.json" # https://github.com/c3er/mdview
+
+        ## Config ##
+        evaladvanced "gsudo config CacheMode auto"
+    
+        # Delete all system alias
+        delalias "cp"
+        delalias "cat"
+        delalias "mkdir"
+        delalias "ls"
+        delalias "mv"
+        delalias "ps"
+        delalias "rm"
+        delalias "rmdir"
+        delalias "sleep"
+        delalias "sort"
+        delalias "tee"
+        delalias "curl"
+        delalias "grep"
+        delalias "sed"
+
+        # Docs
+        titlelog "Integrate 7zip on context menu"
+        openimage "$IMAGES_DIR\7zip.png"
+        pause
+    }
 }
 
 # ---------------------------------------------------------------------------- #
 #                               POWERSHELL MODULE                              #
 # ---------------------------------------------------------------------------- #
-function __install_powershellget {
-    evaladvanced "sudopwsh Install-Module -Name PowerShellGet -Force"
-}
-
-function __install_modules {
-    evaladvanced "Install-Module -AllowClobber -Name scoop-completion -Scope CurrentUser -Force" # Project URL - https://github.com/Moeologist/scoop-completion"
-    evaladvanced "Install-Module PSReadLine -Repository PSGallery -Scope CurrentUser -Force" # https://github.com/PowerShell/PSReadLine
+function __install_powershell_modules {
+    infolog "No powershell modules to process"
 }
 
 # ---------------------------------------------------------------------------- #
@@ -133,9 +158,10 @@ function __install_visual_c_runtimes {
 }
 
 function __install_features_for_wsl {
-    infolog "Enable Virtual Machine Platform feature"
-    evaladvanced "sudopwsh dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart"
-
-    infolog "Enable WSL feature"
-    evaladvanced "sudopwsh dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart"
+    if ((__show_install_message_question "Features for WSL") -eq "y") {
+        infolog "Enable Virtual Machine Platform feature"
+        evaladvanced "sudopwsh dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart"
+        infolog "Enable WSL feature"
+        evaladvanced "sudopwsh dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart"
+    }
 }

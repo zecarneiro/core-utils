@@ -60,24 +60,12 @@ function githubchangeurl() {
     git remote set-url origin "$url"
 }
 function gitsetconfig() {
-    local -a configArr=(
-        "core.autocrlf input"
-        "core.fileMode false"
-        "core.logAllRefUpdates true"
-        "core.ignorecase true"
-        "pull.rebase true"
-        "--unset safe.directory"
-        "--add safe.directory '*'"
-        "merge.ff false"
-    )
-    for configCmd in "${configArr[@]}"; do
-        evaladvanced "git config --global $configCmd"
-    done
-    if [ $(directoryexists "$PWD/.git") = "true" ]||[ $(fileexists "$PWD/.git") = "true" ]; then
+    local scriptRootDir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+    local commandRootDir="${scriptRootDir}/commands-files"
+    runlineascommand "${commandRootDir}/git-global-cmd"
+    if [ "$(directoryexists "$PWD/.git")" = "true" ]||[ "$(fileexists "$PWD/.git")" = "true" ]; then
         infolog "Set local configurations"
-        for configCmd in "${configArr[@]}"; do
-            evaladvanced "git config $configCmd"
-        done
+        runlineascommand "${commandRootDir}/git-cmd"
     fi
 }
 function gitconfiguser() {
