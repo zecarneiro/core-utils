@@ -45,6 +45,7 @@ function __install_apt_package {
     local package_list=()
     if [[ "${step}" == "1" ]]; then
         package_list=(powershell)
+        addalias "powershell" "pwsh -nologo"
     else
         # Base apps
         package_list=(software-properties-common apt-transport-https wget curl inkscape git zenity libnotify-bin ubuntu-restricted-extras dos2unix fzf)

@@ -49,14 +49,14 @@ function __create_profile_file_powershell {
         Move-Item "$MY_SHELL_PROFILE" "${MY_SHELL_PROFILE}.bk" -Force
     } else {
         infolog "Creating Powershell Script profile to run when powrshell start: $MY_SHELL_PROFILE"
-        New-Item "$MY_SHELL_PROFILE" -ItemType file -Force
+        New-Item "$MY_SHELL_PROFILE" -ItemType file -Force | Out-Null
     }
     if (!(filecontain "$MY_SHELL_PROFILE" "$MY_CUSTOM_SHELL_PROFILE")) {
         writefile "$MY_SHELL_PROFILE" ". '$MY_CUSTOM_SHELL_PROFILE'" -append
     }
     if (!(fileexists "$MY_CUSTOM_SHELL_PROFILE")) {
         infolog "Creating Powershell Script profile to run when powrshell start: $MY_CUSTOM_SHELL_PROFILE"
-        New-Item "$MY_CUSTOM_SHELL_PROFILE" -ItemType file -Force
+        New-Item "$MY_CUSTOM_SHELL_PROFILE" -ItemType file -Force | Out-Null
     } 
 }
 
@@ -130,26 +130,5 @@ function __define_default_system_dir {
 }
 
 function __config_all {
-    evaladvanced "gsudo config CacheMode auto"
-    
-    # Delete all system alias
-    delalias "cp"
-    delalias "cat"
-    delalias "mkdir"
-    delalias "ls"
-    delalias "mv"
-    delalias "ps"
-    delalias "rm"
-    delalias "rmdir"
-    delalias "sleep"
-    delalias "sort"
-    delalias "tee"
-    delalias "curl"
-    delalias "grep"
-    delalias "sed"
-
-    # Docs
-    titlelog "Integrate 7zip on context menu"
-    openimage "$IMAGES_DIR\7zip.png"
-    pause
+    infolog "No config to process"
 }

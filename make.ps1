@@ -49,17 +49,14 @@ function usage {
 }
 
 function printMenu {
-    echo "AAA"
-    $(manageUserOption 3 $true)
-    echo "BBB"
+    titlelog "Start Core Utils"
     Write-Host "1. Will$(manageUserOption 1 $true)
     - Enable Sudo
     - Set user bin dir
+    - Install Powershell Modules
     - Install Scoop and Winget
-    - Install PowershellGet Module
 2. Will$(manageUserOption 2 $true)
     - Install Scoop and Winget packages
-    - Install Powershell Modules
     - Install Visual-C-Runtimes
     - Install Features for WSL
 3. Will$(manageUserOption 3 $true)
@@ -94,9 +91,9 @@ function initProcess {
             1 {
                 __enable_sudo
                 __set_user_bin_dir
+                __install_powershell_modules
                 __install_scoop
                 __install_winget
-                __install_powershellget
                 warnlog "$message"
                 manageUserOption 1 $false
                 __exit_script
@@ -104,7 +101,6 @@ function initProcess {
             2 {
                 __install_scoop_packages
                 __install_winget_packages
-                __install_modules
                 __install_visual_c_runtimes
                 __install_features_for_wsl
                 warnlog "After reboot, continue with option 3"

@@ -51,6 +51,7 @@ function usage {
 }
 
 function printMenu {
+    titlelog "Start Core Utils"
     echo "1. Will$(manageUserOption 1 true)
     - Add important APT repository
     - Install APT packages
