@@ -79,7 +79,7 @@ function __install_winget_packages {
 #                                     SCOOP                                    #
 # ---------------------------------------------------------------------------- #
 function __install_scoop {
-    if (!(commandexists scoop) -and (__show_install_message_question "Do you to install Winget") -eq "y") {
+    if (!(commandexists scoop) -and (__show_install_message_question "Do you to install Scoop") -eq "y") {
         Write-Host "INFO: Install Scoop ..."
         Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
         evaladvanced "Install-Module -AllowClobber -Name scoop-completion -Scope CurrentUser -Force" # Project URL - https://github.com/Moeologist/scoop-completion"
@@ -102,11 +102,15 @@ function __install_scoop_packages {
         evaladvanced "scoop install main/fzf"
 
         evaladvanced "scoop bucket add extras"
+        log "If you get error, please, open new terminal and run: scoop bucket add extras"
+        pause
         evaladvanced "scoop install extras/psfzf"
         evaladvanced "scoop install extras/git-credential-manager"
         evaladvanced "scoop install extras/psreadline" # https://github.com/PowerShell/PSReadLine
 
         evaladvanced "scoop bucket add alkuzad_unxutils-separated https://github.com/alkuzad/unxutils-separated"
+        log "If you get error, please, open new terminal and run: scoop bucket add alkuzad_unxutils-separated https://github.com/alkuzad/unxutils-separated"
+        pause
         evaladvanced "scoop install alkuzad_unxutils-separated/unxutils-xargs"
 
         # Markdown apps

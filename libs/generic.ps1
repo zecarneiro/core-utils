@@ -93,24 +93,29 @@ function __define_default_system_dir {
         $userDirs = @{}
         $isSetDirs = $false
         $result=$(selectfolderdialog "Insert DOWNLOAD (Or cancel)")
+        $result = $result.selected
         if (! [string]::IsNullOrEmpty($result)) {
             $userDirs.Add("{374DE290-123F-4565-9164-39C4925E467B}", "$result")
         }
         $result=$(selectfolderdialog "Insert DOCUMENTS (Or cancel)")
+        $result = $result.selected
         if (! [string]::IsNullOrEmpty($result)) {
             $userDirs.Add("Personal", "$result")
             $newShellProfileDir = "$result\$(basename "$currentShellProfileDir")"
             $isDocumentsChange = $true
         }
         $result=$(selectfolderdialog "Insert MUSIC (Or cancel)")
+        $result = $result.selected
         if (! [string]::IsNullOrEmpty($result)) {
             $userDirs.Add("My Music", "$result")
         }
         $result=$(selectfolderdialog "Insert PICTURES (Or cancel)")
+        $result = $result.selected
         if (! [string]::IsNullOrEmpty($result)) {
             $userDirs.Add("My Pictures", "$result")
         }
         $result=$(selectfolderdialog "Insert VIDEOS (Or cancel)")
+        $result = $result.selected
         if (! [string]::IsNullOrEmpty($result)) {
             $userDirs.Add("My Video", "$result")
         }

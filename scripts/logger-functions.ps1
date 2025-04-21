@@ -115,3 +115,6 @@ function separatorlog {
     message="$message #"
     log "$message"
 }
+function jsonlog($data) {
+    ConvertTo-Json $data -Depth 1 | Out-String
+}

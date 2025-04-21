@@ -99,8 +99,8 @@ function filecontain {
 function openmarkdown {
     param ([string] $file)
     if ((fileexists "$file")) {
-        if ((commandexists "frogmouth")) {
-            frogmouth "$file"
+        if ((commandexists "mdview")) {
+            mdview "$file"
         } else {
             Get-Content "$file"
         }

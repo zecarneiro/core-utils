@@ -84,15 +84,15 @@ function selectfiledialog {
     $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
     $OpenFileDialog.ShowDialog() | Out-Null
     $filename = $OpenFileDialog.FileName
-    $data = @{ selected="$filename"; }
-    ConvertTo-Json $data -Depth 1 | Out-String
+    return @{ selected="$filename"; }
 }
 
 function selectfolderdialog {
     param ([string] $message)
+    log "$message"
     Add-Type -AssemblyName System.Windows.Forms
     $browser = New-Object System.Windows.Forms.FolderBrowserDialog
     $null = $browser.ShowDialog()
-    $data = @{ selected="${browser.SelectedPath}"; }
-    ConvertTo-Json $data -Depth 1 | Out-String
+    $selectedDir = $browser.SelectedPath
+    return @{ selected="$selectedDir"; }
 }
