@@ -1,4 +1,4 @@
-# Author: José M. C. Noronha
+﻿# Author: José M. C. Noronha
 # IMPORTANT: Save this script with UTF-8 with BOM if you have problems with characters
 
 # Global Vars
@@ -54,6 +54,8 @@ function prompt {
     # prompt vars
     $workingDir = "$(Get-Location)".replace("${home}",'~')
     $arrow = "$([char]0x276F)"
+    $unionLineStart="╭─"
+    $unionLineEnd="╰─"
     
     ### Build prompt ###
     if (!$global:IS_INIT_PROMPT) {
@@ -62,9 +64,11 @@ function prompt {
       $global:IS_INIT_PROMPT=$false
     }
     # Working Dir
-    Write-Host "$workingDir" -ForegroundColor "$CyanColor"
+    Write-Host "${unionLineStart}[" -ForegroundColor "$GreenColor" -NoNewline
+    Write-Host "$workingDir" -ForegroundColor "$CyanColor" -NoNewline
+    Write-Host "]" -ForegroundColor "$GreenColor"
     # Prompt
-    Write-Host "${arrow}" -ForegroundColor "${GreenColor}" -NoNewline
+    Write-Host "${unionLineEnd}${arrow}" -ForegroundColor "${GreenColor}" -NoNewline
     " "
   }
 }

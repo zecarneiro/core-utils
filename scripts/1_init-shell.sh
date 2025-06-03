@@ -39,10 +39,12 @@ build_prompt() {
     # prompt vars
     local workingDir="${cyanColor}\w${resetColor}"
     local arrow="${greenColor}❯${boldColor}${resetColor}"
+    local unionLineStart="${greenColor}╭─[${resetColor}"
+    local unionLineEnd="${greenColor}╰─${resetColor}"
     local windowsTitle="\[\e]0;Bash \v\a\]"
 
     ### Build prompt ###
-    local promptBuilder="${workingDir}\n${arrow} "
+    local promptBuilder="${unionLineStart}${workingDir}${greenColor}]${resetColor}\n${unionLineEnd}${arrow} "
     if [ "$IS_INIT_PROMPT" == "false" ]; then
         promptBuilder="\n${promptBuilder}"
     else
