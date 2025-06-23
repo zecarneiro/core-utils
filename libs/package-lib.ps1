@@ -87,6 +87,7 @@ function __install_scoop {
 }
 
 function __install_scoop_packages {
+    $scoopDir = "$home\scoop"
     if ((__show_install_message_question "Do you to install Scoop packages") -eq "y") {
         evaladvanced "scoop install main/uutils-coreutils"
         evaladvanced "scoop install main/git"
@@ -138,7 +139,7 @@ function __install_scoop_packages {
 
         # Docs
         titlelog "Integrate 7zip on context menu"
-        openimage "$IMAGES_DIR\7zip.png"
+        evaladvanced "$scoopDir\apps\7zip\current\install-context.reg"
         pause
     }
 }
