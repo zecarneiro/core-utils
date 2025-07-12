@@ -419,3 +419,7 @@ function win-to-unix-path {
     param([string] $pathstr)
     cygpath -u "$pathstr"
 }
+
+function python-include-dir-namespace {
+  touch __init__.py
+}

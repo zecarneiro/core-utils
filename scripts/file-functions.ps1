@@ -96,6 +96,7 @@ function filecontain {
     }
     RETURN $result
 }
+# This script depends of mdview
 function openmarkdown {
     param ([string] $file)
     if ((fileexists "$file")) {

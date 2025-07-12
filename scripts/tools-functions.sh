@@ -253,3 +253,7 @@ function win-to-unix-path {
     local unixPath="$(cygpath -u "$1")"
     echo "$unixPath"
 }
+
+function python-include-dir-namespace {
+  touch __init__.py
+}
