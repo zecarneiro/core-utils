@@ -1,0 +1,3 @@
+[submodule "pythonutils"]
+	path = package/coreutils/libs/pythonutils
+	url = https://github.com/zecarneiro/pythonutils.git

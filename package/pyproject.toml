@@ -1,0 +1,195 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coreutils"
+version = "1.0.5"
+description = "Commands utils for OS"
+authors = [
+    { name = "José M. C. Noronha", email = "zecarneiro44@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["colorama", "pydantic"]
+
+[project.scripts]
+# Directory Functions
+delete-empty-dirs = "coreutils.directoryfunctions:delete_empty_dirs"
+directory-exists = "coreutils.directoryfunctions:directory_exists"
+delete-directory = "coreutils.directoryfunctions:delete_directory"
+find-dir = "coreutils.directoryfunctions:find_dir"
+lh-dir = "coreutils.directoryfunctions:lh_dir"
+count-dirs = "coreutils.directoryfunctions:count_dirs"
+mkdirc = "coreutils.directoryfunctions:mkdirc"
+cp-dir = "coreutils.directoryfunctions:cp_dir"
+
+# File Functions
+file-exists = "coreutils.filefunctions:file_exists"
+file-extension = "coreutils.filefunctions:file_extension"
+filename = "coreutils.filefunctions:filename"
+delete-file = "coreutils.filefunctions:delete_file"
+file-encoding = "coreutils.filefunctions:file_encoding"
+writefile = "coreutils.filefunctions:writefile"
+delete-file-lines = "coreutils.filefunctions:delete_file_lines"
+file-contain = "coreutils.filefunctions:file_contain"
+findfile = "coreutils.filefunctions:findfile"
+open-markdown = "coreutils.filefunctions:open_markdown"
+open-image = "coreutils.filefunctions:open_image"
+count-files = "coreutils.filefunctions:count_files"
+lhf = "coreutils.filefunctions:lhf"
+move-files-to-parent = "coreutils.filefunctions:move_files_to_parent"
+
+# Git Functions
+git-reset-hard-origin = "coreutils.gitfunctions:git_reset_hard_origin"
+git-reset-file = "coreutils.gitfunctions:git_reset_file"
+git-repo-backup = "coreutils.gitfunctions:git_repo_backup"
+git-repo-restore-backup = "coreutils.gitfunctions:git_repo_restore_backup"
+git-move-submodule = "coreutils.gitfunctions:git_move_submodule"
+git-add-script-perm = "coreutils.gitfunctions:git_add_script_perm"
+git-cherrypick-master = "coreutils.gitfunctions:git_cherrypick_master"
+gitclone = "coreutils.gitfunctions:gitclone"
+github-change-url = "coreutils.gitfunctions:github_change_url"
+git-set-config = "coreutils.gitfunctions:git_set_config"
+git-config-user = "coreutils.gitfunctions:git_config_user"
+gitcommit = "coreutils.gitfunctions:gitcommit"
+github-latest-version = "coreutils.gitfunctions:github_latest_version"
+git-undo-last-commit = "coreutils.gitfunctions:git_undo_last_commit"
+git-stage-all = "coreutils.gitfunctions:git_stage_all"
+git-status = "coreutils.gitfunctions:git_status"
+git-cherrypick-master-continue = "coreutils.gitfunctions:git_cherrypick_master_continue"
+
+# Logger Functions
+log = "coreutils.loggerfunctions:log"
+error-log = "coreutils.loggerfunctions:error_log"
+info-log = "coreutils.loggerfunctions:info_log"
+debug-log = "coreutils.loggerfunctions:debug_log"
+warn-log = "coreutils.loggerfunctions:warn_log"
+ok-log = "coreutils.loggerfunctions:ok_log"
+prompt-log = "coreutils.loggerfunctions:prompt_log"
+title-log = "coreutils.loggerfunctions:title_log"
+header-log = "coreutils.loggerfunctions:header_log"
+separator-log = "coreutils.loggerfunctions:separator_log"
+json-log = "coreutils.loggerfunctions:json_log"
+
+# Package Functions
+npm-list = "coreutils.packagefunctions:npm_list"
+npm-clean = "coreutils.packagefunctions:npm_clean"
+winget-uninstall = "coreutils.packagefunctions:winget_uninstall"
+winget-list = "coreutils.packagefunctions:winget_list"
+scoop-uninstall = "coreutils.packagefunctions:scoop_uninstall"
+scoop-list = "coreutils.packagefunctions:scoop_list"
+scoop-clean = "coreutils.packagefunctions:scoop_clean"
+wsl-uninstall = "coreutils.packagefunctions:wsl_uninstall"
+wsl-list = "coreutils.packagefunctions:wsl_list"
+wsl-shutdown = "coreutils.packagefunctions:wsl_shutdown"
+wsl-configc = "coreutils.packagefunctions:wsl_configc"
+wsl2win-path = "coreutils.packagefunctions:wsl2win_path"
+apt-uninstall = "coreutils.packagefunctions:apt_uninstall"
+apt-list = "coreutils.packagefunctions:apt_list"
+apt-clean = "coreutils.packagefunctions:apt_clean"
+flatpak-uninstall = "coreutils.packagefunctions:flatpak_uninstall"
+flatpak-list = "coreutils.packagefunctions:flatpak_list"
+flatpak-clean = "coreutils.packagefunctions:flatpak_clean"
+snap-uninstall = "coreutils.packagefunctions:snap_uninstall"
+snap-list = "coreutils.packagefunctions:snap_list"
+deb-get-uninstall = "coreutils.packagefunctions:deb_get_uninstall"
+deb-get-list = "coreutils.packagefunctions:deb_get_list"
+deb-get-clean = "coreutils.packagefunctions:deb_get_clean"
+pacstall-list = "coreutils.packagefunctions:pacstall_list"
+script-updater-processor = "coreutils.packagefunctions:script_updater_processor"
+system-upgrade = "coreutils.packagefunctions:system_upgrade"
+system-cleanup = "coreutils.packagefunctions:system_cleanup"
+
+# SETUP PROCESS
+coreutils-postinstall = "coreutils.setup_process:post_install"
+coreutils-preuninstall = "coreutils.setup_process:pre_uninstall"
+coreutils-list-all-cmds = "coreutils.setup_process:list_of_all_commands"
+coreutils-list-all-dependencies_apps = "coreutils.setup_process:list_of_all_apps_dependencies"
+
+# SYSTEM FUNCTIONS
+reload-shell-profile = "coreutils.systemfunctions:reload_shell_profile"
+prompt-style = "coreutils.systemfunctions:prompt_style"
+is-admin = "coreutils.systemfunctions:is_admin"
+rebootc = "coreutils.systemfunctions:rebootc"
+shutdownc = "coreutils.systemfunctions:shutdownc"
+command-exists = "coreutils.systemfunctions:command_exists"
+whichc = "coreutils.systemfunctions:whichc"
+evalc = "coreutils.systemfunctions:evalc"
+script-processor = "coreutils.systemfunctions:script_processor"
+alias-processor = "coreutils.systemfunctions:alias_processor"
+service-processor = "coreutils.systemfunctions:service_processor"
+envc = "coreutils.systemfunctions:envc"
+printenvc = "coreutils.systemfunctions:printenvc"
+ver = "coreutils.systemfunctions:ver"
+restart-explorer = "coreutils.systemfunctions:restart_explorer"
+trash = "coreutils.systemfunctions:trash"
+
+# TOOLS FUNCTIONS
+text-is-empty = "coreutils.toolsfunctions:text_is_empty"
+count-args = "coreutils.toolsfunctions:count_args"
+cutc = "coreutils.toolsfunctions:cutc"
+extract = "coreutils.toolsfunctions:extract"
+has-internet = "coreutils.toolsfunctions:has_internet"
+download = "coreutils.toolsfunctions:download"
+lhiden = "coreutils.toolsfunctions:lhiden"
+resolve-pathc = "coreutils.toolsfunctions:resolve_pathc"
+dos2unix-recursive = "coreutils.toolsfunctions:dos2unix_recursive"
+run-line-as-command = "coreutils.toolsfunctions:run_line_as_command"
+chmod-777 = "coreutils.toolsfunctions:chmod_777"
+unix2win-path = "coreutils.toolsfunctions:unix2win_path"
+pyinit = "coreutils.toolsfunctions:pyinit"
+run-bin-processor = "coreutils.toolsfunctions:run_bin_processor"
+start-apps = "coreutils.toolsfunctions:start_apps"
+kill-port = "coreutils.toolsfunctions:kill_port"
+
+# VAR Functions
+CONFIG_DIR = "coreutils.varfunctions:config_dir"
+OTHER_APPS_DIR = "coreutils.varfunctions:other_apps_dir"
+USER_BIN_DIR = "coreutils.varfunctions:user_bin_dir"
+USER_STARTUP_DIR = "coreutils.varfunctions:user_startup_dir"
+USER_TEMP_DIR = "coreutils.varfunctions:user_temp_dir"
+TEMP_DIR = "coreutils.varfunctions:temp_dir"
+SHELL_PROFILE_SCRIPT = "coreutils.varfunctions:shell_profile_script"
+SHELL_COREUTILS_SCRIPT_DIR = "coreutils.varfunctions:shell_script_dir"
+SHELL_COREUTILS_ALIAS_DIR = "coreutils.varfunctions:shell_alias_dir"
+SHELL_NAME = "coreutils.varfunctions:shell_name"
+OS_NAME = "coreutils.varfunctions:os_name"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["coreutils*"]
+
+[tool.setuptools.package-data]
+coreutils=["resources/*", "resources/**"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+include = ["coreutils"]
+typeCheckingMode = "strict"
+useLibraryCodeForTypes = true
+
+# Modo estrito completo
+reportMissingTypeStubs = "error"
+reportOptionalMemberAccess = "error"
+reportOptionalSubscript = "error"
+reportUnknownMemberType = "error"
+reportUnknownArgumentType = "error"
+reportArgumentType = "error"
+reportUnknownVariableType = "error"
+reportUnknownParameterType = "error"
+reportMissingParameterType = "error"
+reportCallIssue = "error"
+reportIncompatibleMethodOverride = "error"
+
+[tool.ruff]
+extend-select = ["E", "F"]  # Ativa erros reais (ex: variável não definida)
+ignore = ["E501"]
+fix = true            # Corrige automaticamente
+unsafe-fixes = false   # Permite correções mais agressivas
+
+# Usar Ruff como formatter (recomendado)
+[tool.ruff.format]
+quote-style = "double"    # "single" se preferires
+indent-style = "space"
+docstring-code-format = true
