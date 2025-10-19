@@ -2,8 +2,6 @@
 # Author: José M. C. Noronha
 
 # --------------------------------- BASE VARS -------------------------------- #
-declare MY_SHELL_PROFILE="$HOME/.bashrc"
-declare MY_CUSTOM_SHELL_PROFILE="$HOME/.bash-profile-custom.sh"
 declare MY_ALIAS="$HOME/.bash_aliases"
 
 # ----------------------------------- DIRS ----------------------------------- #

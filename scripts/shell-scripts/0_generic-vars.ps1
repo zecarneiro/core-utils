@@ -1,15 +1,6 @@
 # Author: José M. C. Noronha
 
 # --------------------------------- BASE VARS -------------------------------- #
-try {
-    $__osInfo = Get-CimInstance -ClassName Win32_OperatingSystem
-    $MY_OS=$__osInfo.Caption
-}
-catch {
-    $MY_OS=""
-}
-$MY_SHELL_PROFILE = $profile.CurrentUserAllHosts
-$MY_CUSTOM_SHELL_PROFILE = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$home\.powershell-profile-custom.ps1")
 $MY_ALIAS = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$home\.powershell_aliases.ps1")
 
 # ----------------------------------- DIRS ----------------------------------- #

@@ -2,22 +2,6 @@
 # Author: José M. C. Noronha
 
 # ---------------------------------------------------------------------------- #
-#                                      NPM                                     #
-# ---------------------------------------------------------------------------- #
-function npmupgrade {
-    evaladvanced "npm outdated -g"
-    evaladvanced "npm update -g"
-}
-function npmlist {
-    local filter="$1"
-    local command_to_run="npm list -g --depth=0"
-    if [[ -n "${filter}" ]]; then
-        command_to_run="${command_to_run} | grep ${filter}"
-    fi
-    evaladvanced "${command_to_run}"
-}
-
-# ---------------------------------------------------------------------------- #
 #                                      APT                                     #
 # ---------------------------------------------------------------------------- #
 function aptupgrade {
@@ -36,7 +20,7 @@ function aptclean {
 }
 function aptlist {
     local filter="$1"
-    local command_to_run="apt list --installed"
+    local command_to_run="apt-mark showmanual"
     if [[ -n "${filter}" ]]; then
         command_to_run="${command_to_run} | grep ${filter}"
     fi
@@ -58,7 +42,7 @@ function flatpakclean {
 }
 function flatpaklist {
     local filter="$1"
-    local command_to_run="flatpak list"
+    local command_to_run="flatpak list --columns=application"
     if [[ -n "${filter}" ]]; then
         command_to_run="${command_to_run} | grep ${filter}"
     fi
@@ -98,7 +82,7 @@ function snapclean {
 }
 function snaplist {
     local filter="$1"
-    local command_to_run="snap list"
+    local command_to_run="snap list | awk 'NR >=2{print \$1}'"
     if [[ -n "${filter}" ]]; then
         command_to_run="${command_to_run} | grep ${filter}"
     fi

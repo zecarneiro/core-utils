@@ -1,10 +1,6 @@
 # Author: José M. C. Noronha
 # This script depends on https://github.com/uutils/coreutils
 
-function gitresethardorigin {
-    $current_branch_name = (git branch --show-current)
-    git reset --hard origin/$current_branch_name
-}
 function gitresetfile {
     param(
         [string] $fileName,

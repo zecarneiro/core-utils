@@ -2,21 +2,6 @@
 # This script depends on https://github.com/uutils/coreutils
 
 # ---------------------------------------------------------------------------- #
-#                                      NPM                                     #
-# ---------------------------------------------------------------------------- #
-function npmupgrade {
-	evaladvanced "npm outdated -g"
-	evaladvanced "npm update -g"
-}
-function npmlist($filter) {
-	$command_to_run = "npm list -g --depth=0"
-	if (![string]::IsNullOrEmpty($filter)) {
-		$command_to_run = "${command_to_run} | grep ${filter}"
-	}
-	evaladvanced "${command_to_run}" $true
-}
-
-# ---------------------------------------------------------------------------- #
 #                                    WINGET                                    #
 # ---------------------------------------------------------------------------- #
 function wingetupgrade {

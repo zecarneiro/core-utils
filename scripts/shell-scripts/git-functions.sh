@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 # Author: José M. C. Noronha
 
-function gitresethardorigin {
-    local current_branch_name="$(git branch --show-current)"
-    git reset --hard origin/$current_branch_name
-}
 function gitresetfile {
     fileName="$1"
     branch="$2"
