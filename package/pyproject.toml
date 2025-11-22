@@ -1,0 +1,130 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coreutils"
+version = "1.0.5"
+description = "Commands utils for OS"
+authors = [
+    { name = "José M. C. Noronha", email = "zecarneiro44@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["colorama"]
+
+[project.scripts]
+# Directory Functions
+delete-empty-dirs = "coreutils.directoryfunctions:delete_empty_dirs"
+directory-exists = "coreutils.directoryfunctions:directory_exists"
+delete-directory = "coreutils.directoryfunctions:delete_directory"
+find-dir = "coreutils.directoryfunctions:find_dir"
+
+# File Functions
+file-exists = "coreutils.filefunctions:file_exists"
+file-extension = "coreutils.filefunctions:file_extension"
+filename = "coreutils.filefunctions:filename"
+delete-file = "coreutils.filefunctions:delete_file"
+file-encoding = "coreutils.filefunctions:file_encoding"
+write-file = "coreutils.filefunctions:writefile"
+delete-file-lines = "coreutils.filefunctions:delete_file_lines"
+file-contain = "coreutils.filefunctions:file_contain"
+findfile = "coreutils.filefunctions:findfile"
+open-markdown = "coreutils.filefunctions:open_markdown"
+open-image = "coreutils.filefunctions:open_image"
+
+# Git Functions
+git-reset-hard-origin = "coreutils.gitfunctions:git_reset_hard_origin"
+git-reset-file = "coreutils.gitfunctions:git_reset_file"
+git-repo-backup = "coreutils.gitfunctions:git_repo_backup"
+git-repo-restore-backup = "coreutils.gitfunctions:git_repo_restore_backup"
+git-move-submodule = "coreutils.gitfunctions:git_move_submodule"
+git-add-script-perm = "coreutils.gitfunctions:git_add_script_perm"
+git-cherrypick-master = "coreutils.gitfunctions:git_cherrypick_master"
+gitclone = "coreutils.gitfunctions:gitclone"
+github-change-url = "coreutils.gitfunctions:github_change_url"
+git-set-config = "coreutils.gitfunctions:git_set_config"
+git-config-user = "coreutils.gitfunctions:git_config_user"
+gitcommit = "coreutils.gitfunctions:gitcommit"
+github-latest-version= "coreutils.gitfunctions:github_latest_version"
+
+# Logger Functions
+log = "coreutils.loggerfunctions:log"
+error-log = "coreutils.loggerfunctions:error_log"
+info-log = "coreutils.loggerfunctions:info_log"
+debug-log = "coreutils.loggerfunctions:debug_log"
+warn-log = "coreutils.loggerfunctions:warn_log"
+ok-log = "coreutils.loggerfunctions:ok_log"
+prompt-log = "coreutils.loggerfunctions:prompt_log"
+title-log = "coreutils.loggerfunctions:title_log"
+header-log = "coreutils.loggerfunctions:header_log"
+separator-log = "coreutils.loggerfunctions:separator_log"
+json-log = "coreutils.loggerfunctions:json_log"
+
+# Package Functions
+npm-list = "coreutils.packagefunctions:npm_list"
+npm-clean = "coreutils.packagefunctions:npm_clean"
+
+winget-upgrade = "coreutils.packagefunctions:wingetupgrade"
+
+winget-uninstall = "coreutils.packagefunctions:winget_uninstall"
+winget-list = "coreutils.packagefunctions:winget_list"
+scoop-uninstall = "coreutils.packagefunctions:scoop_uninstall"
+scoop-list = "coreutils.packagefunctions:scoop_list"
+wsl-list = "coreutils.packagefunctions:wsl_list"
+wsl-uninstall = "coreutils.packagefunctions:wsl_uninstall"
+apt-list = "coreutils.packagefunctions:apt_list"
+apt-uninstall = "coreutils.packagefunctions:apt_uninstall"
+flatpak-list = "coreutils.packagefunctions:flatpak_list"
+flatpak-uninstall = "coreutils.packagefunctions:flatpak_uninstall"
+snap-list = "coreutils.packagefunctions:snap_list"
+snap-uninstall = "coreutils.packagefunctions:snap_uninstall"
+deb-get-list = "coreutils.packagefunctions:deb_get_list"
+deb-get-uninstall = "coreutils.packagefunctions:deb_get_uninstall"
+pacstall-list = "coreutils.packagefunctions:pacstall_list"
+script-updater-processor = "coreutils.packagefunctions:script_updater_processor"
+system-upgrade = "coreutils.packagefunctions:system_upgrade"
+system-cleanup = "coreutils.packagefunctions:system_cleanup"
+
+# SETUP PROCESS
+coreutils-postinstall = "coreutils.setup_process:post_install"
+coreutils-preuninstall = "coreutils.setup_process:pre_uninstall"
+coreutils-list-all-cmds = "coreutils.setup_process:list_of_all_commands"
+coreutils-list-all-dependencies_apps = "coreutils.setup_process:list_of_all_apps_dependencies"
+
+# SYSTEM FUNCTIONS
+reload-shell-profile = "coreutils.systemfunctions:reload_shell_profile"
+prompt-style = "coreutils.systemfunctions:prompt_style"
+is-admin = "coreutils.systemfunctions:is_admin"
+reboot = "coreutils.systemfunctions:reboot"
+shutdownc = "coreutils.systemfunctions:shutdownc"
+command-exists = "coreutils.systemfunctions:command_exists"
+whichc = "coreutils.systemfunctions:whichc"
+script-processor = "coreutils.systemfunctions:script_processor"
+alias-processor = "coreutils.systemfunctions:alias_processor"
+evalc = "coreutils.systemfunctions:evalc"
+service-processor = "coreutils.systemfunctions:service_processor"
+env-var-exists = "coreutils.systemfunctions:env_var_exists"
+env-var-has-value = "coreutils.systemfunctions:env_var_has_value"
+env-var-print-values = "coreutils.systemfunctions:env_var_print_values"
+printenvc = "coreutils.systemfunctions:printenvc"
+
+# VAR Functions
+CONFIG_DIR = "coreutils.varfunctions:CONFIG_DIR"
+OTHER_APPS_DIR = "coreutils.varfunctions:OTHER_APPS_DIR"
+USER_BIN_DIR = "coreutils.varfunctions:USER_BIN_DIR"
+USER_STARTUP_DIR = "coreutils.varfunctions:USER_STARTUP_DIR"
+USER_TEMP_DIR = "coreutils.varfunctions:USER_TEMP_DIR"
+TEMP_DIR = "coreutils.varfunctions:TEMP_DIR"
+SHELL_PROFILE_SCRIPT = "coreutils.varfunctions:SHELL_PROFILE_SCRIPT"
+SHELL_COREUTILS_SCRIPT_DIR = "coreutils.varfunctions:SHELL_SCRIPT_DIR"
+SHELL_COREUTILS_ALIAS_DIR = "coreutils.varfunctions:SHELL_ALIAS_DIR"
+SHELL_NAME = "coreutils.varfunctions:SHELL_NAME"
+OS_NAME = "coreutils.varfunctions:OS_NAME"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["coreutils*"]
+
+[tool.setuptools.package-data]
+coreutils=["resources/*", "resources/**"]
