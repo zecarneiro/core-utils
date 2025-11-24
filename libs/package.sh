@@ -8,8 +8,8 @@ function __set_user_bin_dir() {
 }
 
 function __install_scripts() {
-    __eval "sudo cp '$__SCRIPTS_DIR__/pipc.sh' '/usr/local/bin/pipc'"
-    __eval "sudo chmod +x /usr/local/bin/pipc"
+    #__eval "sudo cp '$__SCRIPTS_DIR__/pipc.sh' '/usr/local/bin/pipc'"
+    #__eval "sudo chmod +x /usr/local/bin/pipc"
 
     __eval "sudo cp '$__SCRIPTS_DIR__/appimage-manager.sh' '/usr/local/bin/appimage-manager'"
     __eval "sudo chmod +x /usr/local/bin/appimage-manager"
@@ -31,16 +31,6 @@ function __install_apt_and_packages() {
     __eval "sudo apt install lsb-release -y"
     __eval "sudo apt install fzf -y"
     __eval "sudo apt install zenity -y"
-
-     __print "Install Python"
-    __eval "sudo apt install python3 -y"
-    __eval "sudo apt install python-is-python3 -y"
-    __eval "sudo apt install python3-pip -y"
-    __eval "sudo apt install python3-venv -y"
-    __eval "sudo apt install pipx -y"
-    __eval "pipx ensurepath"
-    __eval "pipc install pyright"
-    __eval "pipc install ruff"
 
     __eval ". '$__SHELL_FILE__'" true
     . "$__SHELL_FILE__"
@@ -102,4 +92,8 @@ function __install_deb_get_and_packages {
     . "$__SHELL_FILE__"
     
     __eval "sudo deb-get install topgrade"
+}
+
+function __install_rust {
+    __eval "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
 }

@@ -35,7 +35,18 @@ function __install_python {
         evaladvanced "sudo apt install python3-venv -y"
         evaladvanced "python3 -m venv $HOME/.venv/anynamehere"
         evaladvanced "sudo apt install pipx -y"
-        evaladvanced "pipx ensurepath --force"    
+        evaladvanced "pipx ensurepath --force"
+
+
+        __print "Install Python"
+    __eval "sudo apt install python3 -y"
+    __eval "sudo apt install python-is-python3 -y"
+    __eval "sudo apt install python3-pip -y"
+    __eval "sudo apt install python3-venv -y"
+    __eval "sudo apt install pipx -y"
+    __eval "pipx ensurepath"
+    __eval "pipc install pyright"
+    __eval "pipc install ruff" 
     fi
 }
 

@@ -36,6 +36,11 @@ function __install_dependencies() {
         __install_appimage_and_packages
         __install_pacstall_and_packages
         __install_deb_get_and_packages
+
+        __eval ". '$__SHELL_FILE__'" true
+        . "$__SHELL_FILE__"
+
+        __install_rust
     fi
 }
 
