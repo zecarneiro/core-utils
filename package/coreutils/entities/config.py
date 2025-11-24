@@ -1,5 +1,5 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
-@dataclass
-class Config:
+
+class Config(BaseModel):
     promptStyle: dict[str, int]

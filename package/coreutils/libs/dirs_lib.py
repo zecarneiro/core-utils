@@ -2,9 +2,7 @@ import importlib.resources as res
 import coreutils
 from coreutils.libs.const_lib import SYSTEM_UTILS, SHELL_UTILS
 from coreutils.libs.pythonutils.enums.shell_enum import EShell
-
 from pathlib import Path
-
 from coreutils.libs.pythonutils.file_utils import FileUtils
 
 
@@ -68,7 +66,7 @@ class DirsLib:
         directory = FileUtils.resolve_path(f"{DirsLib.get_coreutils_local_dir()}/functions/{shell_dir_name}")
         if not FileUtils.is_dir(directory):
             FileUtils.create_dir(directory)
-            if SHELL_UTILS.is_windows:
+            if SYSTEM_UTILS.is_windows:
                 FileUtils.create_dir(FileUtils.resolve_path(f"{directory}/{EShell.CMD.value}"))
         return directory
 

@@ -50,7 +50,7 @@ def npm_list():
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
     is_local: bool = args.local
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_to_run = f"{command_to_run} --depth=0" if is_local else f"{command_to_run} -g --depth=0"
     command_info = CommandInfo(command=command_to_run)
@@ -69,7 +69,7 @@ def npm_list():
             for match in matches:
                 print(match)
 
-def npm_clean(args_list=None):
+def npm_clean(args_list: list[str]|None = None):
     LoggerUtils.title_log("CLEANUP NPM")
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--local", action="store_true", dest="local", help="Clean for local package")  # store_true = DEFAULT False
@@ -99,7 +99,7 @@ def winget_list():
     parser.add_argument("-f", "--filter", metavar="APP_SEARCH", type=str, help="Package to search")
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
@@ -138,7 +138,7 @@ def scoop_list():
     parser.add_argument("-f", "--filter", metavar="APP_SEARCH", type=str, help="Package to search")
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
@@ -168,7 +168,7 @@ def wsl_list():
     parser.add_argument("-f", "--filter", metavar="APP_SEARCH", type=str, help="Distro to search")
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
@@ -207,7 +207,7 @@ def apt_list():
     parser.add_argument("-f", "--filter", metavar="APP_SEARCH", type=str, help="Package to search")
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
@@ -247,7 +247,7 @@ def flatpak_list():
     parser.add_argument("-f", "--filter", metavar="APP_SEARCH", type=str, help="Package to search")
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
@@ -282,12 +282,12 @@ def snap_list():
     if not SYSTEM_UTILS.is_linux:
         MessageProcessor.show_platform_msg([EPlatform.LINUX])
         return
-    command_to_run: str = "snap list | awk 'NR >=2{print \$1}'"
+    command_to_run: str = "snap list | awk 'NR >=2{print $1}'"
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filter", metavar="APP_SEARCH", type=str, help="Package to search")
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
@@ -328,7 +328,7 @@ def deb_get_list():
     parser.add_argument("-f", "--filter", metavar="APP_SEARCH", type=str, help="Package to search")
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
@@ -368,7 +368,7 @@ def pacstall_list():
     parser.add_argument("-f", "--filter", metavar="APP_SEARCH", type=str, help="Package to search")
     parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
     args = parser.parse_args()
-    filter_app: str = args.filter
+    filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
@@ -389,7 +389,7 @@ def pacstall_list():
 # ---------------------------------------------------------------------------- #
 #                                    OTHERS                                    #
 # ---------------------------------------------------------------------------- #
-def script_updater_processor(args_list=None):
+def script_updater_processor(args_list: list[str]|None = None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--install", metavar="SCRIPT_FILEPATH", type=str, help="Install shell script by given file script")
     parser.add_argument("-u", "--uninstall", metavar="SCRIPT_NAME", type=str, help="Uninstall shell script by given file script")
@@ -415,7 +415,7 @@ def script_updater_processor(args_list=None):
                 set_file_permission_to_run(dest)
                 LoggerUtils.ok_log(f"Installed shell script updater: {FileUtils.basename(install_file)}")
         else:
-            LoggerUtils.error_log(f"Installation failed")
+            LoggerUtils.error_log("Installation failed")
     elif not GenericUtils.str_is_empty(uninstall_file):
         for file in file_list:
             file_basename = FileUtils.basename(file)
@@ -425,7 +425,7 @@ def script_updater_processor(args_list=None):
     elif not GenericUtils.str_is_empty(runner):
         is_all = runner == "ALL"
         if is_all:
-            LoggerUtils.title_log(f"Process all installed shell script to install/update/uninstall packages")
+            LoggerUtils.title_log("Process all installed shell script to install/update/uninstall packages")
         for file in file_list:
             file_basename = FileUtils.basename(file)
             can_run = True

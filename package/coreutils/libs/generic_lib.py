@@ -1,4 +1,5 @@
 import sys
+import json
 
 from coreutils.entities.config import Config
 from coreutils.libs.const_lib import CONSOLE_UTILS, SHELL_UTILS, SYSTEM_UTILS
@@ -11,17 +12,23 @@ from coreutils.libs.pythonutils.generic_utils import GenericUtils
 __CONFIG__ = "config.json"
 __CONFIG_FILE_NAME__ = "config.json"
 
+from coreutils.libs.pythonutils.logger_utils import LoggerUtils
+
 def get_args_str() -> str:
     return GenericUtils.list_to_str(sys.argv[1:])
 
 def read_config() -> Config:
     config_file = FileUtils.resolve_path(f"{DirsLib.get_coreutils_config_dir()}/{__CONFIG_FILE_NAME__}")
     current_shell_name = SHELL_UTILS.current_shell.value
-    config_data = Config(promptStyle={}) if not FileUtils.is_file(config_file) else FileUtils.read_json_file(config_file, Config)
-    if config_data is None:
+    try:
+        with open(config_file, 'r') as f:
+            data = json.load(f)
+        config_data = Config.model_validate_json(data)
+    except Exception as e:
+        LoggerUtils.error_log(f"JSON validation: {e}")
         config_data: Config = Config(promptStyle={})
     if current_shell_name not in config_data.promptStyle:
-        if SYSTEM_UTILS.is_powershell:
+        if SHELL_UTILS.is_powershell:
             config_data.promptStyle[current_shell_name] = 2
         else:
             config_data.promptStyle[current_shell_name] = 4

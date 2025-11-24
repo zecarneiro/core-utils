@@ -56,8 +56,17 @@ function __clean() {
     __print "$msg. Done."  
 }
 
+function __build() {
+    pushd .
+    cd "$__PACKAGE_DIR__" || exit 1
+    __eval "ruff check ." || exit 1
+    __eval "pyright" || exit 1
+    popd
+}
+
 function __install() {
     local is_main_step="${1}"
+    __build
     local msg="Install ${__PACKAGE_NAME__}"
     if [[ "${is_main_step}" == true ]]; then
         __print_title "$msg"
@@ -68,7 +77,7 @@ function __install() {
         __uninstall false
         (
             cd "$__PACKAGE_DIR__" || exit
-            __eval "sudo pip-custom install ."
+            __eval "pipc install ."
         )
     fi
     __clean false
@@ -88,7 +97,7 @@ function __uninstall() {
     __eval "${__PACKAGE_NAME__}-preuninstall"
     __eval "pwsh -Command ${__PACKAGE_NAME__}-preuninstall"
     if [[ $(__is_linux_so) == true ]]; then
-        __eval "sudo pip-custom uninstall ${__PACKAGE_NAME__} --yes"
+        __eval "pipc uninstall ${__PACKAGE_NAME__} --yes"
     fi
     __print "$msg. Done."
 }

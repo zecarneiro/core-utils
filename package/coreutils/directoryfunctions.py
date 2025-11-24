@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from coreutils.libs.const_lib import CONSOLE_UTILS
+from coreutils.libs.const_lib import SHELL_UTILS
 from coreutils.libs.pythonutils.const_utils import CONST
 from coreutils.libs.pythonutils.enums.shell_enum import EShell
 from coreutils.libs.pythonutils.file_utils import FileUtils
@@ -10,8 +10,7 @@ from coreutils.systemfunctions import script_processor
 
 
 def process_post_install_for_dir_function_file():
-    script_proc: dict[EShell, list[str]]
-    if CONSOLE_UTILS.shell_utils.is_shell([EShell.POWERSHELL, EShell.CMD]):
+    if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
         script_processor(["-i", "-n", "ldir", "-c", "Get-ChildItem -Path \"$pwd\" -Directory -Force | ForEach-Object {$_.BaseName}"])
         script_processor(["-i", "-n", "countdirs", "-c", "(Get-ChildItem -Path \"$pwd\" -recurse | where-object { $_.PSIsContainer }).Count"])
         script_processor(["-i", "-n", "mkdir", "-c", f"New-Item -Path \"{CONST.POWERSHELL_ALL_ARGS_VAR_STR}\" -ItemType Directory -Force | Out-Null"])

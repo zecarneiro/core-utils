@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from coreutils.libs.const_lib import SYSTEM_UTILS, SHELL_UTILS
+from coreutils.libs.const_lib import SHELL_UTILS
 from coreutils.libs.dirs_lib import DirsLib
 from coreutils.libs.processors.message_processor import MessageProcessor
 from coreutils.libs.pythonutils.const_utils import CONST
@@ -29,13 +29,13 @@ class AliasProcessor:
             self.is_valid_shell = False
             MessageProcessor.show_shell_msg(self.valid_shell)
         if self.is_alias_dir_created:
-            if SYSTEM_UTILS.is_powershell:
+            if SHELL_UTILS.is_powershell:
                 self.alias_file = FileUtils.resolve_path(f"{self.alias_dir}/powershell.ps1")
-            elif SYSTEM_UTILS.is_bash:
+            elif SHELL_UTILS.is_bash:
                 self.alias_file = FileUtils.resolve_path(f"{self.alias_dir}/bash")
-            elif SYSTEM_UTILS.is_ksh:
+            elif SHELL_UTILS.is_ksh:
                 self.alias_file = FileUtils.resolve_path(f"{self.alias_dir}/ksh")
-            elif SYSTEM_UTILS.is_zsh:
+            elif SHELL_UTILS.is_zsh:
                 self.alias_file = FileUtils.resolve_path(f"{self.alias_dir}/zsh")
             else:
                 LoggerUtils.error_log(f"{CONST.UNKNOWN} SHELL. Can not continue")
@@ -46,9 +46,9 @@ class AliasProcessor:
              LoggerUtils.error_log(f"Failed on create dir: {self.alias_dir}")
 
     def __get_content_data_with_name(self) -> str|None:
-        if SYSTEM_UTILS.is_powershell:
+        if SHELL_UTILS.is_powershell:
             return f"Set-Alias -Name \"{self.name}\" -Value"
-        elif SYSTEM_UTILS.is_bash or SYSTEM_UTILS.is_ksh or SYSTEM_UTILS.is_zsh:
+        elif SHELL_UTILS.is_bash or SHELL_UTILS.is_ksh or SHELL_UTILS.is_zsh:
             return f"alias {self.name}="
         return None
 
@@ -70,9 +70,9 @@ class AliasProcessor:
         if alias_file_data is not None and len(alias_file_data) > 0:
             for alias_line in alias_file_data.splitlines():
                 result = alias_line.split("=", 1)
-                if result is not None and len(result) > 1:
+                if len(result) > 1:
                     alias_name = result[0].replace("alias ", "")
-                    if alias_name is not None and len(alias_name) > 0:
+                    if len(alias_name) > 0:
                         alias_list.append(alias_name)
         return alias_list
 
@@ -97,10 +97,10 @@ class AliasProcessor:
         content_data = self.__get_content_data_with_name()
         if content_data is not None:
             self.__delete_process(False)
-            if SYSTEM_UTILS.is_powershell:
+            if SHELL_UTILS.is_powershell:
                 content_data = f"{content_data} \"{self.content}\""
                 status = FileUtils.write_file(self.alias_file, content_data, WriteFileOptions(mode="a"))
-            elif SYSTEM_UTILS.is_bash:
+            elif SHELL_UTILS.is_bash:
                 content_data = f"{content_data}\"{self.content}\""
                 status = FileUtils.write_file(self.alias_file, content_data, WriteFileOptions(mode="a"))
         if status:

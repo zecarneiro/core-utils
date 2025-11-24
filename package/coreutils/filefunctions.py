@@ -2,7 +2,7 @@ import argparse
 import os
 import shutil
 
-from coreutils.libs.const_lib import SYSTEM_UTILS, CONSOLE_UTILS
+from coreutils.libs.const_lib import SYSTEM_UTILS, CONSOLE_UTILS, SHELL_UTILS
 from coreutils.libs.pythonutils.entities.command_info import CommandInfo
 from coreutils.libs.pythonutils.entities.write_file_options import WriteFileOptions
 from coreutils.libs.pythonutils.enums.shell_enum import EShell
@@ -12,19 +12,19 @@ from coreutils.systemfunctions import script_processor
 
 def file_dependencies_apps() -> list[str]:
     apps: list[str] = ["markdown_viewer"]
-    if SYSTEM_UTILS.is_linux():
+    if SYSTEM_UTILS.is_linux:
         apps.append("eog")
     return apps
 
 def process_post_install_for_file_function_file():
-    if SYSTEM_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+    if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
         script_processor(["-i", "-n", "countfiles", "-c", "(Get-ChildItem -File -Recurse -Force | Select-Object -ExpandProperty FullName | Measure-Object).Count"])
         script_processor(["-i", "-n", "move-files-to-parent", "-c", "Get-ChildItem -Path \"$pwd\" -Recurse -File -Force | Move-Item -Destination \"$pwd\" -Verbose"])
         script_processor(["-i", "-n", "lf", "-c", "Get-ChildItem -Path \"$pwd\" -File -Force | ForEach-Object { $_.FullName }"])
     else:
         script_processor(["-i", "-n", "countfiles", "-c", "find . -type f | wc -l"])
-        script_processor(["-i", "-n", "move-files-to-parent", "-c", "find . -mindepth 2 -type f -print -exec mv {} . \;"])
-        script_processor(["-i", "-n", "lf", "-c", "find . -maxdepth 1 -type f"])
+        script_processor(["-i", "-n", "move-files-to-parent", "-c", 'find . -mindepth 2 -type f -print -exec mv {} . \\;'])
+        script_processor(["-i", "-n", "lf", "-c", 'find . -maxdepth 1 -type f'])
 
 def file_exists():
     parser = argparse.ArgumentParser()
@@ -60,7 +60,7 @@ def file_encoding():
     args = parser.parse_args()
     print(FileUtils.get_file_encoding(args.file))
 
-def writefile(args_list=None):
+def writefile(args_list: list[str]|None =None):
     encoding: str = "utf-8"
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
@@ -85,7 +85,7 @@ def writefile(args_list=None):
         else:
             LoggerUtils.error_log("File writing process completed unsuccessfully.")
 
-def delete_file_lines(args_list=None):
+def delete_file_lines(args_list: list[str]|None = None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
     parser.add_argument("-m", "--match", metavar="MATCH", type=str, required=True, help="Match content in lines to delete")

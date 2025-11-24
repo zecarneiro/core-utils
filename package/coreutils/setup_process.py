@@ -4,7 +4,7 @@ from importlib.metadata import distributions
 from coreutils.directoryfunctions import process_post_install_for_dir_function_file
 from coreutils.filefunctions import process_post_install_for_file_function_file, file_dependencies_apps
 from coreutils.gitfunctions import process_post_install_for_git_function_file, git_dependencies_apps
-from coreutils.libs.const_lib import SYSTEM_UTILS
+from coreutils.libs.const_lib import SYSTEM_UTILS, SHELL_UTILS
 from coreutils.libs.dirs_lib import DirsLib
 from coreutils.libs.generic_lib import get_all_shell_profiles_files
 from coreutils.libs.pythonutils.console_utils import ConsoleUtils
@@ -52,13 +52,13 @@ def __set_shell_script_and_alias():
     process_post_install_for_git_function_file()
     process_post_install_for_package_function_file()
     process_post_install_for_system_function_file()
-    script_processor(["-i", "-n", "gearlever", "-c", f"flatpak run it.mijorus.gearlever {SYSTEM_UTILS.get_all_args_var_name()}"])
+    script_processor(["-i", "-n", "gearlever", "-c", f"flatpak run it.mijorus.gearlever {SHELL_UTILS.get_all_args_var_name()}"])
     if SYSTEM_UTILS.is_windows:
-        script_processor(["-i", "-n", "bash", "-c", f"$home\\scoop\\shims\\bash.exe {SYSTEM_UTILS.get_all_args_var_name()}"])
+        script_processor(["-i", "-n", "bash", "-c", f"$home\\scoop\\shims\\bash.exe {SHELL_UTILS.get_all_args_var_name()}"])
     else:
-        if SYSTEM_UTILS.is_powershell:
-            script_processor(["-i", "-n", "bash", "-c", f"{ConsoleUtils.which("bash")} {SYSTEM_UTILS.get_all_args_var_name()}"])
-    if SYSTEM_UTILS.is_bash:
+        if SHELL_UTILS.is_powershell:
+            script_processor(["-i", "-n", "bash", "-c", f"{ConsoleUtils.which("bash")} {SHELL_UTILS.get_all_args_var_name()}"])
+    if SHELL_UTILS.is_bash:
         alias_processor(["-a", "-n", "powershell", "-c", "pwsh -nologo"])
         alias_processor(["-a", "-n", "pwsh", "-c", "pwsh -nologo"])
 
@@ -120,7 +120,7 @@ def __process_init_shell_script(is_enable: bool):
     if is_enable:
         LoggerUtils.ok_log(f"Please run this command in your terminal: . {GenericUtils.capture_print_from_function(shell_profile_script)}")
     else:
-        LoggerUtils.ok_log(f"Please, restart your terminal")
+        LoggerUtils.ok_log("Please, restart your terminal")
 
 
 def post_install():

@@ -40,22 +40,22 @@ def process_post_install_for_system_function_file():
         script_processor(["-i", "-n", "ver", "-c", "lsb_release -a"])
         script_processor(["-i", "-n", "trash", "-c", f"mv --force -t ~/.local/share/Trash/files {SHELL_UTILS.get_all_args_var_name()}"])
         script_processor(["-i", "-n", "restart-explorer", "-c", "nautilus -q"])
-        if not SYSTEM_UTILS.is_powershell:
+        if not SHELL_UTILS.is_powershell:
             alias_processor(["-a", "-n", "cls", "-c", "clear"])
         script_processor(["-i", "-n", "update-menu-entries", "-c", "sudo update-desktop-database"])
 
-    if SYSTEM_UTILS.is_powershell:
+    if SHELL_UTILS.is_powershell:
         script_processor(["-f", f"{DirsLib.get_resource_shell_script_libs_dir()}/pgrep.ps1"])
         script_processor(["-f", f"{DirsLib.get_resource_shell_script_libs_dir()}/pkill.ps1"])
     else:
         script_processor(["-i", "-n", "pgrep", "-c", f"{CONSOLE_UTILS.which("pgrep")} -l {CONST.BASH_ALL_ARGS_VAR_STR}"])
 
 def reload_shell_profile(only_msg: bool = False):
-    current_shell = SYSTEM_UTILS.current_shell
+    current_shell = SHELL_UTILS.current_shell
     if current_shell not in [EShell.CMD, EShell.UNKNOWN]:
         shell_script = GenericUtils.capture_print_from_function(shell_profile_script)
         msg = "Reload current shell with"
-        if SYSTEM_UTILS.is_powershell:
+        if SHELL_UTILS.is_powershell:
             msg = f"{msg}: . '{shell_script}'"
         else:
             msg = f"{msg}: source '{shell_script}'"
@@ -75,10 +75,10 @@ def prompt_style():
     args = parser.parse_args()
     status: bool = args.status
     value = args.value
-    if not SYSTEM_UTILS.is_shell([EShell.POWERSHELL, EShell.BASH]):
+    if not SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.BASH]):
         MessageProcessor.show_shell_msg([EShell.POWERSHELL, EShell.BASH])
         return
-    current_shell = SYSTEM_UTILS.current_shell
+    current_shell = SHELL_UTILS.current_shell
     shell_name: str = current_shell.value
     config_data = read_config()
     if status:
@@ -89,7 +89,7 @@ def prompt_style():
         reload_shell_profile()
 
 def is_admin():
-    print(LoggerUtils.get_bool_str_formated(SystemUtils.is_admin()))
+    print(LoggerUtils.get_bool_str_formated(SYSTEM_UTILS.is_admin()))
 
 def reboot():
     user_input = input("Will be restart PC. Continue(y/N)? ")
@@ -135,9 +135,9 @@ def whichc():
     which_processor_lib = WhichProcessor(command=args.command)
     print(which_processor_lib.find_command())
 
-def script_processor(args_list=None):
+def script_processor(args_list: list[str] | None = None):
     parser = argparse.ArgumentParser()
-    parser.description = f"Set scripts as command."
+    parser.description = "Set scripts as command."
     parser.add_argument("-n", "--name", metavar="NAME", type=str)
     parser.add_argument("-c", "--content", metavar="CONTENT", type=str, help="Content for script")
     parser.add_argument("-i", "--install", action="store_true", dest="install", help="Process installation")
@@ -162,7 +162,7 @@ def script_processor(args_list=None):
         LoggerUtils.warn_log("Please, set the flag --install|--uninstall|--list")
         parser.print_help()
 
-def alias_processor(args_list=None):
+def alias_processor(args_list: list[str]|None = None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", metavar="NAME", type=str)
     parser.add_argument("-c", "--content", metavar="CONTENT", nargs="?", help="Content of alias. Only work with --add arg")
@@ -216,7 +216,7 @@ def env_var_exists():
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
     args = parser.parse_args()
-    print(LoggerUtils.get_bool_str_formated(SHELL_UTILS.env_var_exists(args.name)))
+    print(LoggerUtils.get_bool_str_formated(SystemUtils.env_var_exists(args.name)))
 
 def env_var_has_value():
     parser = argparse.ArgumentParser()
@@ -225,7 +225,7 @@ def env_var_has_value():
     args = parser.parse_args()
     print(LoggerUtils.get_bool_str_formated(SystemUtils.env_var_has_value(args.name, args.value)))
 
-def env_var_print_values(args_list=None):
+def env_var_print_values(args_list: list[str]|None = None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
     args = parser.parse_args(args_list)
@@ -235,7 +235,8 @@ def env_var_print_values(args_list=None):
         print(f"{i}. {part}")
 
 def printenvc():
-    for name, values in SystemUtils.env_var_list().items():
-        LoggerUtils.header_log(name)
+    for name, _ in SystemUtils.env_var_list().items():
+        LoggerUtils.separator_log(20)
         env_var_print_values(["-n", name])
+        print(CONST.EOF)
 

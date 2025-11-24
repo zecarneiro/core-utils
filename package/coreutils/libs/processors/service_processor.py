@@ -9,7 +9,6 @@ from coreutils.libs.pythonutils.enums.shell_enum import EShell
 from coreutils.libs.pythonutils.file_utils import FileUtils
 from coreutils.libs.pythonutils.generic_utils import GenericUtils
 from coreutils.libs.pythonutils.logger_utils import LoggerUtils
-from coreutils.libs.pythonutils.system_utils import SystemUtils
 
 
 @dataclass
@@ -60,8 +59,8 @@ WantedBy=multi-user.target
         elif not skip_command and GenericUtils.str_is_empty(self.command):
             LoggerUtils.error_log(f"Invalid given command: {self.command}")
             return False
-        elif not SystemUtils.is_admin():
-            LoggerUtils.error_log(f"Please, run as admin to continue...")
+        elif not SYSTEM_UTILS.is_admin():
+            LoggerUtils.error_log("Please, run as admin to continue...")
             return False
         return True
 

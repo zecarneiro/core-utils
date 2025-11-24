@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from coreutils.libs.const_lib import CONSOLE_UTILS, SYSTEM_UTILS
+from coreutils.libs.const_lib import CONSOLE_UTILS, SHELL_UTILS
 from coreutils.libs.pythonutils.console_utils import ConsoleUtils
 from coreutils.libs.pythonutils.const_utils import CONST
 from coreutils.libs.pythonutils.entities.command_info import CommandInfo
@@ -11,9 +11,9 @@ from coreutils.libs.pythonutils.generic_utils import GenericUtils
 @dataclass
 class WhichProcessor:
     command: str
-    __result: str = ""
-    __function_key = "FUNCTION"
-    __alias_key = "ALIAS"
+    __result: str = field(default="", init=False)
+    __function_key: str = field(default="FUNCTION", init=False)
+    __alias_key: str = field(default="ALIAS", init=False)
 
     def __has_command(self) -> bool:
         return not GenericUtils.str_is_empty(self.__result)
@@ -25,26 +25,26 @@ class WhichProcessor:
                 self.__result = f"{type_command}: {self.command}"
 
     def __get_command_info(self, type_command: str) -> CommandInfo|None:
-        if SYSTEM_UTILS.is_powershell:
+        if SHELL_UTILS.is_powershell:
             if type_command == self.__function_key:
                 return CommandInfo(command=f"Get-ChildItem Function:{self.command} -ErrorAction SilentlyContinue")
             elif type_command == self.__alias_key:
                 return CommandInfo(command=f"Get-Alias {self.command} -ErrorAction SilentlyContinue")
-        elif SYSTEM_UTILS.is_bash:
+        elif SHELL_UTILS.is_bash:
             if type_command == self.__function_key:
                 cmd = f"bash -i -c 'declare -F {self.command} >/dev/null 2>&1 && echo existe'"
                 return CommandInfo(command=cmd, shell=EShell.UNKNOWN, use_shell=True)
             elif type_command == self.__alias_key:
                 cmd = f"bash -i -c 'alias {self.command} >/dev/null 2>&1 && echo existe'"
                 return CommandInfo(command=cmd, shell=EShell.UNKNOWN, use_shell=True)
-        elif SYSTEM_UTILS.is_fish:
+        elif SHELL_UTILS.is_fish:
             if type_command == self.__function_key:
                 return CommandInfo(command=f"functions -q {self.command}; and echo \"exists\"", use_shell=True)
             elif type_command == self.__alias_key:
                 cmd = f"alias | grep -q '^alias {self.command} '; and echo exists"
                 return CommandInfo(command=cmd, use_shell=True)
-        elif SYSTEM_UTILS.is_ksh or SYSTEM_UTILS.is_zsh:
-            prefix_cmd = "ksh -i -c" if SYSTEM_UTILS.is_ksh else "zsh -i -c"
+        elif SHELL_UTILS.is_ksh or SHELL_UTILS.is_zsh:
+            prefix_cmd = "ksh -i -c" if SHELL_UTILS.is_ksh else "zsh -i -c"
             if type_command == self.__function_key:
                 return CommandInfo(command=f"{prefix_cmd} 'typeset -f {self.command} >/dev/null 2>&1 && echo exists'", use_shell=True)
             elif type_command == self.__alias_key:
@@ -70,7 +70,6 @@ class WhichProcessor:
         return self.__has_command()
 
     def find_command(self):
-        command_info: CommandInfo
         if self.__find_app_file_path() or self.__find_alias() or self.__find_function():
             return self.__result
         return CONST.UNKNOWN

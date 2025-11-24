@@ -1,9 +1,8 @@
 import argparse
 
-import requests
-
 from coreutils.libs.const_lib import CONSOLE_UTILS
 from coreutils.libs.pythonutils.entities.command_info import CommandInfo
+from coreutils.libs.pythonutils.entities.github_repo_release_options import GitHubRepoReleaseOption
 from coreutils.libs.pythonutils.file_utils import FileUtils
 from coreutils.libs.pythonutils.generic_utils import GenericUtils
 from coreutils.libs.pythonutils.logger_utils import LoggerUtils
@@ -163,8 +162,8 @@ def git_config_user():
     parser.add_argument("-u", "--username", metavar="USERNAME", type=str)
     parser.add_argument("-e", "--email", metavar="EMAIL", type=str)
     args = parser.parse_args()
-    username: str = args.username
-    email: str = args.email
+    username: str|None = args.username
+    email: str|None = args.email
     global_flag = "--global" if FileUtils.file_exist(".git") else ""
     command_info = __get_git_command_info()
     base_cmd_args = ["config", global_flag]
@@ -189,6 +188,7 @@ def gitcommit():
     CONSOLE_UTILS.exec_real_time(command_info)
 
 def github_latest_version():
+    no_release_found_msg = "No releases found for this repository."
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--owner", metavar="OWNER", type=str, required=True, help="Github OWNER")
     parser.add_argument("-r", "--repository", metavar="REPO", type=str, required=True, help="Github REPOSITORY")
@@ -196,35 +196,17 @@ def github_latest_version():
     args = parser.parse_args()
     owner: str = args.owner
     repository: str = args.repository
-    is_latest: bool = args.latest
-    url_suffix = "/latest" if is_latest else ""
-    url = f"https://api.github.com/repos/{owner}/{repository}/releases{url_suffix}"
-    LoggerUtils.info_log(f"Get info from API: {url}")
-    response = requests.get(url)
-    if response.status_code == 200:
-        releases = response.json()
-        no_release_found_msg = "No releases found for this repository."
-        if releases:
-            tag_key = "tag_name"
-            download_url_key = "zipball_url"
-            latest_obj = releases
-            if not is_latest:
-                # Sort releases by creation date (latest first)
-                releases.sort(key=lambda r: r["created_at"], reverse=True)
-                latest_obj = releases[0]
-            if latest_obj is not None:
-                already_run = False
-                latest_version = f"{latest_obj[tag_key]}".replace("v", "")  # usually the version tag
-                download_url = latest_obj[download_url_key]  # zip archive of this release
-                if not GenericUtils.str_is_empty(latest_version):
-                    print(f"Latest version: {latest_version}")
-                    already_run = True
-                if not GenericUtils.str_is_empty(download_url):
-                    print(f"Download URL: {download_url}")
-                    already_run = True
-                if not already_run:
-                    LoggerUtils.warn_log(no_release_found_msg)
-        else:
+    release = GenericUtils.get_github_repo_release(GitHubRepoReleaseOption(owner=owner, repo=repository, is_latest=args.latest))
+    if release is not None:
+        already_run = False
+        latest_version: str = release.tag_name.replace("v", "") if release.tag_name else ""  # usually the version tag
+        if not GenericUtils.str_is_empty(latest_version):
+            print(f"Latest version: {latest_version}")
+            already_run = True
+        if not GenericUtils.str_is_empty(release.zipball_url): # zip archive of this release
+            print(f"Download URL: {release.zipball_url}")
+            already_run = True
+        if not already_run:
             LoggerUtils.warn_log(no_release_found_msg)
     else:
-        LoggerUtils.error_log(f"Failed to fetch releases: {response.status_code}")
+        LoggerUtils.warn_log(no_release_found_msg)

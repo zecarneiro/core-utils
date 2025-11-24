@@ -8,8 +8,8 @@ function __set_user_bin_dir() {
 }
 
 function __install_scripts() {
-    __eval "sudo cp '$__SCRIPTS_DIR__/pip-custom.sh' '/usr/local/bin/pip-custom'"
-    __eval "sudo chmod +x /usr/local/bin/pip-custom"
+    __eval "sudo cp '$__SCRIPTS_DIR__/pipc.sh' '/usr/local/bin/pipc'"
+    __eval "sudo chmod +x /usr/local/bin/pipc"
 
     __eval "sudo cp '$__SCRIPTS_DIR__/appimage-manager.sh' '/usr/local/bin/appimage-manager'"
     __eval "sudo chmod +x /usr/local/bin/appimage-manager"
@@ -39,6 +39,8 @@ function __install_apt_and_packages() {
     __eval "sudo apt install python3-venv -y"
     __eval "sudo apt install pipx -y"
     __eval "pipx ensurepath"
+    __eval "pipc install pyright"
+    __eval "pipc install ruff"
 
     __eval ". '$__SHELL_FILE__'" true
     . "$__SHELL_FILE__"

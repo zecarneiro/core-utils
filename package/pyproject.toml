@@ -11,7 +11,7 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["colorama"]
+dependencies = ["colorama", "pydantic"]
 
 [project.scripts]
 # Directory Functions
@@ -128,3 +128,34 @@ include = ["coreutils*"]
 
 [tool.setuptools.package-data]
 coreutils=["resources/*", "resources/**"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+include = ["coreutils"]
+typeCheckingMode = "strict"
+useLibraryCodeForTypes = true
+
+# Modo estrito completo
+reportMissingTypeStubs = "none"
+reportOptionalMemberAccess = "none"
+reportOptionalSubscript = "none"
+reportUnknownMemberType = "none"
+reportUnknownArgumentType = "none"
+reportArgumentType = "none"
+reportUnknownVariableType = "none"
+reportUnknownParameterType = "none"
+reportMissingParameterType = "none"
+reportCallIssue = "none"
+reportIncompatibleMethodOverride = "none"
+
+[tool.ruff]
+extend-select = ["E", "F"]  # Ativa erros reais (ex: variável não definida)
+ignore = ["E501"]
+fix = false            # Corrige automaticamente
+unsafe-fixes = false   # Permite correções mais agressivas
+
+# Usar Ruff como formatter (recomendado)
+[tool.ruff.format]
+quote-style = "double"    # "single" se preferires
+indent-style = "space"
+docstring-code-format = true

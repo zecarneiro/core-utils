@@ -46,7 +46,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "{0}" {1}"""
         return True
 
     def uninstall(self):
-        if SYSTEM_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+        if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
             file_to_delete_list: list[str] = [
                 FileUtils.resolve_path(f"{self.scripts_dir}/{self.name}.ps1"),
                 FileUtils.resolve_path(f"{self.scripts_dir}/{EShell.CMD.value}/{self.name}.cmd")
@@ -58,44 +58,45 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "{0}" {1}"""
                     else:
                         LoggerUtils.error_log(f"Failed to delete file: {file_to_delete}")
         elif SHELL_UTILS.is_shell([EShell.BASH]):
-            file_to_delete = GenericUtils.resolve_path(f"{self.scripts_dir}/{self.name}")
-            if is_file(file_to_delete):
-                if delete_file(file_to_delete):
-                    ok_log(f"Deleted file: {file_to_delete}")
+            file_to_delete = FileUtils.resolve_path(f"{self.scripts_dir}/{self.name}")
+            if FileUtils.is_file(file_to_delete):
+                if FileUtils.delete_file(file_to_delete):
+                    LoggerUtils.ok_log(f"Deleted file: {file_to_delete}")
                 else:
-                    error_log(f"Failed to delete file: {file_to_delete}")
+                    LoggerUtils.error_log(f"Failed to delete file: {file_to_delete}")
 
     def install_from_file(self):
-        if not str_is_empty(self.install_file) and is_file(self.install_file):
-            self.name = filename_without_ext(basename(self.install_file))
-            self.content = read_file(self.install_file)
+        if not GenericUtils.str_is_empty(self.install_file) and FileUtils.is_file(self.install_file):
+            self.name = FileUtils.filename_without_ext(FileUtils.basename(self.install_file))
+            content = FileUtils.read_file(self.install_file)
+            self.content = content if content is not None else ""
             self.install_file = ""
             self.install()
 
     def install(self):
         success_install = True
-        if is_shell([EShell.POWERSHELL, EShell.CMD]):
-            script_powershell_file = resolve_path(f"{self.scripts_dir}/{self.name}.ps1")
-            script_cmd_file = resolve_path(f"{self.scripts_dir}/{EShell.CMD.value}/{self.name}.bat")
+        if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+            script_powershell_file = FileUtils.resolve_path(f"{self.scripts_dir}/{self.name}.ps1")
+            script_cmd_file = FileUtils.resolve_path(f"{self.scripts_dir}/{EShell.CMD.value}/{self.name}.bat")
             cmd_content = self.windows_cmd_content_template.format(script_powershell_file, CONST.CMD_ALL_ARGS_VAR_STR)
-            success_install = write_file(script_powershell_file, self.content)
-            if success_install and is_windows():
-                success_install = write_file(script_cmd_file, cmd_content)
-        elif is_bash():
+            success_install = FileUtils.write_file(script_powershell_file, self.content)
+            if success_install and SYSTEM_UTILS.is_windows:
+                success_install = FileUtils.write_file(script_cmd_file, cmd_content)
+        elif SHELL_UTILS.is_bash:
             bash_env_import = "#!/usr/bin/env bash"
             bash_import = "#!/usr/bin/bash"
             if bash_env_import not in self.content and bash_import not in self.content:
                 self.content = f"{bash_env_import}{CONST.EOF}{self.content}"
-            script_bash_file = resolve_path(f"{self.scripts_dir}/{self.name}")
-            success_install = write_file(script_bash_file, self.content)
+            script_bash_file = FileUtils.resolve_path(f"{self.scripts_dir}/{self.name}")
+            success_install = FileUtils.write_file(script_bash_file, self.content)
             set_file_permission_to_run(script_bash_file)
         if success_install:
-            ok_log(f"Installed script with name: {self.name}")
+            LoggerUtils.ok_log(f"Installed script with name: {self.name}")
         else:
-            error_log(f"Can not install this script: {self.name}")
+            LoggerUtils.error_log(f"Can not install this script: {self.name}")
 
     def get_all(self) -> list[str]:
         script_list: list[str] = []
-        for file in get_list_files_on_folder(self.scripts_dir):
-            script_list.append(filename_without_ext(basename(file)))
+        for file in FileUtils.get_list_files_on_folder(self.scripts_dir):
+            script_list.append(FileUtils.filename_without_ext(FileUtils.basename(file)))
         return script_list

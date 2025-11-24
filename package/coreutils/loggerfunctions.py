@@ -89,4 +89,5 @@ def json_log():
     parser = argparse.ArgumentParser()
     parser.add_argument("-j", "--json", metavar="JSON_STRING", nargs="+", required=True)
     args = parser.parse_args()
-    LoggerUtils.json_log(GenericUtils.list_to_str(args.json))
+    data: list[str] = args.json
+    LoggerUtils.json_log(GenericUtils.list_to_str(data))

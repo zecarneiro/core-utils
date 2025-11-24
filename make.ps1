@@ -67,7 +67,7 @@ function __install() {
     if (__is_windows_so) {
         __uninstall $false
         Set-Location "$__PACKAGE_DIR__"
-        __eval "pip-custom install ."
+        __eval "pipc install ."
         Set-Location "$__MAIN_SCRIPT_DIR__"
     }
     __clean $false
@@ -85,7 +85,7 @@ function __uninstall() {
     } 
     __eval "${__PACKAGE_NAME__}-preuninstall"
     if (__is_windows_so) {
-        __eval "pip-custom uninstall ${__PACKAGE_NAME__} --yes"
+        __eval "pipc uninstall ${__PACKAGE_NAME__} --yes"
     }
     __print "$msg. Done."
 }
