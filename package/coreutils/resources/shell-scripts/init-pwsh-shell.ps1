@@ -14,7 +14,7 @@ if ((OS_NAME) -contains "Server") {
 $OutputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $False
 
 # IMPORT LIBS FILES
-$__LIBS_TO_NOT_IMPORT__=@("style-prompt.ps1", "trash.ps1", "pgrep.ps1", "pkill.ps1", "has-internet.ps1", "download.ps1", "run-line-as-command.ps1")
+$__LIBS_TO_NOT_IMPORT__=@("download.ps1", "has-internet.ps1", "run-line-as-command.ps1", "style-prompt.ps1", "trash.ps1")
 Get-ChildItem -Path "$(Resolve-Path "${__COREUTILS_LIBS_SCRIPT_DIR__}")" -Filter *.ps1 -File | ForEach-Object {
   $lib_to_import = $_.FullName
   $can_import = $true 

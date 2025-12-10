@@ -54,11 +54,15 @@ def __set_shell_script_and_alias():
     pwsh_bin = ConsoleUtils.which_by_cmds(["powershell", "pwsh"])
     alias_processor(["add", "-n", "powershell", "-c", f"{pwsh_bin} -nologo"])
     alias_processor(["add", "-n", "pwsh", "-c", f"{pwsh_bin} -nologo"])
-    if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
-        if SYSTEM_UTILS.is_windows:
-            alias_processor(["add", "-n", "bash", "-c", "$home\\scoop\\shims\\bash.exe"])
-    if SYSTEM_UTILS.is_linux and SHELL_UTILS.is_bash:
-        script_processor(["install", "-n", "gearlever", "-c", f"flatpak run it.mijorus.gearlever {SHELL_UTILS.get_all_args_var_name()}"])
+    if SYSTEM_UTILS.is_windows:
+        alias_processor(["add", "-n", "bash", "-c", "$home\\scoop\\shims\\bash.exe"])
+    else:
+        script_processor([
+            "install",
+            "-n", "gearlever",
+            "-c", f"flatpak run it.mijorus.gearlever {SHELL_UTILS.get_all_args_var_name()}",
+            "-s"
+        ])
 
 def __install_shell_script():
     LoggerUtils.header_log("Create all shell scripts", __HEADER_LENGTH__)

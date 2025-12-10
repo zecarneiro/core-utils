@@ -50,14 +50,6 @@ function deleteenv {
 }
 
 # Features that already exist on linux
-function uptime {
-  #Windows Powershell only
-  if ($PSVersionTable.PSVersion.Major -eq 5 ) {
-    Get-WmiObject win32_operatingsystem | Select-Object @{EXPRESSION = { $_.ConverttoDateTime($_.lastbootuptime) } } | Format-Table -HideTableHeaders
-  } else {
-    net statistics workstation | Select-String "since" | foreach-object { $_.ToString().Replace('Statistics since ', '') }
-  }
-}
 function export($expression) {
   if ([string]::IsNullOrEmpty($expression)) {
     Get-ChildItem env:*
@@ -100,25 +92,5 @@ function removeduplicatedenvval {
     [Environment]::GetEnvironmentVariable("$envKey", $envType)
     $noDupesPath = (([Environment]::GetEnvironmentVariable("$envKey", $envType) -split ';' | Select-Object -Unique) -join ';')
     [Environment]::SetEnvironmentVariable("$envKey", $noDupesPath, $envType)
-  }
-}
-function startapps($filter) {
-	$command_to_run = "Get-StartApps"
-	if (![string]::IsNullOrEmpty($filter)) {
-		$command_to_run = "${command_to_run} | grep ${filter}"
-	}
-	evalc "${command_to_run}" $true
-}
-function loadmodule {
-	param ([parameter(Mandatory = $true)][string] $name)
-	Import-Module $name -ErrorAction SilentlyContinue
-	if (-not $?) {
-		errorlog "Import Module: $name"
-	}
-}
-function setautoloadmodule {
-  param([parameter(Mandatory = $true)][string] $name)
-  if (!(filecontain "$MY_CUSTOM_SHELL_PROFILE" "$name")) {
-    writefile "$MY_CUSTOM_SHELL_PROFILE" "loadmodule $name" -append
   }
 }

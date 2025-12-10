@@ -130,7 +130,9 @@ run-line-as-command = "coreutils.toolsfunctions:run_line_as_command"
 chmod-777 = "coreutils.toolsfunctions:chmod_777"
 unix2win-path = "coreutils.toolsfunctions:unix2win_path"
 pyinit = "coreutils.toolsfunctions:pyinit"
-run-bin-or-cmd = "coreutils.toolsfunctions:run_bin_or_cmd"
+run-bin-processor = "coreutils.toolsfunctions:run_bin_processor"
+start-apps = "coreutils.toolsfunctions:start_apps"
+kill-port = "coreutils.toolsfunctions:kill_port"
 
 # VAR Functions
 CONFIG_DIR = "coreutils.varfunctions:config_dir"

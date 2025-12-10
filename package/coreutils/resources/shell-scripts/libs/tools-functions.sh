@@ -2,10 +2,6 @@
 # Author: José M. C. Noronha
 # shellcheck disable=SC2164
 # shellcheck disable=SC2155
-function kill-port {
-    local port="$1"
-    sudo kill -9 $(sudo lsof -t -i :$port)
-}
 
 # Feature for linux only
 alias restart-pipewire="systemctl --user restart pipewire.service"

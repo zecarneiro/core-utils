@@ -50,6 +50,22 @@ function __install_apt_and_packages() {
     __eval "sudo dpkg -i '$microsoft_repo_deb_file'"
     # Delete the Microsoft repository keys file
     __eval "rm '$microsoft_repo_deb_file'"
+    __eval "sudo apt update"
+    __eval "sudo apt install powershell -y"
+    echo "[INFO] Create Powershell desktop entry"
+    echo "[Desktop Entry]
+Version=1.0
+Name=Powershell
+Type=Application
+Comment=
+Icon=utilities-terminal
+Terminal=true
+Exec=pwsh -nologo
+Categories=ConsoleOnly;System;
+GenericName=Shell
+Keywords=system;shell;ksh;ksh93;ksh93u+m;korn;language;command;terminal;console;scripts
+X-AppStream-Ignore=true" | sudo tee /usr/share/applications/powershell.desktop > /dev/null
+    echo "[OK] Create Powershell desktop entry. Done."
 
     __eval ". '$__SHELL_FILE__'" true
     . "$__SHELL_FILE__"

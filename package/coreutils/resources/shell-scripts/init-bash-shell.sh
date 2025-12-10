@@ -15,7 +15,7 @@ if [[ "$OSTYPE" == "cygwin" ]]||[[ "$OSTYPE" == "msys" ]]||[[ "$OSTYPE" == "win3
 fi
 
 # IMPORT LIBS FILES
-declare -a __LIBS_TO_NOT_IMPORT__=("snap-clean.sh" "snap-uninstall.sh" "style-prompt.sh" "has-internet.sh" "run-line-as-command.sh")
+declare -a __LIBS_TO_NOT_IMPORT__=("has-internet.sh" "run-line-as-command.sh" "style-prompt.sh")
 for lib_to_import in "${__COREUTILS_LIBS_SCRIPT_DIR__}"/*.sh; do
   can_import=true
   for lib in "${__LIBS_TO_NOT_IMPORT__[@]}"; do

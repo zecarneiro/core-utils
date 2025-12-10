@@ -5,6 +5,8 @@ from coreutils.libs.const_lib import CONSOLE_UTILS, SHELL_UTILS, SYSTEM_UTILS
 from coreutils.libs.dirs_lib import DirsLib
 from coreutils.libs.processors.extract_processor import ExtractProcessor
 from coreutils.libs.processors.message_processor import MessageProcessor
+from coreutils.libs.processors.run_bin_processor import RunBinProcessor
+from coreutils.libs.processors.start_apps_processor import StartAppsProcessor
 from coreutils.libs.pythonutils.console_utils import ConsoleUtils
 from coreutils.libs.pythonutils.entities.command_info import CommandInfo
 from coreutils.libs.pythonutils.entities.command_response import CommandResponse
@@ -13,7 +15,7 @@ from coreutils.libs.pythonutils.enums.shell_enum import EShell
 from coreutils.libs.pythonutils.file_utils import FileUtils
 from coreutils.libs.pythonutils.generic_utils import GenericUtils
 from coreutils.libs.pythonutils.logger_utils import LoggerUtils
-from coreutils.systemfunctions import script_processor, alias_processor, evalc, whichc
+from coreutils.systemfunctions import script_processor, alias_processor
 
 
 def tools_dependencies_apps() -> list[str]:
@@ -26,11 +28,12 @@ def tools_dependencies_apps() -> list[str]:
     return apps
 
 def process_post_install_for_tools_function_file():
-    if SYSTEM_UTILS.is_windows and SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
-        script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("win2wslpath.ps1")])
-        script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("wsl2winpath.ps1")])
-        script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("set-full-access.ps1")])
-    if SYSTEM_UTILS.is_linux:
+    if SYSTEM_UTILS.is_windows:
+        if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("win2wslpath.ps1")])
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("wsl2winpath.ps1")])
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("set-full-access.ps1")])
+    else:
         alias_processor(["add", "-n", "sha1", "-c", "openssl sha1"])
         alias_processor(["add", "-n", "md5", "-c", "openssl md5"])
         alias_processor(["add", "-n", "sha256", "-c", "openssl sha256"])
@@ -194,30 +197,40 @@ def pyinit():
     file_path = FileUtils.resolve_path(f"{os.getcwd()}/__init__.py")
     FileUtils.touch(file_path)
 
-def run_bin_or_cmd():
-    if not SYSTEM_UTILS.is_windows:
-        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "run-bin")
+def run_bin_processor():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", type=str, help="Bin file or Directory with binary files")
+    args = parser.parse_args()
+    file: str = args.file_or_cmd
+    if GenericUtils.str_is_empty(file):
+        parser.print_help()
+    else:
+        run_bin_lib = RunBinProcessor()
+        run_bin_lib.start(file)
+        ConsoleUtils.exec_by_system(CommandInfo(command="pause"))
+
+def start_apps():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--filter", metavar="APP_SEARCH_NAME", type=str, help="Package to search")
+    parser.add_argument("-i", "--case-insensitive", action="store_true", dest="case_insensitive", help="Enable filter with case insensitive")  # store_true = DEFAULT False
+    args = parser.parse_args()
+    filter_app: str = args.filter
+    is_case_insensitive: bool = args.case_insensitive
+    start_apps_lib = StartAppsProcessor()
+    start_apps_lib.start(filter_app, is_case_insensitive)
+
+def kill_port():
+    if not SYSTEM_UTILS.is_platform([EPlatform.WINDOWS, EPlatform.LINUX]):
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS, EPlatform.LINUX], "kill-port")
         return
     parser = argparse.ArgumentParser()
-    parser.add_argument("file_or_cmd", type=str)
+    parser.add_argument("port", type=str, help="Port to kill")
     args = parser.parse_args()
-    file_or_cmd: str = args.file_or_cmd
-    command_info: CommandInfo|None = None
-    if FileUtils.is_file(file_or_cmd) or :
+    port: str = args.port
+    if SYSTEM_UTILS.is_linux:
+        ConsoleUtils.exec_by_system(CommandInfo(command=f"sudo kill -9 $(sudo lsof -t -i :{port})"))
+    elif SYSTEM_UTILS.is_windows:
+        cmd = f"Get-Process -Id (Get-NetTCPConnection -LocalPort {port}).OwningProcess | Stop-Process -Force"
+        CONSOLE_UTILS.exec_real_time(CommandInfo(command=cmd, shell=EShell.POWERSHELL))
 
-        if not GenericUtils.str_is_empty(ConsoleUtils.which(file_or_cmd)):
-            command_info = CommandInfo(command=cmd_start_process.format(file_or_cmd), shell=EShell.POWERSHELL)
-        else:
-            file_ext = FileUtils.file_extension(file_or_cmd)
-            match file_ext:
-                case ".exe" | ".msi":
-                    command_info = CommandInfo(command=cmd_start_process.format(file_or_cmd), shell=EShell.POWERSHELL)
-                case ".msixbundle" | ".msix":
-                    command_info = CommandInfo(command=f"Add-AppxPackage -Path \"{file_or_cmd}\"", shell=EShell.POWERSHELL)
-                case _:
-                    LoggerUtils.error_log(f"Can not run this file: {file_or_cmd}")
-                    command_info = None
-    if command_info is not None:
-        CONSOLE_UTILS.exec_real_time(command_info)
-        LoggerUtils.info_log()
 

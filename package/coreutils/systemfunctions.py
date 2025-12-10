@@ -29,21 +29,25 @@ def system_dependencies_apps() -> list[str]:
     return apps
 
 def process_post_install_for_system_function_file():
-    script_processor(["install", "-n", "now", "-c", "date", "-s"])
     if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
         script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("pgrepc.ps1")])
         script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("pkillc.ps1")])
-        if SYSTEM_UTILS.is_windows:
+    if SYSTEM_UTILS.is_windows:
+        if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+            script_processor(["install", "-n", "now", "-c", "date", "-s"])
             script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("sudopwsh.ps1")])
             script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("gsudopwsh.ps1")])
             script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("sudopwsh-old.ps1")])
-    if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.BASH]):
-        if SHELL_UTILS.is_bash:
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("uptime.ps1")])
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("load-pwsh-module.ps1")])
+    else:
+        script_processor(["install", "-n", "now", "-c", "date", "-s"])
+        if not SHELL_UTILS.is_powershell:
             script_processor(["install", "-n", "cls", "-c", "clear", "-s"])
-            if SYSTEM_UTILS.is_linux:
-                script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("pgrepc.sh")])
-                script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("snap-uninstall.sh")])
-                script_processor(["install", "-n", "update-menu-entries", "-c", "sudo update-desktop-database", "-s"])
+            script_processor(["install", "-n", "update-menu-entries", "-c", "sudo update-desktop-database", "-s"])
+        elif SHELL_UTILS.is_bash:
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("pgrepc.sh")])
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("snap-uninstall.sh")])
 
 def reload_shell_profile(only_msg: bool = False):
     current_shell = SHELL_UTILS.current_shell
