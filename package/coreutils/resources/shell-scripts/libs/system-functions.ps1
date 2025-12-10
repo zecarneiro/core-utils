@@ -107,7 +107,7 @@ function startapps($filter) {
 	if (![string]::IsNullOrEmpty($filter)) {
 		$command_to_run = "${command_to_run} | grep ${filter}"
 	}
-	eval-advanced "${command_to_run}" $true
+	evalc "${command_to_run}" $true
 }
 function loadmodule {
 	param ([parameter(Mandatory = $true)][string] $name)

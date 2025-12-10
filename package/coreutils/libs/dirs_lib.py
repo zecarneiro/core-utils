@@ -75,8 +75,10 @@ class DirsLib:
         current_shell = SHELL_UTILS.current_shell
         if current_shell == EShell.UNKNOWN:
             return ""
-        shell_dir_name = current_shell.value if current_shell != EShell.CMD else EShell.POWERSHELL.value
-        directory = FileUtils.resolve_path(f"{DirsLib.get_coreutils_local_dir()}/scripts/{shell_dir_name}")
+        shell_dir_name = "linux"
+        if SHELL_UTILS.is_shell([EShell.CMD, EShell.POWERSHELL]):
+            shell_dir_name = current_shell.value if current_shell != EShell.CMD else EShell.POWERSHELL.value
+        directory = FileUtils.resolve_path(f"{DirsLib.get_coreutils_local_dir()}/scripts/{shell_dir_name}-shell")
         if not FileUtils.is_dir(directory):
             FileUtils.create_dir(directory)
             if SYSTEM_UTILS.is_windows:
@@ -114,9 +116,17 @@ class DirsLib:
             return path
 
     @staticmethod
-    def get_resource_shell_script_dir() -> str:
+    def get_resource_shell_script_dir(file: str|None = None) -> str:
+        if file is not None and len(file) > 0:
+            return FileUtils.resolve_path(f"{DirsLib.get_resource_dir()}/shell-scripts/{file}")
         return FileUtils.resolve_path(f"{DirsLib.get_resource_dir()}/shell-scripts")
 
     @staticmethod
-    def get_resource_shell_script_libs_dir() -> str:
-        return FileUtils.resolve_path(f"{DirsLib.get_resource_shell_script_dir()}/libs")
+    def get_resource_shell_script_libs_dir(lib: str|None = None) -> str:
+        directory = DirsLib.get_resource_shell_script_dir("libs")
+        return directory if lib is None or len(lib) == 0 else FileUtils.resolve_path(f"{directory}/{lib}")
+
+    @staticmethod
+    def get_resource_shell_script_apps_dir(app: str|None = None) -> str:
+        directory = DirsLib.get_resource_shell_script_dir("apps")
+        return directory if app is None or len(app) == 0 else FileUtils.resolve_path(f"{directory}/{app}")

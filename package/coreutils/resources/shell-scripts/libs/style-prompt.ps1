@@ -10,7 +10,7 @@ $__PROMPT_RED_COLOR__="Red"
 
 function processBaseStyle($workingDir) {
   # Find out if the current user identity is elevated (has admin rights)
-  if ((isadmin) -eq "true") {
+  if ((is-admin) -eq "true") {
     $Host.UI.RawUI.WindowTitle += " [ADMIN]"
     "[" + $workingDir + "] # "
   } else {

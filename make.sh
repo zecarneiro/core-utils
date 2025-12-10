@@ -36,11 +36,6 @@ function __install_dependencies() {
         __install_appimage_and_packages
         __install_pacstall_and_packages
         __install_deb_get_and_packages
-
-        __eval ". '$__SHELL_FILE__'" true
-        . "$__SHELL_FILE__"
-
-        __install_rust
     fi
 }
 
@@ -52,7 +47,12 @@ function __clean() {
     else
         __print "$msg"
     fi
-    local -a directories=("${__PACKAGE_DIR__}/build" "${__PACKAGE_DIR__}/coreutils.egg-info")
+    local -a directories=(
+        "${__PACKAGE_DIR__}/build"
+        "${__PACKAGE_DIR__}/coreutils.egg-info"
+        "${__PACKAGE_DIR__}/coreutils/__pycache__"
+        "${__PACKAGE_DIR__}/.ruff_cache"
+    )
     for directory in "${directories[@]}"; do
         if [ -d "${directory}" ]; then
             __eval "rm -r '${directory}'"
@@ -87,7 +87,6 @@ function __install() {
     fi
     __clean false
     __eval "${__PACKAGE_NAME__}-postinstall"
-    __eval "pwsh -Command ${__PACKAGE_NAME__}-postinstall"
     __print "$msg. Done."
 }
 
@@ -99,8 +98,7 @@ function __uninstall() {
     else
         __print "$msg"
     fi
-    __eval "${__PACKAGE_NAME__}-preuninstall"
-    __eval "pwsh -Command ${__PACKAGE_NAME__}-preuninstall"
+    eval "( ${__PACKAGE_NAME__}-preuninstall )" 2>/dev/null || echo "${__PACKAGE_NAME__} not installed"
     if [[ $(__is_linux_so) == true ]]; then
         __eval "pipc uninstall ${__PACKAGE_NAME__} --yes"
     fi
@@ -112,6 +110,9 @@ function main {
         -d|--install-dependencies)
             __install_dependencies
             echo "[INFO] Please, restart your terminal!"
+        ;;
+        -b|--build)
+            __build
         ;;
         -i|--install)
             __install true
@@ -126,16 +127,18 @@ function main {
             echo "Usage: $0 [OPTION]"
             echo
             echo "Options:"
-            echo "  -d, --install-dependencies   Install Python and required dependencies."
-            echo "                               After installation, restart your terminal."
+            echo "  -d, --install-dependencies  Install Python and required dependencies."
+            echo "                              After installation, restart your terminal."
             echo
-            echo "  -i, --install                Uninstall any previous installation and reinstall the project."
+            echo "  -b, --build                 Build the project and check for errors."
             echo
-            echo "  -u, --uninstall              Uninstall the project and remove related files."
+            echo "  -i, --install               Uninstall any previous installation and reinstall the project."
             echo
-            echo "  -c, --clean                  Clean temporary files and caches."
+            echo "  -u, --uninstall             Uninstall the project and remove related files."
             echo
-            echo "  -h, --help                   Show this help message and exit."
+            echo "  -c, --clean                 Clean temporary files and caches."
+            echo
+            echo "  -h, --help                  Show this help message and exit."
             echo
         ;;
         *)

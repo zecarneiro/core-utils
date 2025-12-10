@@ -14,89 +14,127 @@ from coreutils.libs.pythonutils.logger_utils import LoggerUtils
 
 @dataclass
 class ScriptProcessor:
-    name: str
-    content: str
-    install_file: str
-    is_valid_shell: bool = True
-    valid_shell: list[EShell] | None = None
-    scripts_dir: str = DirsLib.get_coreutils_shell_script()
-    windows_cmd_content_template = """
+    @property
+    def __windows_cmd_content_template(self) -> str:
+        return """
 @echo off
-powershell -NoProfile -ExecutionPolicy Bypass -File "{0}" {1}"""
+powershell.exe -NoLogo -ExecutionPolicy Bypass -File "{0}" {1}"""
 
-    def __post_init__(self):
-        self.valid_shell = [EShell.POWERSHELL, EShell.BASH]
-        self.is_valid_shell = SHELL_UTILS.is_shell(self.valid_shell)
+    @property
+    def __valid_shell(self) -> list[EShell]:
+        return [EShell.POWERSHELL, EShell.CMD, EShell.BASH, EShell.KSH, EShell.FISH, EShell.ZSH]
 
-    def is_valid(self, skip_content_validation: bool = False) -> bool:
-        if not self.is_valid_shell:
-            MessageProcessor.show_shell_msg(self.valid_shell)
+    @property
+    def __is_valid_shell(self) -> bool:
+        status = SHELL_UTILS.is_shell(self.__valid_shell)
+        if not status:
+            MessageProcessor.show_shell_msg(self.__valid_shell, self.__class__.__name__)
+        return status
+
+    @property
+    def __scripts_dir(self) -> str:
+        if self.__is_valid_shell:
+            directory = DirsLib.get_coreutils_shell_script()
+            FileUtils.create_dir(directory)
+            return directory
+        return ""
+
+    @property
+    def __scripts_cmd_dir(self) -> str:
+        if SYSTEM_UTILS.is_windows and self.__is_valid_shell:
+            directory = FileUtils.resolve_path(f"{self.__scripts_dir}/{EShell.CMD.value}")
+            FileUtils.create_dir(directory)
+            return directory
+        return ""
+
+    @property
+    def __is_scripts_dir_created(self) -> bool:
+        message = "Failed to create dir"
+        status = FileUtils.is_dir(self.__scripts_dir)
+        if not status:
+            LoggerUtils.error_log(f"{message}: {self.__scripts_dir}")
             return False
-        elif GenericUtils.str_is_empty(self.name) and GenericUtils.str_is_empty(self.install_file):
-            return False
-        elif not GenericUtils.str_is_empty(self.name):
-            if not bool(re.fullmatch(r"[A-Za-z0-9_-]+", self.name)):
-                LoggerUtils.error_log("Name accept only A-Z, a-z, 0-9, - and _")
+        if SYSTEM_UTILS.is_windows:
+            status = FileUtils.is_dir(self.__scripts_cmd_dir)
+            if not status:
+                LoggerUtils.error_log(f"{message}: {self.__scripts_cmd_dir}")
                 return False
-            if not skip_content_validation and GenericUtils.str_is_empty(self.content):
-                return False
-        elif not GenericUtils.str_is_empty(self.install_file) and not FileUtils.is_file(self.install_file):
-            LoggerUtils.error_log(f"Can not install this script: {self.install_file}. File not found")
+        return True
+
+    def __is_validate_name(self, name: str) -> bool:
+        if not bool(re.fullmatch(r"[A-Za-z0-9_-]+", name)):
+            LoggerUtils.error_log("Name accept only A-Z, a-z, 0-9, - and _")
             return False
         return True
 
-    def uninstall(self):
-        if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
-            file_to_delete_list: list[str] = [
-                FileUtils.resolve_path(f"{self.scripts_dir}/{self.name}.ps1"),
-                FileUtils.resolve_path(f"{self.scripts_dir}/{EShell.CMD.value}/{self.name}.cmd")
-            ]
+    def __is_validate_content(self, content: str) -> bool:
+        if GenericUtils.str_is_empty(content):
+            LoggerUtils.error_log("Invalid given content")
+            return False
+        return True
+
+    def __is_valid(self) -> bool:
+        if not self.__is_valid_shell or not self.__is_scripts_dir_created:
+            return False
+        return True
+
+    def __get_bash_bin_script_tag_line(self, data: str) -> str:
+        if SHELL_UTILS.is_bash:
+            return f"#!/usr/bin/env bash{CONST.EOF}{data}"
+        return data
+
+    def get_all(self, filter_name: str|None) -> list[str]:
+        script_list: list[str] = []
+        if self.__is_valid():
+            for file in FileUtils.get_list_files_on_folder(self.__scripts_dir):
+                script_list.append(FileUtils.filename_without_ext(FileUtils.basename(file)))
+            if not SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+                script_list = script_list + ["pipc", "sudoexe", "appimage-manager"]
+        if filter_name is not None and len(filter_name) > 0:
+            script_list = [script for script in script_list if filter_name in script]
+        return script_list
+
+    def uninstall(self, name: str):
+        if self.__is_valid() and self.__is_validate_name(name):
+            file_to_delete_list: list[str] = []
+            if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+                file_to_delete_list.append(FileUtils.resolve_path(f"{self.__scripts_dir}/{name}.ps1"))
+                file_to_delete_list.append(FileUtils.resolve_path(f"{self.__scripts_cmd_dir}/{name}.cmd"))
+            elif SHELL_UTILS.is_shell([EShell.BASH]):
+                file_to_delete_list.append(FileUtils.resolve_path(f"{self.__scripts_dir}/{name}"))
             for file_to_delete in file_to_delete_list:
                 if FileUtils.is_file(file_to_delete):
                     if FileUtils.delete_file(file_to_delete):
                         LoggerUtils.ok_log(f"Deleted file: {file_to_delete}")
                     else:
                         LoggerUtils.error_log(f"Failed to delete file: {file_to_delete}")
-        elif SHELL_UTILS.is_shell([EShell.BASH]):
-            file_to_delete = FileUtils.resolve_path(f"{self.scripts_dir}/{self.name}")
-            if FileUtils.is_file(file_to_delete):
-                if FileUtils.delete_file(file_to_delete):
-                    LoggerUtils.ok_log(f"Deleted file: {file_to_delete}")
-                else:
-                    LoggerUtils.error_log(f"Failed to delete file: {file_to_delete}")
 
-    def install_from_file(self):
-        if not GenericUtils.str_is_empty(self.install_file) and FileUtils.is_file(self.install_file):
-            self.name = FileUtils.filename_without_ext(FileUtils.basename(self.install_file))
-            content = FileUtils.read_file(self.install_file)
-            self.content = content if content is not None else ""
-            self.install_file = ""
-            self.install()
+    def install(self, name: str, content: str, include_shell_tag: bool = False):
+        if self.__is_valid() and self.__is_validate_name(name) and self.__is_validate_content(content):
+            success = True
+            if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+                script_file = FileUtils.resolve_path(f"{self.__scripts_dir}/{name}.ps1")
+                success = FileUtils.write_file(script_file, content)
+                if success and SYSTEM_UTILS.is_windows:
+                    script_cmd_file = FileUtils.resolve_path(f"{self.__scripts_dir}/{EShell.CMD.value}/{name}.cmd")
+                    cmd_content = self.__windows_cmd_content_template.format(script_file, CONST.CMD_ALL_ARGS_VAR_STR)
+                    success = FileUtils.write_file(script_cmd_file, cmd_content)
+            elif SHELL_UTILS.is_bash:
+                if include_shell_tag:
+                    content = self.__get_bash_bin_script_tag_line(content)
+                script_file = FileUtils.resolve_path(f"{self.__scripts_dir}/{name}")
+                success = FileUtils.write_file(script_file, content)
+                set_file_permission_to_run(script_file)
+            if success:
+                LoggerUtils.ok_log(f"Installed script with name: {name}")
+            else:
+                LoggerUtils.error_log(f"Can not install this script: {name}")
 
-    def install(self):
-        success_install = True
-        if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
-            script_powershell_file = FileUtils.resolve_path(f"{self.scripts_dir}/{self.name}.ps1")
-            script_cmd_file = FileUtils.resolve_path(f"{self.scripts_dir}/{EShell.CMD.value}/{self.name}.bat")
-            cmd_content = self.windows_cmd_content_template.format(script_powershell_file, CONST.CMD_ALL_ARGS_VAR_STR)
-            success_install = FileUtils.write_file(script_powershell_file, self.content)
-            if success_install and SYSTEM_UTILS.is_windows:
-                success_install = FileUtils.write_file(script_cmd_file, cmd_content)
-        elif SHELL_UTILS.is_bash:
-            bash_env_import = "#!/usr/bin/env bash"
-            bash_import = "#!/usr/bin/bash"
-            if bash_env_import not in self.content and bash_import not in self.content:
-                self.content = f"{bash_env_import}{CONST.EOF}{self.content}"
-            script_bash_file = FileUtils.resolve_path(f"{self.scripts_dir}/{self.name}")
-            success_install = FileUtils.write_file(script_bash_file, self.content)
-            set_file_permission_to_run(script_bash_file)
-        if success_install:
-            LoggerUtils.ok_log(f"Installed script with name: {self.name}")
+    def install_from_file(self, script_file: str):
+        if GenericUtils.str_is_empty(script_file) or not FileUtils.is_file(script_file):
+            LoggerUtils.error_log(f"Can not install this script: {script_file}. File not found")
         else:
-            LoggerUtils.error_log(f"Can not install this script: {self.name}")
-
-    def get_all(self) -> list[str]:
-        script_list: list[str] = []
-        for file in FileUtils.get_list_files_on_folder(self.scripts_dir):
-            script_list.append(FileUtils.filename_without_ext(FileUtils.basename(file)))
-        return script_list
+            name = FileUtils.filename_without_ext(FileUtils.basename(script_file))
+            content = FileUtils.read_file(script_file)
+            content = content if content is not None else ""
+            self.install(name, content)

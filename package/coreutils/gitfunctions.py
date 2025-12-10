@@ -1,12 +1,12 @@
 import argparse
 
 from coreutils.libs.const_lib import CONSOLE_UTILS
+from coreutils.libs.pythonutils.console_utils import ConsoleUtils
 from coreutils.libs.pythonutils.entities.command_info import CommandInfo
 from coreutils.libs.pythonutils.entities.github_repo_release_options import GitHubRepoReleaseOption
 from coreutils.libs.pythonutils.file_utils import FileUtils
 from coreutils.libs.pythonutils.generic_utils import GenericUtils
 from coreutils.libs.pythonutils.logger_utils import LoggerUtils
-from coreutils.systemfunctions import script_processor
 
 __GIT_BASE_CMD: str = "git"
 
@@ -16,12 +16,6 @@ def __get_git_command_info() -> CommandInfo:
 def git_dependencies_apps() -> list[str]:
     apps: list[str] = [__GIT_BASE_CMD]
     return apps
-
-def process_post_install_for_git_function_file():
-    script_processor(["-i", "-n", "git-undo-last-commit", "-c", f"{__GIT_BASE_CMD} reset --soft HEAD~1"])
-    script_processor(["-i", "-n", "git-stage-all", "-c", f"{__GIT_BASE_CMD} add ."])
-    script_processor(["-i", "-n", "git-status", "-c", f"{__GIT_BASE_CMD} status"])
-    script_processor(["-i", "-n", "git-cherry-pick-master-continue", "-c", f"{__GIT_BASE_CMD} cherry-pick --continue"])
 
 def git_reset_hard_origin():
     command_info = __get_git_command_info()
@@ -51,7 +45,7 @@ def git_reset_file():
 
 def git_repo_backup():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--url", metavar="URL", type=str, required=True)
+    parser.add_argument("url", type=str)
     args = parser.parse_args()
     command_info = __get_git_command_info()
     command_info.args = ["clone", "--mirror", f"'{args.url}'"]
@@ -59,7 +53,7 @@ def git_repo_backup():
 
 def git_repo_restore_backup():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--url", metavar="URL", type=str, required=True)
+    parser.add_argument("url", type=str)
     args = parser.parse_args()
     command_info = __get_git_command_info()
     command_info.args = ["push", "--mirror", f"'{args.url}'"]
@@ -83,7 +77,7 @@ def git_move_submodule():
 
 def git_add_script_perm():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--script", metavar="SCRIPT", type=str, required=True, help="Script to add permission")
+    parser.add_argument("script", type=str, help="Script to add permission")
     args = parser.parse_args()
     script_filename = FileUtils.basename(args.script)
     command_info = __get_git_command_info()
@@ -99,7 +93,7 @@ def git_add_script_perm():
 
 def git_cherrypick_master():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--commit", metavar="COMMIT", nargs="?", required=True)
+    parser.add_argument("commit", nargs="+")
     args = parser.parse_args()
     command_info = __get_git_command_info()
     command_info.args = ["cherry-pick", "-m", "1", f"'{GenericUtils.list_to_str(args.commit)}'"]
@@ -107,7 +101,7 @@ def git_cherrypick_master():
 
 def gitclone():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--url", metavar="URL", type=str, required=True)
+    parser.add_argument("url", type=str)
     args = parser.parse_args()
     command_info = __get_git_command_info()
     command_info.args = ["clone", f"'{args.url}'"]
@@ -181,7 +175,7 @@ def git_config_user():
 
 def gitcommit():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--commit", metavar="COMMIT", type=str, required=True)
+    parser.add_argument("commit", type=str)
     args = parser.parse_args()
     command_info = __get_git_command_info()
     command_info.args = ["commit", "-m", f"'{args.commit}'"]
@@ -198,6 +192,7 @@ def github_latest_version():
     repository: str = args.repository
     release = GenericUtils.get_github_repo_release(GitHubRepoReleaseOption(owner=owner, repo=repository, is_latest=args.latest))
     if release is not None:
+        LoggerUtils.info_log(f"Get info from API: {release.url}")
         already_run = False
         latest_version: str = release.tag_name.replace("v", "") if release.tag_name else ""  # usually the version tag
         if not GenericUtils.str_is_empty(latest_version):
@@ -209,4 +204,16 @@ def github_latest_version():
         if not already_run:
             LoggerUtils.warn_log(no_release_found_msg)
     else:
-        LoggerUtils.warn_log(no_release_found_msg)
+        LoggerUtils.warn_log("Failed to fetch releases")
+
+def git_undo_last_commit():
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"{__GIT_BASE_CMD} reset --soft HEAD~1", verbose=True))
+
+def git_stage_all():
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"{__GIT_BASE_CMD} add .", verbose=True))
+
+def git_status():
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"{__GIT_BASE_CMD} status", verbose=True))
+
+def git_cherrypick_master_continue():
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"{__GIT_BASE_CMD} cherry-pick --continue", verbose=True))

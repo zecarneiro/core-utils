@@ -1,4 +1,11 @@
-param([string] $file)
+param(
+    [string] $file
+)
+
+if ((text-is-empty "$file") -eq "true") {
+    error-log "No args passed"
+    exit
+}
 
 shell = new-object -comobject "Shell.Application"
 if ((file-exists "$file")) {

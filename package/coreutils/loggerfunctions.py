@@ -6,43 +6,43 @@ from coreutils.libs.pythonutils.logger_utils import LoggerUtils
 
 def log():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--message", metavar="MESSAGE", nargs="+", required=True)
+    parser.add_argument("message", nargs="+")
     args = parser.parse_args()
     print(GenericUtils.list_to_str(args.message))
 
 def error_log():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--message", metavar="MESSAGE", nargs="+", required=True)
+    parser.add_argument("message", nargs="+")
     args = parser.parse_args()
     LoggerUtils.error_log(GenericUtils.list_to_str(args.message))
 
 def info_log():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--message", metavar="MESSAGE", nargs="+", required=True)
+    parser.add_argument("message", nargs="+")
     args = parser.parse_args()
     LoggerUtils.info_log(GenericUtils.list_to_str(args.message))
 
 def debug_log():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--message", metavar="MESSAGE", nargs="+", required=True)
+    parser.add_argument("message", nargs="+")
     args = parser.parse_args()
     LoggerUtils.debug_log(GenericUtils.list_to_str(args.message))
 
 def warn_log():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--message", metavar="MESSAGE", nargs="+", required=True)
+    parser.add_argument("message", nargs="+")
     args = parser.parse_args()
     LoggerUtils.warn_log(GenericUtils.list_to_str(args.message))
 
 def ok_log():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--message", metavar="MESSAGE", nargs="+", required=True)
+    parser.add_argument("message", nargs="+")
     args = parser.parse_args()
     LoggerUtils.ok_log(GenericUtils.list_to_str(args.message))
 
 def prompt_log():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--message", metavar="MESSAGE", nargs="+", required=True)
+    parser.add_argument("message", nargs="+")
     args = parser.parse_args()
     LoggerUtils.prompt_log(GenericUtils.list_to_str(args.message))
 
@@ -87,7 +87,7 @@ def separator_log():
 
 def json_log():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-j", "--json", metavar="JSON_STRING", nargs="+", required=True)
+    parser.add_argument("json_data", nargs="+")
     args = parser.parse_args()
     data: list[str] = args.json
-    LoggerUtils.json_log(GenericUtils.list_to_str(data))
+    LoggerUtils.json_log(GenericUtils.list_to_str(data)) # type: ignore[reportUnknownMemberType]

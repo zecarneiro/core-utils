@@ -1,14 +1,14 @@
 import argparse
-import shutil
 
 from coreutils.libs.const_lib import SYSTEM_UTILS, CONSOLE_UTILS, SHELL_UTILS
 from coreutils.libs.dirs_lib import DirsLib
-from coreutils.libs.generic_lib import set_file_permission_to_run
 from coreutils.libs.processors.message_processor import MessageProcessor
+from coreutils.libs.processors.script_updater_processor import ScriptUpdaterProcessor
 from coreutils.libs.pythonutils.console_utils import ConsoleUtils
 from coreutils.libs.pythonutils.const_utils import CONST
 from coreutils.libs.pythonutils.entities.command_info import CommandInfo
 from coreutils.libs.pythonutils.enums.platform_enum import EPlatform
+from coreutils.libs.pythonutils.enums.shell_enum import EShell
 from coreutils.libs.pythonutils.file_utils import FileUtils
 from coreutils.libs.pythonutils.generic_utils import GenericUtils
 from coreutils.libs.pythonutils.logger_utils import LoggerUtils
@@ -31,13 +31,8 @@ def package_dependencies_apps() -> list[str]:
     return apps
 
 def process_post_install_for_package_function_file():
-    if SYSTEM_UTILS.is_windows:
-        script_processor(["-i", "-n", "scoop-clean", "-c", f"title-log -m 'CLEANUP SCOOP'{CONST.EOF}scoop cleanup --all; scoop cache rm *"])
-    else:
-        script_processor(["-i", "-n", "apt-clean", "-c", f"title-log -m 'CLEANUP APT'{CONST.EOF}sudo apt clean -y; sudo apt autoremove -y; sudo apt autopurge -y; sudo apt autoclean -y"])
-        script_processor(["-i", "-n", "flatpak-clean", "-c", f"title-log -m 'CLEANUP FLATPAK'{CONST.EOF}flatpak uninstall --unused -y; sudo rm -rfv /var/tmp/flatpak-cache*"])
-        script_processor(["-f", f"{DirsLib.get_resource_shell_script_libs_dir()}/snap-clean.sh"])
-        script_processor(["-i", "-n", "deb-get-clean", "-c", f"title-log -m 'CLEANUP DEB-GET'{CONST.EOF}sudo deb-get clean"])
+    if SYSTEM_UTILS.is_linux and SHELL_UTILS.is_bash:
+        script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("snap-clean.sh")])
 
 # ---------------------------------------------------------------------------- #
 #                                      NPM                                     #
@@ -53,7 +48,7 @@ def npm_list():
     filter_app: str|None = args.filter
     is_case_insensitive: bool = args.case_insensitive
     command_to_run = f"{command_to_run} --depth=0" if is_local else f"{command_to_run} -g --depth=0"
-    command_info = CommandInfo(command=command_to_run)
+    command_info = CommandInfo(command=command_to_run, use_shell=True)
     if filter_app is None or len(filter_app) == 0:
         CONSOLE_UTILS.exec_real_time(command_info)
     else:
@@ -76,23 +71,23 @@ def npm_clean(args_list: list[str]|None = None):
     args = parser.parse_args(args_list)
     is_local: bool = args.local
     cmd = f"npm {"-g" if not is_local else ""} cache clean --force"
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=cmd, verbose=True))
+    CONSOLE_UTILS.exec_real_time(CommandInfo(command=cmd, verbose=True, use_shell=True))
 
 # ---------------------------------------------------------------------------- #
 #                                    WINGET                                    #
 # ---------------------------------------------------------------------------- #
 def winget_uninstall():
     if not SYSTEM_UTILS.is_windows:
-        MessageProcessor.show_platform_msg([EPlatform.WINDOWS])
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "winget-uninstall")
         return
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--app", metavar="APP", type=str, required=True, help="App name")
+    parser.add_argument("app", type=str, help="App name")
     args = parser.parse_args()
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=f"winget uninstall --purge {args.app}", verbose=True))
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"winget uninstall --purge {args.app}", verbose=True))
 
 def winget_list():
     if not SYSTEM_UTILS.is_windows:
-        MessageProcessor.show_platform_msg([EPlatform.WINDOWS])
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "winget-list")
         return
     command_to_run: str = "winget list"
     parser = argparse.ArgumentParser()
@@ -103,7 +98,8 @@ def winget_list():
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
-        CONSOLE_UTILS.exec_real_time(command_info)
+        command_info.verbose = True
+        ConsoleUtils.exec_by_system(command_info)
     else:
         res = CONSOLE_UTILS.exec(command_info)
         if res.has_error():
@@ -122,16 +118,16 @@ def winget_list():
 # ---------------------------------------------------------------------------- #
 def scoop_uninstall():
     if not SYSTEM_UTILS.is_windows:
-        MessageProcessor.show_platform_msg([EPlatform.WINDOWS])
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "scoop-uninstall")
         return
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--app", metavar="APP", type=str, required=True, help="App name")
+    parser.add_argument("app", type=str, help="App name")
     args = parser.parse_args()
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=f"scoop uninstall --purge {args.app}", verbose=True))
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"scoop uninstall --purge {args.app}", verbose=True))
 
 def scoop_list():
     if not SYSTEM_UTILS.is_windows:
-        MessageProcessor.show_platform_msg([EPlatform.WINDOWS])
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "scoop-list")
         return
     command_to_run: str = "scoop list"
     parser = argparse.ArgumentParser()
@@ -142,7 +138,8 @@ def scoop_list():
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
-        CONSOLE_UTILS.exec_real_time(command_info)
+        command_info.verbose = True
+        ConsoleUtils.exec_by_system(command_info)
     else:
         res = CONSOLE_UTILS.exec(command_info)
         if res.has_error():
@@ -156,12 +153,29 @@ def scoop_list():
             for match in matches:
                 print(match)
 
+def scoop_clean():
+    if not SYSTEM_UTILS.is_windows:
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "scoop-clean")
+        return
+    LoggerUtils.title_log("CLEANUP SCOOP")
+    for cmd in ["scoop cleanup --all", "scoop cache rm *"]:
+        ConsoleUtils.exec_by_system(CommandInfo(command=cmd, verbose=True))
+
 # ---------------------------------------------------------------------------- #
 #                                      WSL                                     #
 # ---------------------------------------------------------------------------- #
+def wsl_uninstall():
+    if not SYSTEM_UTILS.is_windows:
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "wsl-uninstall")
+        return
+    parser = argparse.ArgumentParser()
+    parser.add_argument("distro", type=str, help="Distro to uninstall")
+    args = parser.parse_args()
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"wsl --unregister {args.distro}", verbose=True))
+
 def wsl_list():
     if not SYSTEM_UTILS.is_windows:
-        MessageProcessor.show_platform_msg([EPlatform.WINDOWS])
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "wsl-list")
         return
     command_to_run: str = "wsl --list --verbose"
     parser = argparse.ArgumentParser()
@@ -172,7 +186,8 @@ def wsl_list():
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
-        CONSOLE_UTILS.exec_real_time(command_info)
+        command_info.verbose = True
+        ConsoleUtils.exec_by_system(command_info)
     else:
         res = CONSOLE_UTILS.exec(command_info)
         if res.has_error():
@@ -186,21 +201,76 @@ def wsl_list():
             for match in matches:
                 print(match)
 
-def wsl_uninstall():
+def wsl_shutdown():
     if not SYSTEM_UTILS.is_windows:
-        MessageProcessor.show_platform_msg([EPlatform.WINDOWS])
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "wsl-shutdown")
         return
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--distro", metavar="DISTRO", type=str, required=True, help="Distro to uninstall")
+    parser.add_argument("-f", "--force", action="store_true", dest="force")  # store_true = DEFAULT False
     args = parser.parse_args()
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=f"wsl --unregister {args.distro}", verbose=True))
+    cmd = "wsl --shutdown"
+    if args.force:
+        cmd = "sudo taskkill /F /IM wslservice.exe"
+    ConsoleUtils.exec_by_system(CommandInfo(command=cmd))
+
+def wsl_configc():
+    if not SYSTEM_UTILS.is_windows:
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "wsl-configc")
+        return
+    config_file = FileUtils.resolve_path(f"{SYSTEM_UTILS.home_dir}/.wslconfig")
+    parser = argparse.ArgumentParser()
+    parser.description = "This configurations only works on windows 11 or newer!!"
+    parser.add_argument("-r", "--ram", metavar="MAX_RAM", type=int, help="Max RAM(GB) that WSL will use")
+    parser.add_argument("-p", "--processor", metavar="MAX_PROCESSOR", type=int, help="Max Processor that WSL will use")
+    args = parser.parse_args()
+    ram: int = args.ram
+    processor: int = args.processor
+    data: str = ""
+    if FileUtils.is_file(config_file):
+        backup = f"{config_file}.bk"
+        LoggerUtils.warn_log(f"Config file already exists: {config_file}")
+        LoggerUtils.info_log(f"Backup original config file to: {backup}")
+        FileUtils.copy_file(config_file, backup)
+    if ram:
+        data = f"memory={data}{CONST.EOF}{ram}GB"
+    if processor:
+        data = f"processors={processor}" if len(data) == 0 else f"{data}{CONST.EOF}processors={processor}"
+    if len(data) > 0:
+        FileUtils.write_file(config_file, f"[wsl2]{CONST.EOF}{data}")
+        wsl_shutdown()
+
+def wsl2win_path():
+    if not SYSTEM_UTILS.is_windows:
+        MessageProcessor.show_platform_msg([EPlatform.WINDOWS], "wsl2win-path")
+        return
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", metavar="PATH", type=str)
+    parser.add_argument("-t", "--type", type=str, choices=["wsl2win", "win2wsl"], required=True)
+    args = parser.parse_args()
+    path: str = args.path
+    cmd = "wsl -- wslpath {0} "'{1}'""
+    if args.type == "wsl2win":
+        cmd = cmd.format("-w", path)
+    elif args.type == "win2wsl":
+        cmd = cmd.format("-u", path)
+    if not GenericUtils.str_is_empty(cmd):
+        CONSOLE_UTILS.exec_real_time(CommandInfo(command=cmd, shell=EShell.POWERSHELL))
 
 # ---------------------------------------------------------------------------- #
 #                                      APT                                     #
 # ---------------------------------------------------------------------------- #
+def apt_uninstall():
+    if not SYSTEM_UTILS.is_linux:
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "apt-uninstall")
+        return
+    parser = argparse.ArgumentParser()
+    parser.add_argument("app", type=str, help="App name")
+    args = parser.parse_args()
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"sudo apt purge --autoremove '{args.app}' -y", verbose=True))
+
 def apt_list():
     if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "apt-list")
         return
     command_to_run: str = "apt-mark showmanual"
     parser = argparse.ArgumentParser()
@@ -211,7 +281,8 @@ def apt_list():
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
-        CONSOLE_UTILS.exec_real_time(command_info)
+        command_info.verbose = True
+        ConsoleUtils.exec_by_system(command_info)
     else:
         res = CONSOLE_UTILS.exec(command_info)
         if res.has_error():
@@ -225,22 +296,29 @@ def apt_list():
             for match in matches:
                 print(match)
 
-def apt_uninstall():
+def apt_clean():
     if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "apt-clean")
         return
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--app", metavar="APP", type=str, required=True, help="App name")
-    args = parser.parse_args()
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=f"sudo apt purge --autoremove '{args.app}' -y"))
-
+    LoggerUtils.title_log("CLEANUP APT")
+    for cmd in ["sudo apt clean -y", "sudo apt autoremove -y", "sudo apt autopurge -y", "sudo apt autoclean -y"]:
+        ConsoleUtils.exec_by_system(CommandInfo(command=cmd, verbose=True))
 
 # ---------------------------------------------------------------------------- #
 #                                    FLATPAK                                   #
 # ---------------------------------------------------------------------------- #
+def flatpak_uninstall():
+    if not SYSTEM_UTILS.is_linux:
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "flatpak-uninstall")
+        return
+    parser = argparse.ArgumentParser()
+    parser.add_argument("app", type=str, help="App name")
+    args = parser.parse_args()
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"flatpak uninstall --delete-data '{args.app}' -y", verbose=True))
+
 def flatpak_list():
     if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "flatpak-list")
         return
     command_to_run: str = "flatpak list --columns=application"
     parser = argparse.ArgumentParser()
@@ -251,7 +329,8 @@ def flatpak_list():
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
-        CONSOLE_UTILS.exec_real_time(command_info)
+        command_info.verbose = True
+        ConsoleUtils.exec_by_system(command_info)
     else:
         res = CONSOLE_UTILS.exec(command_info)
         if res.has_error():
@@ -265,22 +344,30 @@ def flatpak_list():
             for match in matches:
                 print(match)
 
-def flatpak_uninstall():
+def flatpak_clean():
     if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "flatpak-clean")
         return
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--app", metavar="APP", type=str, required=True, help="App name")
-    args = parser.parse_args()
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=f"flatpak uninstall --delete-data '{args.app}' -y"))
-
+    LoggerUtils.title_log("CLEANUP FLATPAK")
+    for cmd in ["flatpak uninstall --unused -y", "sudo rm -rfv /var/tmp/flatpak-cache*"]:
+        ConsoleUtils.exec_by_system(CommandInfo(command=cmd, verbose=True))
 
 # ---------------------------------------------------------------------------- #
 #                                     SNAP                                     #
 # ---------------------------------------------------------------------------- #
+def snap_uninstall():
+    if not SYSTEM_UTILS.is_linux:
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "snap-uninstall")
+        return
+    parser = argparse.ArgumentParser()
+    parser.add_argument("app", type=str, help="App name")
+    args = parser.parse_args()
+    script_file = FileUtils.resolve_path(f"{DirsLib.get_resource_shell_script_libs_dir()}/snap-uninstall.sh")
+    CONSOLE_UTILS.exec_real_time(CommandInfo(command=f"'{script_file}' {args.app}", shell=SHELL_UTILS.current_shell, verbose=True, use_shell=True))
+
 def snap_list():
     if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "snap-list")
         return
     command_to_run: str = "snap list | awk 'NR >=2{print $1}'"
     parser = argparse.ArgumentParser()
@@ -291,7 +378,8 @@ def snap_list():
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
-        CONSOLE_UTILS.exec_real_time(command_info)
+        command_info.verbose = True
+        ConsoleUtils.exec_by_system(command_info)
     else:
         res = CONSOLE_UTILS.exec(command_info)
         if res.has_error():
@@ -305,23 +393,21 @@ def snap_list():
             for match in matches:
                 print(match)
 
-def snap_uninstall():
-    if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
-        return
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--app", metavar="APP", type=str, required=True, help="App name")
-    args = parser.parse_args()
-    script_file = FileUtils.resolve_path(f"{DirsLib.get_resource_shell_script_libs_dir()}/snap-uninstall.sh")
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=f"'{script_file}' {args.app}"))
-
-
 # ---------------------------------------------------------------------------- #
 #                                    DEB-GET                                   #
 # ---------------------------------------------------------------------------- #
+def deb_get_uninstall():
+    if not SYSTEM_UTILS.is_linux:
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "deb-get-uninstall")
+        return
+    parser = argparse.ArgumentParser()
+    parser.add_argument("apps", type=str, help="App name")
+    args = parser.parse_args()
+    ConsoleUtils.exec_by_system(CommandInfo(command=f"sudo deb-get purge {args.app}", verbose=True))
+
 def deb_get_list():
     if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "deb-get-list")
         return
     command_to_run: str = "deb-get list | grep installed | grep -v deb-get | awk '{print $1}'"
     parser = argparse.ArgumentParser()
@@ -332,7 +418,8 @@ def deb_get_list():
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
-        CONSOLE_UTILS.exec_real_time(command_info)
+        command_info.verbose = True
+        ConsoleUtils.exec_by_system(command_info)
     else:
         res = CONSOLE_UTILS.exec(command_info)
         if res.has_error():
@@ -346,22 +433,19 @@ def deb_get_list():
             for match in matches:
                 print(match)
 
-def deb_get_uninstall():
+def deb_get_clean():
     if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "deb-get-clean")
         return
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--app", metavar="APP", type=str, required=True, help="App name")
-    args = parser.parse_args()
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=f"sudo deb-get purge {args.app}"))
-
+    LoggerUtils.title_log("CLEANUP DEB-GET")
+    ConsoleUtils.exec_by_system(CommandInfo(command="sudo deb-get clean", verbose=True))
 
 # ---------------------------------------------------------------------------- #
 #                                   PACSTALL                                   #
 # ---------------------------------------------------------------------------- #
 def pacstall_list():
     if not SYSTEM_UTILS.is_linux:
-        MessageProcessor.show_platform_msg([EPlatform.LINUX])
+        MessageProcessor.show_platform_msg([EPlatform.LINUX], "pacstall-list")
         return
     command_to_run: str = "pacstall -L | awk '{print $1}'"
     parser = argparse.ArgumentParser()
@@ -372,7 +456,8 @@ def pacstall_list():
     is_case_insensitive: bool = args.case_insensitive
     command_info = CommandInfo(command=command_to_run)
     if filter_app is None or len(filter_app) == 0:
-        CONSOLE_UTILS.exec_real_time(command_info)
+        command_info.verbose = True
+        ConsoleUtils.exec_by_system(command_info)
     else:
         res = CONSOLE_UTILS.exec(command_info)
         if res.has_error():
@@ -390,78 +475,53 @@ def pacstall_list():
 #                                    OTHERS                                    #
 # ---------------------------------------------------------------------------- #
 def script_updater_processor(args_list: list[str]|None = None):
+    script_updater_lib = ScriptUpdaterProcessor()
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--install", metavar="SCRIPT_FILEPATH", type=str, help="Install shell script by given file script")
-    parser.add_argument("-u", "--uninstall", metavar="SCRIPT_NAME", type=str, help="Uninstall shell script by given file script")
-    parser.add_argument("-r", "--run", metavar="NAME_SCRIPT|ALL", type=str, help="Process specific script or all")
-    parser.add_argument("-l", "--list", action="store_true", dest="list", help="List all of installed script")
-    parser.add_argument("-s", "--search", metavar="SCRIPT_TO_SEARCH", type=str, help="Search for installed script by given input")
+    sub_parser = parser.add_subparsers(dest="command", required=True)
+    # INSTALL
+    install_parser = sub_parser.add_parser("install")
+    install_parser.add_argument("-f", "--file", metavar="SCRIPT_FILEPATH", type=str, help="Install shell script by given file script")
+    # UNINSTALL
+    uninstall_parser = sub_parser.add_parser("uninstall")
+    uninstall_parser.add_argument("-n", "--name", metavar="SCRIPT_NAME", type=str, help="Uninstall shell script by given file script")
+    # RUN
+    run_parser = sub_parser.add_parser("run")
+    run_parser.add_argument("-n", "--name", metavar="SCRIPT_NAME", type=str, help="Process specific script")
+    run_parser.add_argument("-a", "--all", action="store_true", dest="run_all", help="Process all script. Priority over name")
+    # LIST
+    list_parser = sub_parser.add_parser("list")
+    list_parser.add_argument("-f", "--filter", metavar="FILTER_SEARCH", type=str, help="Filter to search")
     args = parser.parse_args(args_list)
-    install_file: str = args.install
-    uninstall_file: str = args.uninstall
-    runner: str = args.run
-    list_all: bool = args.list
-    search_filter: str = args.search
-    shell_path = FileUtils.resolve_path(f"{DirsLib.get_coreutils_local_dir()}/shell-scripts-installers-updaters/{SHELL_UTILS.current_shell.value}")
-    file_list = FileUtils.get_list_files_on_folder(shell_path)
-    if not GenericUtils.str_is_empty(install_file):
-        if FileUtils.is_file(install_file) and FileUtils.create_dir(shell_path):
-            dest = FileUtils.resolve_path(f"{shell_path}/{FileUtils.basename(install_file)}")
-            can_install = True if not FileUtils.is_file(dest) else False
-            if not can_install and ConsoleUtils.confirm("Script already exists. Continue", False):
-                can_install = True
-            if can_install:
-                shutil.copy2(install_file, dest)
-                set_file_permission_to_run(dest)
-                LoggerUtils.ok_log(f"Installed shell script updater: {FileUtils.basename(install_file)}")
-        else:
-            LoggerUtils.error_log("Installation failed")
-    elif not GenericUtils.str_is_empty(uninstall_file):
-        for file in file_list:
-            file_basename = FileUtils.basename(file)
-            if uninstall_file == file_basename or uninstall_file == FileUtils.filename_without_ext(file_basename):
-                FileUtils.delete_file(file)
-                LoggerUtils.ok_log(f"Deleted  {file_basename}")
-    elif not GenericUtils.str_is_empty(runner):
-        is_all = runner == "ALL"
-        if is_all:
-            LoggerUtils.title_log("Process all installed shell script to install/update/uninstall packages")
-        for file in file_list:
-            file_basename = FileUtils.basename(file)
-            can_run = True
-            if not is_all:
-                if runner == FileUtils.filename_without_ext(file_basename) or runner == file_basename:
-                    can_run = True
-                else:
-                    can_run = False
-            if can_run:
-                LoggerUtils.header_log(f"Running {FileUtils.filename_without_ext(file_basename)}")
-                CONSOLE_UTILS.exec_real_time(CommandInfo(command=f". \"{file}\""))
-    elif not GenericUtils.str_is_empty(search_filter):
-        for file in file_list:
-            file_basename = FileUtils.basename(file)
-            if search_filter in file_basename:
-                print(f"- {file_basename}")
-    elif list_all:
-        LoggerUtils.title_log("List of all script updaters")
-        for file in file_list:
-            print(f"- {FileUtils.filename_without_ext(FileUtils.basename(file))}")
+    match args.command:
+        case "install":
+            script_updater_lib.install(args.file)
+        case "uninstall":
+            script_updater_lib.uninstall(args.name)
+        case "list":
+            LoggerUtils.title_log("List of all script updaters")
+            for i, part in enumerate(script_updater_lib.get_all(args.filter), start=1):
+                print(f"{i}. {part}")
+        case "run":
+            script_updater_lib.run(args.name, args.run_all)
+        case _:
+            parser.print_help()
 
 def system_upgrade():
     cmd = "topgrade --cleanup --allow-root --skip-notify --yes --disable helm uv deb_get"
     if not SYSTEM_UTILS.is_windows:
         cmd = f"{cmd} powershell"
-    ConsoleUtils.exec_by_system(cmd, True)
+    ConsoleUtils.exec_by_system(CommandInfo(command=cmd, verbose=True))
     LoggerUtils.title_log("deb-get")
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command="sudo deb-get update && sudo deb-get upgrade", verbose=True))
-    script_updater_processor(["-r", "ALL"])
+    for cmd_deb_get in ["sudo deb-get update", "sudo deb-get upgrade"]:
+        ConsoleUtils.exec_by_system(CommandInfo(command=cmd_deb_get, verbose=True))
+    script_updater_processor(["run", "--all"])
 
 def system_cleanup():
     npm_clean()
     if SYSTEM_UTILS.is_windows:
-        CONSOLE_UTILS.exec_real_time(CommandInfo(command="scoop-clean"))
+        scoop_clean()
     elif SYSTEM_UTILS.is_linux:
-        CONSOLE_UTILS.exec_real_time(CommandInfo(command="apt-clean"))
-        CONSOLE_UTILS.exec_real_time(CommandInfo(command="flatpak-clean"))
-        CONSOLE_UTILS.exec_real_time(CommandInfo(command="deb-get-clean"))
+        apt_clean()
+        flatpak_clean()
+        deb_get_clean()
         CONSOLE_UTILS.exec_real_time(CommandInfo(command="snap-clean"))

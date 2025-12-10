@@ -43,7 +43,7 @@ function __install_apt_package {
         addalias "powershell" "pwsh -nologo"
     else
         # Base apps
-        package_list=(software-properties-common apt-transport-https wget curl inkscape git zenity libnotify-bin ubuntu-restricted-extras dos2unix fzf lsb-release)
+        package_list=(software-properties-common apt-transport-https wget curl inkscape git zenity libnotify-bin ubuntu-restricted-extras  fzf lsb-release)
         # Archive manager
         package_list+=(file-roller packagekit arj lzip lzma lzop ncompress rpm2cpio rzip sharutils unace unalz unar p7zip-full p7zip-rar unrar zip unzip rar uudeview mpack cabextract)
     fi

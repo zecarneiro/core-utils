@@ -89,6 +89,7 @@ function __install_scoop_and_packages {
     __eval "scoop install main/gsudo"
     __eval "scoop install main/topgrade"
     __eval "scoop install main/fzf"
+    __eval "scoop install main/dos2unix"
     __eval "scoop install extras/psfzf"
     __eval "scoop install extras/psreadline" # https://github.com/PowerShell/PSReadLine
 

@@ -45,7 +45,7 @@ WantedBy=multi-user.target
         if self.is_valid_platform:
             self.is_service_dir_created = FileUtils.create_dir(self.service_dir)
         else:
-            MessageProcessor.show_platform_msg(self.valid_platform)
+            MessageProcessor.show_platform_msg(self.valid_platform, self.__class__.__name__)
 
     def is_valid(self, skip_command: bool = False) -> bool:
         if not self.is_valid_platform:

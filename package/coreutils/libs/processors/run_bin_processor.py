@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 
-from coreutils.libs.const_lib import SHELL_UTILS, SYSTEM_UTILS
+from coreutils.libs.const_lib import SHELL_UTILS, SYSTEM_UTILS, CONSOLE_UTILS
 from coreutils.libs.dirs_lib import DirsLib
 from coreutils.libs.processors.message_processor import MessageProcessor
+from coreutils.libs.pythonutils.console_utils import ConsoleUtils
 from coreutils.libs.pythonutils.const_utils import CONST
+from coreutils.libs.pythonutils.entities.command_info import CommandInfo
 from coreutils.libs.pythonutils.entities.write_file_options import WriteFileOptions
 from coreutils.libs.pythonutils.enums.shell_enum import EShell
 from coreutils.libs.pythonutils.file_utils import FileUtils
@@ -12,10 +14,10 @@ from coreutils.libs.pythonutils.logger_utils import LoggerUtils
 
 
 @dataclass
-class AliasProcessor:
+class RunBinProcessor:
     @property
-    def __valid_shell(self) -> list[EShell]:
-        return [EShell.POWERSHELL, EShell.CMD, EShell.BASH, EShell.KSH, EShell.ZSH, EShell.FISH]
+    def __pwsh_start_process(self) -> str:
+        return "Start-Process '{0}' -Wait"
 
     @property
     def __scripts_dir(self) -> str:
@@ -171,6 +173,8 @@ class AliasProcessor:
             else:
                 LoggerUtils.error_log(f"Failed on added alias with name: {name}")
 
-    def delete(self, name: str, is_system: bool):
-        if self.__is_valid() and AliasProcessor.__is_valid_name(name):
-            self.__delete_process(name, is_system, True)
+    def start(self, bin: str):
+        if ConsoleUtils.which(bin):
+            cmd = CommandInfo(command=self.__pwsh_start_process.format(bin), shell=EShell.POWERSHELL)
+            CONSOLE_UTILS.exec_real_time(cmd)
+

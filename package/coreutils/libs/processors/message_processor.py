@@ -9,8 +9,8 @@ from coreutils.libs.pythonutils.logger_utils import LoggerUtils
 @dataclass
 class MessageProcessor:
     @staticmethod
-    def show_platform_msg(platform_list: list[EPlatform]):
-        base_msg = "Running __OS__-specific command only"
+    def show_platform_msg(platform_list: list[EPlatform], parent_name: str):
+        base_msg = f"{parent_name} - Running __OS__-specific command only"
         msg: str | None = None
         count_platform = 0
         if platform_list:
@@ -31,8 +31,8 @@ class MessageProcessor:
             LoggerUtils.warn_log(msg)
 
     @staticmethod
-    def show_shell_msg(shell_list: list[EShell]|None):
-        base_msg = "Running __SHELL__-specific command only"
+    def show_shell_msg(shell_list: list[EShell]|None, parent_name: str):
+        base_msg = f"{parent_name} - Running __SHELL__-specific command only"
         shell_list = shell_list if shell_list is not None else []
         msg: str | None = None
         if not SHELL_UTILS.is_shell(shell_list):

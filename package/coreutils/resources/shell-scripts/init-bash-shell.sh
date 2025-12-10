@@ -15,7 +15,7 @@ if [[ "$OSTYPE" == "cygwin" ]]||[[ "$OSTYPE" == "msys" ]]||[[ "$OSTYPE" == "win3
 fi
 
 # IMPORT LIBS FILES
-declare -a __LIBS_TO_NOT_IMPORT__=("snap-clean.sh" "snap-uninstall.sh" "style-prompt.sh")
+declare -a __LIBS_TO_NOT_IMPORT__=("snap-clean.sh" "snap-uninstall.sh" "style-prompt.sh" "has-internet.sh" "run-line-as-command.sh")
 for lib_to_import in "${__COREUTILS_LIBS_SCRIPT_DIR__}"/*.sh; do
   can_import=true
   for lib in "${__LIBS_TO_NOT_IMPORT__[@]}"; do
@@ -29,12 +29,12 @@ for lib_to_import in "${__COREUTILS_LIBS_SCRIPT_DIR__}"/*.sh; do
   fi
 done
 
-# SHELL FUNCTIONS
-export PATH="$HOME/.local/coreutils/scripts/bash:$PATH"
+# SHELL SCRIPTS
+export PATH="$HOME/.local/coreutils/scripts/linux-shell:$PATH"
 
 # IMPORT ALIAS
-if [ -f "$HOME/.local/coreutils/alias/bash" ]; then
-  source "$HOME/.local/coreutils/alias/bash"
+if [ -f "$HOME/.local/coreutils/alias/bash-alias" ]; then
+  source "$HOME/.local/coreutils/alias/bash-alias"
 fi
 alias ..='cd ..'
 

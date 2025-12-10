@@ -33,16 +33,16 @@ class WhichProcessor:
         elif SHELL_UTILS.is_bash:
             if type_command == self.__function_key:
                 cmd = f"bash -i -c 'declare -F {self.command} >/dev/null 2>&1 && echo existe'"
-                return CommandInfo(command=cmd, shell=EShell.UNKNOWN, use_shell=True)
+                return CommandInfo(command=cmd, shell=EShell.BASH, use_shell=True)
             elif type_command == self.__alias_key:
                 cmd = f"bash -i -c 'alias {self.command} >/dev/null 2>&1 && echo existe'"
-                return CommandInfo(command=cmd, shell=EShell.UNKNOWN, use_shell=True)
+                return CommandInfo(command=cmd, shell=EShell.BASH, use_shell=True)
         elif SHELL_UTILS.is_fish:
             if type_command == self.__function_key:
-                return CommandInfo(command=f"functions -q {self.command}; and echo \"exists\"", use_shell=True)
+                return CommandInfo(command=f"functions -q {self.command}; and echo \"exists\"", shell=EShell.FISH, use_shell=True)
             elif type_command == self.__alias_key:
                 cmd = f"alias | grep -q '^alias {self.command} '; and echo exists"
-                return CommandInfo(command=cmd, use_shell=True)
+                return CommandInfo(command=cmd, shell=EShell.FISH, use_shell=True)
         elif SHELL_UTILS.is_ksh or SHELL_UTILS.is_zsh:
             prefix_cmd = "ksh -i -c" if SHELL_UTILS.is_ksh else "zsh -i -c"
             if type_command == self.__function_key:

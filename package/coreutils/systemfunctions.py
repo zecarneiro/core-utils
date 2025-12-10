@@ -12,6 +12,7 @@ from coreutils.libs.pythonutils.console_utils import ConsoleUtils
 from coreutils.libs.pythonutils.const_utils import CONST
 from coreutils.libs.pythonutils.entities.command_info import CommandInfo
 from coreutils.libs.pythonutils.enums.shell_enum import EShell
+from coreutils.libs.pythonutils.file_utils import FileUtils
 from coreutils.libs.pythonutils.generic_utils import GenericUtils
 from coreutils.libs.pythonutils.logger_utils import LoggerUtils
 from coreutils.libs.pythonutils.system_utils import SystemUtils
@@ -28,27 +29,21 @@ def system_dependencies_apps() -> list[str]:
     return apps
 
 def process_post_install_for_system_function_file():
-    script_processor(["-i", "-n", "now", "-c", "date"])
-    if SYSTEM_UTILS.is_windows:
-        script_processor(["-i", "-n", "sudopwsh", "-c", f"sudo powershell -Command {CONST.POWERSHELL_ALL_ARGS_VAR_STR}"])
-        script_processor(["-i", "-n", "gsudopwsh", "-c", f"gsudo powershell -Command {CONST.POWERSHELL_ALL_ARGS_VAR_STR}"])
-        script_processor(["-i", "-n", "sudopwsh-old", "-c", f"Start-Process powershell.exe -verb runAs -Args \"{CONST.POWERSHELL_ALL_ARGS_VAR_STR}; pause\""])
-        script_processor(["-i", "-n", "ver", "-c", "systeminfo | findstr /B /C:\"OS Name\" /B /C:\"OS Version\""])
-        script_processor(["-f", f"{DirsLib.get_resource_shell_script_libs_dir()}/trash.ps1"])
-        script_processor(["-i", "-n", "restart-explorer", "-c", "Stop-Process -Name explorer -Force; Start-Process explorer.exe"])
-    else:
-        script_processor(["-i", "-n", "ver", "-c", "lsb_release -a"])
-        script_processor(["-i", "-n", "trash", "-c", f"mv --force -t ~/.local/share/Trash/files {SHELL_UTILS.get_all_args_var_name()}"])
-        script_processor(["-i", "-n", "restart-explorer", "-c", "nautilus -q"])
-        if not SHELL_UTILS.is_powershell:
-            alias_processor(["-a", "-n", "cls", "-c", "clear"])
-        script_processor(["-i", "-n", "update-menu-entries", "-c", "sudo update-desktop-database"])
-
-    if SHELL_UTILS.is_powershell:
-        script_processor(["-f", f"{DirsLib.get_resource_shell_script_libs_dir()}/pgrep.ps1"])
-        script_processor(["-f", f"{DirsLib.get_resource_shell_script_libs_dir()}/pkill.ps1"])
-    else:
-        script_processor(["-i", "-n", "pgrep", "-c", f"{CONSOLE_UTILS.which("pgrep")} -l {CONST.BASH_ALL_ARGS_VAR_STR}"])
+    script_processor(["install", "-n", "now", "-c", "date", "-s"])
+    if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
+        script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("pgrepc.ps1")])
+        script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("pkillc.ps1")])
+        if SYSTEM_UTILS.is_windows:
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("sudopwsh.ps1")])
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("gsudopwsh.ps1")])
+            script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("sudopwsh-old.ps1")])
+    if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.BASH]):
+        if SHELL_UTILS.is_bash:
+            script_processor(["install", "-n", "cls", "-c", "clear", "-s"])
+            if SYSTEM_UTILS.is_linux:
+                script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("pgrepc.sh")])
+                script_processor(["install-file", "-f", DirsLib.get_resource_shell_script_apps_dir("snap-uninstall.sh")])
+                script_processor(["install", "-n", "update-menu-entries", "-c", "sudo update-desktop-database", "-s"])
 
 def reload_shell_profile(only_msg: bool = False):
     current_shell = SHELL_UTILS.current_shell
@@ -76,7 +71,7 @@ def prompt_style():
     status: bool = args.status
     value = args.value
     if not SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.BASH]):
-        MessageProcessor.show_shell_msg([EShell.POWERSHELL, EShell.BASH])
+        MessageProcessor.show_shell_msg([EShell.POWERSHELL, EShell.BASH], "prompt-style")
         return
     current_shell = SHELL_UTILS.current_shell
     shell_name: str = current_shell.value
@@ -91,7 +86,7 @@ def prompt_style():
 def is_admin():
     print(LoggerUtils.get_bool_str_formated(SYSTEM_UTILS.is_admin()))
 
-def reboot():
+def rebootc():
     user_input = input("Will be restart PC. Continue(y/N)? ")
     if user_input == 'Y' or user_input == 'y':
         cmd_info = CommandInfo(command=ConsoleUtils.which("shutdown"), verbose=True)
@@ -115,7 +110,7 @@ def shutdownc():
 
 def command_exists():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--command", metavar="COMMAND", type=str, required=True, help="Command")
+    parser.add_argument("command", type=str)
     args = parser.parse_args()
     command = args.command
     if SYSTEM_UTILS.is_windows or SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
@@ -128,71 +123,84 @@ def command_exists():
     else:
         print(CONST.UNKNOWN)
 
-def whichc():
+def whichc(args_list: list[str] | None = None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--command", metavar="COMMAND", type=str, required=True, help="Command")
-    args = parser.parse_args()
+    parser.add_argument("command", type=str)
+    args = parser.parse_args(args_list)
     which_processor_lib = WhichProcessor(command=args.command)
     print(which_processor_lib.find_command())
 
-def script_processor(args_list: list[str] | None = None):
+def evalc(args_list: list[str] | None = None):
     parser = argparse.ArgumentParser()
-    parser.description = "Set scripts as command."
-    parser.add_argument("-n", "--name", metavar="NAME", type=str)
-    parser.add_argument("-c", "--content", metavar="CONTENT", type=str, help="Content for script")
-    parser.add_argument("-i", "--install", action="store_true", dest="install", help="Process installation")
-    parser.add_argument("-u", "--uninstall", action="store_true", dest="uninstall", help="Process uninstallation")
-    parser.add_argument("-l", "--list", action="store_true", dest="list", help="List all of installed script")
-    parser.add_argument("-f", "--file", metavar="SCRIPT_FILEPATH", help="Install from given script file. Install flag no need.")
+    parser.add_argument("command", type=str)
     args = parser.parse_args(args_list)
-    script_processor_lib: ScriptProcessor = ScriptProcessor(name=args.name, content=args.content, install_file=args.file)
-    if args.list:
-        LoggerUtils.title_log("List of all script commands")
-        for file in script_processor_lib.get_all():
-            print(f"- {file}")
-    elif not script_processor_lib.is_valid(True if args.uninstall else False):
-        return
-    elif args.uninstall:
-        script_processor_lib.uninstall()
-    elif not GenericUtils.str_is_empty(script_processor_lib.install_file):
-        script_processor_lib.install_from_file()
-    elif args.install:
-        script_processor_lib.install()
-    else:
-        LoggerUtils.warn_log("Please, set the flag --install|--uninstall|--list")
-        parser.print_help()
+    command = args.command
+    ConsoleUtils.exec_by_system(CommandInfo(command=command, verbose=True))
+
+def script_processor(args_list: list[str] | None = None):
+    script_lib = ScriptProcessor()
+    parser = argparse.ArgumentParser()
+    parser.description = "Set/Unset scripts as command."
+    parser = argparse.ArgumentParser()
+    sub_parser = parser.add_subparsers(dest="command", required=True)
+    # INSTALL
+    install_parser = sub_parser.add_parser("install")
+    install_parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
+    install_parser.add_argument("-c", "--content", metavar="CONTENT", type=str, required=True, help="Content for script")
+    install_parser.add_argument("-s", "--shell-tag", action="store_true", dest="shell_tag", help="Insert shell tag. Ex: #!/usr/bin/env bash")
+    # INSTALL FROM FILE
+    install_file_parser = sub_parser.add_parser("install-file")
+    install_file_parser.add_argument("-f", "--file", metavar="SCRIPT_FILEPATH", required=True, help="Install from given script file.")
+    # UNINSTALL
+    uninstall_parser = sub_parser.add_parser("uninstall")
+    uninstall_parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
+    # LIST
+    list_parser = sub_parser.add_parser("list")
+    list_parser.add_argument("-f", "--filter", metavar="FILTER_SEARCH", type=str, help="Filter to search")
+    args = parser.parse_args(args_list)
+    match args.command:
+        case "install":
+            script_lib.install(args.name, args.content, args.shell_tag)
+        case "install-file":
+            script_lib.install_from_file(args.file)
+        case "uninstall":
+            script_lib.uninstall(args.name)
+        case "list":
+            LoggerUtils.title_log("List of all script commands")
+            for i, part in enumerate(script_lib.get_all(args.filter), start=1):
+                print(f"{i}. {part}")
+        case _:
+            parser.print_help()
 
 def alias_processor(args_list: list[str]|None = None):
+    alias_lib: AliasProcessor = AliasProcessor()
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", metavar="NAME", type=str)
-    parser.add_argument("-c", "--content", metavar="CONTENT", nargs="?", help="Content of alias. Only work with --add arg")
-    parser.add_argument("-a", "--add", action="store_true", dest="add", help="Process add alias")
-    parser.add_argument("-d", "--delete", action="store_true", dest="delete", help="Process delete alias")
-    parser.add_argument("-l", "--list", action="store_true", dest="list", help="List all of added alias")
-    parser.add_argument("-s", "--system", action="store_true", dest="system", help="If is to delete Windows SO system alias")
+    parser.description = "Add/Remove alias."
+    parser = argparse.ArgumentParser()
+    sub_parser = parser.add_subparsers(dest="command", required=True)
+    # ADD
+    add_parser = sub_parser.add_parser("add")
+    add_parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
+    add_parser.add_argument("-c", "--content", metavar="CONTENT", nargs="?", required=True, help="Content of alias. Only work with --add arg")
+    # DELETE
+    delete_parser = sub_parser.add_parser("delete")
+    delete_parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
+    delete_parser.add_argument("-s", "--system", action="store_true", dest="system", help="If is to delete Windows SO system alias")
+    # LIST
+    list_parser = sub_parser.add_parser("list")
+    list_parser.add_argument("-f", "--filter", metavar="FILTER_SEARCH", type=str, help="Filter to search")
     args = parser.parse_args(args_list)
-    alias_processor_lib: AliasProcessor = AliasProcessor(name=args.name, content=args.content, is_system=args.system)
-    if args.list:
-        LoggerUtils.title_log("List of all alias")
-        for alias_name in alias_processor_lib.get_all():
-            print(f"- {alias_name}")
-    elif not alias_processor_lib.is_valid(True if args.delete else False):
-        return
-    elif args.add:
-        alias_processor_lib.add()
-    elif args.delete:
-        alias_processor_lib.delete()
-    else:
-        parser.print_help()
-
-def evalc():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--command", metavar="COMMAND", type=str, required=True, help="Command")
-    parser.add_argument("-s", "--shell", metavar="COMMAND", type=str, required=True, help="Command")
-    args = parser.parse_args()
-    command = args.command
-    LoggerUtils.prompt_log(command)
-    CONSOLE_UTILS.exec_real_time(CommandInfo(command=command, shell=EShell.UNKNOWN))
+    match args.command:
+        case "add":
+            alias_lib.add(args.name, args.content)
+        case "delete":
+            alias_lib.delete(args.name, args.system)
+        case "list":
+            LoggerUtils.title_log("List of all alias")
+            for i, part in enumerate(alias_lib.get_all(args.filter), start=1):
+                print(f"{i}. {part}")
+        case _:
+            parser.print_help()
 
 def service_processor():
     parser = argparse.ArgumentParser()
@@ -212,31 +220,79 @@ def service_processor():
     else:
         parser.print_help()
 
-def env_var_exists():
+def envc(args_list: list[str]|None = None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
-    args = parser.parse_args()
-    print(LoggerUtils.get_bool_str_formated(SystemUtils.env_var_exists(args.name)))
-
-def env_var_has_value():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
-    parser.add_argument("-v", "--value", metavar="VALUE", type=str, required=True)
-    args = parser.parse_args()
-    print(LoggerUtils.get_bool_str_formated(SystemUtils.env_var_has_value(args.name, args.value)))
-
-def env_var_print_values(args_list: list[str]|None = None):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
+    sub_parser = parser.add_subparsers(dest="command", required=True)
+    # EXISTS
+    exists_parser = sub_parser.add_parser("exists")
+    exists_parser.add_argument("name", type=str, help="Name of env var")
+    # EXIST VALUE
+    exist_value_parser = sub_parser.add_parser("exist-value")
+    exist_value_parser.add_argument("-n", "--name", metavar="NAME", type=str, required=True)
+    exist_value_parser.add_argument("-v", "--value", metavar="VALUE", type=str, required=True)
+    # PRINT VALUES
+    print_values_parser = sub_parser.add_parser("print-values")
+    print_values_parser.add_argument("-n", "--name", type=str, metavar="NAME", required=True, help="Name of env var")
+    # LIST
+    sub_parser.add_parser("list")
+    # LIST WITH VALUES
+    sub_parser.add_parser("list-with-values")
     args = parser.parse_args(args_list)
-    values = SystemUtils.env_var_values_as_list(args.name)
-    print(f"{args.name} has {len(values)} entries:")
-    for i, part in enumerate(values, start=1):
-        print(f"{i}. {part}")
+    match args.command:
+        case "exists":
+            print(LoggerUtils.get_bool_str_formated(SystemUtils.env_var_exists(args.name)))
+        case "exist-value":
+            print(LoggerUtils.get_bool_str_formated(SystemUtils.env_var_has_value(args.name, args.value)))
+        case "print-values":
+            values = SystemUtils.env_var_values_as_list(args.name)
+            print(f"{args.name} has {len(values)} entries:")
+            for i, part in enumerate(values, start=1):
+                print(f"{i}. {part}")
+        case "list":
+            count = 1
+            for name, _ in SystemUtils.env_var_list().items():
+                print(f"{count}. {name}")
+                count += 1
+        case "list-with-values":
+            for name, _ in SystemUtils.env_var_list().items():
+                LoggerUtils.separator_log(20)
+                envc(["print-values", name])
+                print(CONST.EOF)
+        case _:
+            parser.print_help()
 
 def printenvc():
-    for name, _ in SystemUtils.env_var_list().items():
-        LoggerUtils.separator_log(20)
-        env_var_print_values(["-n", name])
-        print(CONST.EOF)
+    envc(["list-with-values"])
 
+def ver():
+    cmd = "lsb_release -a"
+    if SYSTEM_UTILS.is_windows:
+        cmd = "systeminfo | findstr /B /C:\"OS Name\" /B /C:\"OS Version\""
+    ConsoleUtils.exec_by_system(CommandInfo(command=cmd))
+
+def restart_explorer():
+    command_info = CommandInfo(command="nautilus -q")
+    if SYSTEM_UTILS.is_windows:
+        command_info.command = "Stop-Process -Name explorer -Force; Start-Process explorer.exe"
+        command_info.shell = EShell.POWERSHELL
+        CONSOLE_UTILS.exec_real_time(command_info)
+    else:
+        LoggerUtils.info_log("Only works with nautilus")
+        ConsoleUtils.exec_by_system(command_info)
+
+def trash():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", type=str)
+    args = parser.parse_args()
+    file = args.file
+    if GenericUtils.str_is_empty(file) or file == ".":
+        file = ""
+    if not FileUtils.file_exist(file):
+        LoggerUtils.error_log(f"File not found: {file}")
+        return
+    if SYSTEM_UTILS.is_windows:
+        script_file = FileUtils.resolve_path(f"{DirsLib.get_resource_shell_script_libs_dir()}/trash.ps1")
+        CONSOLE_UTILS.exec_real_time(CommandInfo(command=f". \"{script_file}\" \"{file}\"", shell=EShell.POWERSHELL))
+    else:
+        command = f"mv --force -t ~/.local/share/Trash/files \"{file}\""
+        ConsoleUtils.exec_by_system(CommandInfo(command=command))

@@ -3,12 +3,13 @@ import os
 import shutil
 
 from coreutils.libs.const_lib import SYSTEM_UTILS, CONSOLE_UTILS, SHELL_UTILS
+from coreutils.libs.pythonutils.console_utils import ConsoleUtils
 from coreutils.libs.pythonutils.entities.command_info import CommandInfo
 from coreutils.libs.pythonutils.entities.write_file_options import WriteFileOptions
 from coreutils.libs.pythonutils.enums.shell_enum import EShell
 from coreutils.libs.pythonutils.file_utils import FileUtils
 from coreutils.libs.pythonutils.logger_utils import LoggerUtils
-from coreutils.systemfunctions import script_processor
+
 
 def file_dependencies_apps() -> list[str]:
     apps: list[str] = ["markdown_viewer"]
@@ -16,47 +17,48 @@ def file_dependencies_apps() -> list[str]:
         apps.append("eog")
     return apps
 
-def process_post_install_for_file_function_file():
-    if SHELL_UTILS.is_shell([EShell.POWERSHELL, EShell.CMD]):
-        script_processor(["-i", "-n", "countfiles", "-c", "(Get-ChildItem -File -Recurse -Force | Select-Object -ExpandProperty FullName | Measure-Object).Count"])
-        script_processor(["-i", "-n", "move-files-to-parent", "-c", "Get-ChildItem -Path \"$pwd\" -Recurse -File -Force | Move-Item -Destination \"$pwd\" -Verbose"])
-        script_processor(["-i", "-n", "lf", "-c", "Get-ChildItem -Path \"$pwd\" -File -Force | ForEach-Object { $_.FullName }"])
-    else:
-        script_processor(["-i", "-n", "countfiles", "-c", "find . -type f | wc -l"])
-        script_processor(["-i", "-n", "move-files-to-parent", "-c", 'find . -mindepth 2 -type f -print -exec mv {} . \\;'])
-        script_processor(["-i", "-n", "lf", "-c", 'find . -maxdepth 1 -type f'])
-
 def file_exists():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
+    parser.add_argument("file", type=str)
     args = parser.parse_args()
-    print(LoggerUtils.get_bool_str_formated(FileUtils.is_file(args.file)))
+    file = args.file
+    if file is None or file == ".":
+        file = ""
+    print(LoggerUtils.get_bool_str_formated(FileUtils.is_file(file)))
 
 def file_extension():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
+    parser.add_argument("file", type=str)
     args = parser.parse_args()
-    print(FileUtils.file_extension(args.file))
+    file = args.file
+    if file is None or file == ".":
+        file = ""
+    print(FileUtils.file_extension(file))
 
 def filename():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
+    parser.add_argument("file", type=str)
     args = parser.parse_args()
-    print(FileUtils.filename_without_ext(args.file))
+    file = args.file
+    if file is None or file == ".":
+        file = ""
+    print(FileUtils.filename_without_ext(file))
 
 def delete_file():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
+    parser.add_argument("file", type=str)
     args = parser.parse_args()
     file = args.file
     if FileUtils.is_file(file):
         FileUtils.delete_file(file)
         if FileUtils.is_file(file):
             LoggerUtils.error_log(f"File '{file}' not deleted")
+    else:
+        LoggerUtils.error_log(f"Not found File: {file}")
 
 def file_encoding():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
+    parser.add_argument("file", type=str)
     args = parser.parse_args()
     print(FileUtils.get_file_encoding(args.file))
 
@@ -110,19 +112,22 @@ def file_contain():
 
 def findfile():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", metavar="FILE_NAME", type=str, required=True, help="File name to find")
+    parser.add_argument("name", help="File name to find")
     args = parser.parse_args()
     cwd = os.getcwd()
-    if FileUtils.is_dir(cwd):
-        file_list = FileUtils.get_list_files_on_folder(cwd)
-        for file in file_list:
-            basename = os.path.basename(file)
-            if args.name in basename:
-                print(file)
+    if args.name is not None and len(args.name) > 0:
+        if FileUtils.is_dir(cwd):
+            file_list = FileUtils.get_list_files_on_folder(cwd)
+            for file in file_list:
+                basename = os.path.basename(file)
+                if args.name in basename:
+                    print(file)
+    else:
+        LoggerUtils.error_log(f"Invalid given name: {args.name}")
 
 def open_markdown():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
+    parser.add_argument("file", type=str)
     args = parser.parse_args()
     file = args.file
     if FileUtils.is_file(file):
@@ -140,7 +145,7 @@ def open_markdown():
 
 def open_image():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", metavar="FILEPATH", type=str, required=True)
+    parser.add_argument("file", type=str)
     args = parser.parse_args()
     file = args.file
     if FileUtils.is_file(file):
@@ -157,3 +162,24 @@ def open_image():
             CONSOLE_UTILS.exec_real_time(CommandInfo(command=base_cmd, args=[file]))
     else:
         LoggerUtils.error_log(f"Invalid given file: {file}")
+
+def count_files():
+    if SHELL_UTILS.is_powershell:
+        cmd = "(Get-ChildItem -File -Recurse -Force | Select-Object -ExpandProperty FullName | Measure-Object).Count"
+        CONSOLE_UTILS.exec_real_time(CommandInfo(command=cmd, shell=EShell.POWERSHELL, verbose=True, use_shell=True))
+    else:
+        ConsoleUtils.exec_by_system(CommandInfo(command="find . -type f | wc -l", verbose=True))
+
+def lhf():
+    if SHELL_UTILS.is_powershell:
+        cmd = "Get-ChildItem -Path \"$pwd\" -File -Force | ForEach-Object { $_.FullName }"
+        CONSOLE_UTILS.exec_real_time(CommandInfo(command=cmd, verbose=True, shell=EShell.POWERSHELL, use_shell=True))
+    else:
+        ConsoleUtils.exec_by_system(CommandInfo(command="find . -maxdepth 1 -type f", verbose=True))
+
+def move_files_to_parent():
+    if SHELL_UTILS.is_powershell:
+        cmd = "Get-ChildItem -Path \"$pwd\" -Recurse -File -Force | Move-Item -Destination \"$pwd\" -Verbose"
+        CONSOLE_UTILS.exec_real_time(CommandInfo(command=cmd, verbose=True, shell=EShell.POWERSHELL, use_shell=True))
+    else:
+        ConsoleUtils.exec_by_system(CommandInfo(command="find . -mindepth 2 -type f -print -exec mv {} . \\;", verbose=True))

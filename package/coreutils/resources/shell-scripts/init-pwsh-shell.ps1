@@ -14,7 +14,7 @@ if ((OS_NAME) -contains "Server") {
 $OutputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $False
 
 # IMPORT LIBS FILES
-$__LIBS_TO_NOT_IMPORT__=@("style-prompt.ps1", "trash.ps1", "pgrep.ps1", "pkill.ps1")
+$__LIBS_TO_NOT_IMPORT__=@("style-prompt.ps1", "trash.ps1", "pgrep.ps1", "pkill.ps1", "has-internet.ps1", "download.ps1", "run-line-as-command.ps1")
 Get-ChildItem -Path "$(Resolve-Path "${__COREUTILS_LIBS_SCRIPT_DIR__}")" -Filter *.ps1 -File | ForEach-Object {
   $lib_to_import = $_.FullName
   $can_import = $true 
@@ -31,7 +31,7 @@ Get-ChildItem -Path "$(Resolve-Path "${__COREUTILS_LIBS_SCRIPT_DIR__}")" -Filter
 
 # SHELL FUNCTIONS
 try {
-    $resolved_path = (Resolve-Path("$home\.local\coreutils\scripts\pwsh") -ErrorAction SilentlyContinue)
+    $resolved_path = (Resolve-Path("$home\.local\coreutils\scripts\pwsh-shell") -ErrorAction SilentlyContinue)
     $cmd_path = (Resolve-Path("$resolved_path\cmd") -ErrorAction SilentlyContinue)
     if (Test-Path "$cmd_path") {
         $env:Path += ";$cmd_path"
@@ -44,7 +44,7 @@ try {
 
 # IMPORT ALIAS
 try {
-  . "$(Resolve-Path("$home\.local\coreutils\alias\powershell.ps1") -ErrorAction SilentlyContinue)"
+  . "$(Resolve-Path("$home\.local\coreutils\alias\powershell-alias.ps1") -ErrorAction SilentlyContinue)"
 } catch {
   # Do Nothing
 }
@@ -69,6 +69,7 @@ try {
 
 function prompt {
   $style_script = "$($global:__COREUTILS_LIBS_SCRIPT_DIR__)\style-prompt.ps1"
+  $style_script = "$(Resolve-Path($style_script) -ErrorAction SilentlyContinue)"
   . "${style_script}" -style (prompt-style -s) -is_init $global:__IS_INIT_PROMPT__
   if ($global:__IS_INIT_PROMPT__) {
     $global:__IS_INIT_PROMPT__=$false
