@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"golangutils/pkg/system"
+)
 
 func main() {
-    fmt.Println("Not implemented yet!")
+	fmt.Println(system.OSName())
 }

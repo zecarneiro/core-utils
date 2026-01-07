@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"main/internal/dir"
+)
 
 func main() {
-    fmt.Println("Not implemented yet!")
+	fmt.Println(dir.GetCoreUtilsShellAlias())
 }

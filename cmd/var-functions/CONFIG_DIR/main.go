@@ -1,11 +1,10 @@
 package main
 
 import (
-	"main/libs"
+	"fmt"
+	"main/internal/dir"
 )
 
 func main() {
-	dir_lib := libs.NewDirsLib()
-	config_dir := dir_lib.GetConfig()
-	libs.LoggerUtils.Log(config_dir)
+	fmt.Println(dir.GetUserConfig())
 }

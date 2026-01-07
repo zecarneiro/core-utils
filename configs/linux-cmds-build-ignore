@@ -1,0 +1,10 @@
+scoop-clean
+scoop-list
+scoop-uninstall
+winget-list
+winget-uninstall
+wsl-configc
+wsl-list
+wsl-shutdown
+wsl-uninstall
+wsl2win-path

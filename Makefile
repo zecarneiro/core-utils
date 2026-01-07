@@ -6,6 +6,7 @@ BINARY_DIR := $(ROOT)/bin
 PKG_DIR := $(ROOT)/pkg
 VENDOR_DIR := $(ROOT)/vendor/golangutils
 GO := go
+CMD_NAME ?= ""
 
 .PHONY: all build clean check-deps process-go-dependencies list-go-dependencies help
 
@@ -39,7 +40,7 @@ list-go-dependencies: check-deps
 	@cd $(ROOT)
 
 build: check-deps
-	@bash $(SCRIPTS_DIR)/builder.sh $(ROOT)
+	@bash $(SCRIPTS_DIR)/builder.sh $(CMD_NAME) $(ROOT)
 
 clean:
 	rm -rf $(BINARY_DIR)/

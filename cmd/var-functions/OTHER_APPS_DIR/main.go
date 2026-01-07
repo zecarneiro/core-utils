@@ -1,11 +1,10 @@
 package main
 
-import "fmt"
-
-func getBBB() string {
-	return "BBB"
-}
+import (
+	"fmt"
+	"main/internal/dir"
+)
 
 func main() {
-	fmt.Println("Hello, World! - other_apps_dir")
+	fmt.Println(dir.GetUserOpt())
 }

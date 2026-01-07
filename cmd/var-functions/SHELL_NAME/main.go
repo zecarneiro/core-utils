@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"golangutils/pkg/shell"
+)
 
 func main() {
-    fmt.Println("Not implemented yet!")
+	fmt.Println(shell.GetCurrentShell().String())
 }
