@@ -7,7 +7,7 @@ BINARY_WIN_DIR="$BINARY_DIR/windows"
 BINARY_LINUX_DIR="$BINARY_DIR/linux"
 CMD_DIR="$ROOT_DIR/cmd"
 COMMANDS=$(go list -f '{{if eq .Name "main"}}{{.Dir}}{{end}}' "$CMD_DIR/...")
-(cd "$ROOT_DIR" && make clean) || (echo "❌ Error during make clean" && exit 1)
+(rm -rf "$BINARY_DIR") || (echo "❌ Error during clean" && exit 1)
 
 build_commands() {
     local extension="$1"

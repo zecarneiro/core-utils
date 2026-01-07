@@ -1,11 +1,13 @@
 package main
 
-import "fmt"
+import "main/libs"
 
 func getBBB() string {
 	return "BBB"
 }
 
 func main() {
-	fmt.Println("Hello, World! - other_apps_dir")
+	dir_lib := libs.NewDirsLib()
+	config_dir := dir_lib.GetUserOpt()
+	libs.LoggerUtils.Log(config_dir)
 }

@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"main/libs"
+)
 
 func main() {
-    fmt.Println("Not implemented yet!")
+	libs.LoggerUtils.Log(libs.SystemUtils.OSName())
 }

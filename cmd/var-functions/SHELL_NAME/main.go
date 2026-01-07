@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"main/libs"
+	"strings"
+)
 
 func main() {
-    fmt.Println("Not implemented yet!")
+	fmt.Println(strings.ToUpper(libs.ShellUtils.CurrentShell.String()))
 }
