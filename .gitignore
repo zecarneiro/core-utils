@@ -1,7 +1,2 @@
 release
-core-utils-*.zip
-user-option-inserted
-.idea
-package/build
-package/coreutils.egg-info
-__pycache__
+bin/
