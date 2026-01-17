@@ -88,23 +88,6 @@
     "git.openRepositoryInParentFolders": "always",
     "gitlens.codeLens.authors.enabled": false,
     "gitlens.codeLens.recentChange.enabled": false,
-    "go.buildOnSave": "package",
-    "go.formatTool": "gofmt",
-    "go.gopath": null,
-    "go.goroot": null,
-    "go.inferGopath": true,
-    "go.lintOnSave": "file",
-    "go.lintTool": "golangci-lint",
-    "go.testExplorer.enable": true,
-    "go.testFlags": [
-      "-v"
-    ],
-    "go.toolsEnvVars": {
-      "GOFLAGS": "-tags=linux"
-    },
-    "go.toolsManagement.autoUpgrade": true,
-    "go.useLanguageServer": true,
-    "go.vetOnSave": "package",
     "javascript.referencesCodeLens.enabled": true,
     "javascript.referencesCodeLens.showOnAllFunctions": true,
     "javascript.suggest.autoImports": true,
@@ -134,7 +117,36 @@
     "workbench.colorTheme": "Darcula",
     "workbench.editor.labelFormat": "short",
     "workbench.iconTheme": "vscode-icons",
-    "workbench.startupEditor": "newUntitledFile"
+    "workbench.startupEditor": "newUntitledFile",
+    "go.useLanguageServer": true,
+    "go.lintTool": "golangci-lint",
+    "go.formatTool": "gofumpt",
+    "go.toolsEnvVars": {
+      "GOOS": "windows"
+    },
+    "gopls": {
+      "build.buildFlags": ["-tags=windows"],
+      "ui.semanticTokens": true,
+      "ui.completion.usePlaceholders": true,
+      "formatting.gofumpt": true,
+      "ui.codelenses": {
+        "gc_details": true,
+        "test": true,
+        "tidy": true
+      },
+      "hints": {
+        "assignVariableTypes": true,
+        "compositeLiteralFields": true,
+        "constantValues": true,
+        "functionTypeParameters": true,
+        "parameterNames": true,
+        "rangeVariableTypes": true
+      }
+    },
+    "go.testFlags": ["-v", "-race"],
+    "go.testTimeout": "30s",
+    "go.coverOnSave": true,
+    "go.coverMode": "atomic"
   },
   "extensions": [
     "golang.Go",
@@ -174,4 +186,3 @@
   ],
   "postCreateCommand": ""
 }
-

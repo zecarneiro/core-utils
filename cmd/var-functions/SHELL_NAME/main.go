@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"main/libs"
-	"strings"
+	"golangutils/pkg/console"
 )
 
 func main() {
-	fmt.Println(strings.ToUpper(libs.ShellUtils.CurrentShell.String()))
+	fmt.Println(console.GetCurrentShell().String())
 }

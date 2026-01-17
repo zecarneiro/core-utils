@@ -21,38 +21,6 @@ class DirsLib:
         )
 
     @staticmethod
-    def get_user_startup() -> str | None:
-        if SYSTEM_UTILS.is_windows:
-            return DirsLib.__create_dir(
-                FileUtils.resolve_path(
-                    f"{SYSTEM_UTILS.home_dir}\\Start Menu\\Programs\\Startup"
-                )
-            )
-        elif SYSTEM_UTILS.is_linux:
-            return DirsLib.__create_dir(
-                FileUtils.resolve_path(f"{DirsLib.get_config()}/autostart")
-            )
-        return None
-
-    @staticmethod
-    def get_user_temp() -> str | None:
-        if SYSTEM_UTILS.is_windows:
-            return DirsLib.__create_dir(FileUtils.resolve_path(SYSTEM_UTILS.temp_dir))
-        elif SYSTEM_UTILS.is_linux:
-            return DirsLib.__create_dir(
-                FileUtils.resolve_path(f"{DirsLib.get_user_local()}/tmp")
-            )
-        return None
-
-    @staticmethod
-    def get_temp() -> str | None:
-        if SYSTEM_UTILS.is_windows:
-            return DirsLib.get_user_temp()
-        elif SYSTEM_UTILS.is_linux:
-            return FileUtils.resolve_path(SYSTEM_UTILS.temp_dir)
-        return None
-
-    @staticmethod
     def get_coreutils_local_dir() -> str:
         return DirsLib.__create_dir(
             FileUtils.resolve_path(f"{DirsLib.get_user_local()}/coreutils")
@@ -71,43 +39,6 @@ class DirsLib:
         directory = FileUtils.resolve_path(
             f"{DirsLib.get_coreutils_local_dir()}/functions/{shell_dir_name}"
         )
-        if not FileUtils.is_dir(directory):
-            FileUtils.create_dir(directory)
-            if SYSTEM_UTILS.is_windows:
-                FileUtils.create_dir(
-                    FileUtils.resolve_path(f"{directory}/{EShell.CMD.value}")
-                )
-        return directory
-
-    @staticmethod
-    def get_coreutils_shell_script() -> str:
-        current_shell = SHELL_UTILS.current_shell
-        if current_shell == EShell.UNKNOWN:
-            return ""
-        shell_dir_name = "linux"
-        if SHELL_UTILS.is_shell([EShell.CMD, EShell.POWERSHELL]):
-            shell_dir_name = (
-                current_shell.value
-                if current_shell != EShell.CMD
-                else EShell.POWERSHELL.value
-            )
-        directory = FileUtils.resolve_path(
-            f"{DirsLib.get_coreutils_local_dir()}/scripts/{shell_dir_name}-shell"
-        )
-        if not FileUtils.is_dir(directory):
-            FileUtils.create_dir(directory)
-            if SYSTEM_UTILS.is_windows:
-                FileUtils.create_dir(
-                    FileUtils.resolve_path(f"{directory}/{EShell.CMD.value}")
-                )
-        return directory
-
-    @staticmethod
-    def get_coreutils_shell_alias() -> str:
-        current_shell = SHELL_UTILS.current_shell
-        if current_shell == EShell.UNKNOWN:
-            return ""
-        directory = FileUtils.resolve_path(f"{DirsLib.get_coreutils_local_dir()}/alias")
         if not FileUtils.is_dir(directory):
             FileUtils.create_dir(directory)
             if SYSTEM_UTILS.is_windows:

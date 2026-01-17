@@ -1,9 +1,10 @@
 package main
 
 import (
-	"main/libs"
+	"fmt"
+	"golangutils/pkg/system"
 )
 
 func main() {
-	libs.LoggerUtils.Log(libs.SystemUtils.OSName())
+	fmt.Println(system.OSName())
 }

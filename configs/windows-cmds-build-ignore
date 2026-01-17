@@ -1,0 +1,13 @@
+apt-clean
+apt-list
+apt-uninstall
+deb-get-clean
+deb-get-list
+deb-get-uninstall
+flatpak-clean
+flatpak-list
+flatpak-uninstall
+pacstall-list
+snap-list
+snap-uninstall
+snap-clean

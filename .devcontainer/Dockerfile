@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
+RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
 # Install Go manual
 ENV GO_VERSION=1.24.11
 RUN curl -OL https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz \
