@@ -1,10 +1,11 @@
+
 # Base Ubuntu
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Ferramentas básicas
-RUN apt-get update && apt-get install -y \
+RUN apt update && apt install -y \
     curl \
     git \
     build-essential \
@@ -14,6 +15,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get update \
+    && sudo apt install nodejs -y \
+    && npm install -g @google/gemini-cli@latest 
 
 # Install Go manual
 ENV GO_VERSION=1.24.11
@@ -25,7 +31,6 @@ ENV PATH=$PATH:/usr/local/go/bin
 
 RUN go install golang.org/x/tools/gopls@latest
 RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-RUN go install mvdan.cc/gofumpt@latest
-
+RUN go install mvdan.cc/gofumpt@latest 
 # Diretório de trabalho
 WORKDIR /workspace
