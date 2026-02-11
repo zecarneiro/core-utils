@@ -3,8 +3,10 @@ package libs
 import (
 	"golangutils/pkg/common"
 	"golangutils/pkg/env"
+	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logic"
+	"golangutils/pkg/models"
 	"golangutils/pkg/platform"
 	"golangutils/pkg/shell"
 	"golangutils/pkg/system"
@@ -41,5 +43,8 @@ func IsValidPathArg(path string) bool {
 }
 
 func RunCoreUtilsCmd(cmdName string, args ...string) {
-	env.SetPath("AAA")
+	coreUtilExecDir, err := file.GetExecutableDir()
+	logic.ProcessError(err)
+	env.InsertOnPath(coreUtilExecDir)
+	exe.ExecRealTime(models.Command{Cmd: cmdName, Args: args})
 }

@@ -7,4 +7,6 @@ wsl-configc
 wsl-list
 wsl-shutdown
 wsl-uninstall
-wsl2win-path
+resolve-wsl-path
+basename
+dirname

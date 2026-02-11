@@ -18,12 +18,9 @@ function __install_development_package {
 # shellcheck source=/dev/null
 function __install_nodejs_javascript_typescript {
     if [[ $(__show_install_message_question "NodeJS/Javascript/Typescript") == "y" ]]; then
-        local lastVersion="$(gitlatestversionrepo "nvm-sh" "nvm" true)"
-        evaladvanced "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${lastVersion}/install.sh | bash"
-        source "$HOME/.nvm/nvm.sh"
-        evaladvanced "nvm install --lts"
-        source "$HOME/.nvm/nvm.sh"
-        evaladvanced "npm install -g typescript"
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+        sudo apt install nodejs -y
+        evaladvanced "sudo npm install -g typescript"
     fi
 }
 
@@ -35,7 +32,7 @@ function __install_python {
         evaladvanced "sudo apt install python3-venv -y"
         evaladvanced "python3 -m venv $HOME/.venv/anynamehere"
         evaladvanced "sudo apt install pipx -y"
-        evaladvanced "pipx ensurepath --force" 
+        evaladvanced "pipx ensurepath --force"
     fi
 }
 

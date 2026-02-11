@@ -8,6 +8,14 @@ BINARY_WIN_DIR="$BINARY_DIR/windows"
 BINARY_LINUX_DIR="$BINARY_DIR/linux"
 CMD_DIR="$ROOT_DIR/cmd"
 CONFIG_DIR="$ROOT_DIR/configs"
+
+# Set safe dir on git. Necessary for go
+if [[ -z "$(git config --global safe.directory)" ]]; then
+    echo "Set safe directory for git"
+    git config --global --add safe.directory '*'
+    sleep 2
+fi
+
 COMMANDS=$(go list -f '{{if eq .Name "main"}}{{.Dir}}{{end}}' "$CMD_DIR/...")
 if [[ -z "${CMD_NAME}" ]]; then
     (rm -rf "$BINARY_DIR") || (echo "❌ Error during clean" && exit 1)

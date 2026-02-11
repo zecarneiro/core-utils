@@ -84,6 +84,8 @@ X-AppStream-Ignore=true" | sudo tee /usr/share/applications/powershell.desktop >
 
 function __install_flatpak_and_packages {
     __print "Install Flatpak"
+    sudo add-apt-repository ppa:flatpak/stable -y
+    sudo apt update
     __eval "sudo apt install gnome-software gnome-software-plugin-flatpak xdg-desktop-portal-gtk flatpak -y"
     __eval "flatpak remote-add --if-not-exists flathub 'https://flathub.org/repo/flathub.flatpakrepo'"
 
