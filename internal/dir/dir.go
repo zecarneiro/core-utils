@@ -2,34 +2,34 @@ package dir
 
 import (
 	"golangutils/pkg/common"
-	"golangutils/pkg/common/platform"
-	"golangutils/pkg/console"
 	"golangutils/pkg/file"
-	"golangutils/pkg/generic"
+	"golangutils/pkg/logic"
+	"golangutils/pkg/platform"
+	"golangutils/pkg/shell"
 	"golangutils/pkg/system"
 )
 
 func GetUserConfig() string {
 	config_dir := file.ResolvePath(system.HomeDir() + "/.config")
-	generic.ProcessError(file.CreateDirectory(config_dir, true))
+	logic.ProcessError(file.CreateDirectory(config_dir, true))
 	return config_dir
 }
 
 func GetUserLocal() string {
 	config_dir := file.ResolvePath(system.HomeDir() + "/.local")
-	generic.ProcessError(file.CreateDirectory(config_dir, true))
+	logic.ProcessError(file.CreateDirectory(config_dir, true))
 	return config_dir
 }
 
 func GetUserOpt() string {
 	opt_dir := file.ResolvePath(GetUserLocal() + "/opt")
-	generic.ProcessError(file.CreateDirectory(opt_dir, true))
+	logic.ProcessError(file.CreateDirectory(opt_dir, true))
 	return opt_dir
 }
 
 func GetUserBin() string {
 	bin_dir := file.ResolvePath(GetUserLocal() + "/bin")
-	generic.ProcessError(file.CreateDirectory(bin_dir, true))
+	logic.ProcessError(file.CreateDirectory(bin_dir, true))
 	return bin_dir
 }
 
@@ -40,7 +40,7 @@ func GetUserStartup() string {
 	} else if platform.IsLinux() {
 		startup_dir = file.ResolvePath(GetUserConfig() + "/autostart")
 	}
-	generic.ProcessError(file.CreateDirectory(startup_dir, true))
+	logic.ProcessError(file.CreateDirectory(startup_dir, true))
 	return startup_dir
 }
 
@@ -51,7 +51,7 @@ func GetUserTemp() string {
 	} else if platform.IsLinux() {
 		temp_dir = file.ResolvePath(GetUserLocal() + "/tmp")
 	}
-	generic.ProcessError(file.CreateDirectory(temp_dir, true))
+	logic.ProcessError(file.CreateDirectory(temp_dir, true))
 	return temp_dir
 }
 
@@ -62,41 +62,41 @@ func GetTemp() string {
 
 func GetCoreUtilsLocal() string {
 	dir := file.ResolvePath(GetUserLocal(), "coreutils")
-	generic.ProcessError(file.CreateDirectory(dir, true))
+	logic.ProcessError(file.CreateDirectory(dir, true))
 	return dir
 }
 
 func GetCoreUtilsShellFunctions() string {
-	currentShell := console.GetCurrentShell()
+	currentShell := shell.GetCurrentShell()
 	if !currentShell.IsValid() {
 		return ""
 	}
 	shellDirName := currentShell.String()
-	if console.IsShell([]console.ShellType{console.Cmd, console.PowerShell}) {
-		shellDirName = common.Ternary(currentShell.Equals(console.Cmd), console.PowerShell.String(), currentShell.String())
+	if shell.IsShell([]shell.ShellType{shell.Cmd, shell.PowerShell}) {
+		shellDirName = logic.Ternary(currentShell.Equals(shell.Cmd), shell.PowerShell.String(), currentShell.String())
 	}
 	directory := file.ResolvePath(GetCoreUtilsLocal(), "functions", shellDirName+"-shell")
 	if !file.IsDir(directory) {
-		generic.ProcessError(file.CreateDirectory(directory, true))
+		logic.ProcessError(file.CreateDirectory(directory, true))
 	}
-	if platform.IsWindows() && console.IsShell([]console.ShellType{console.Cmd, console.PowerShell}) {
-		cmdDir := file.ResolvePath(directory, console.Cmd.String())
-		generic.ProcessError(file.CreateDirectory(cmdDir, true))
+	if platform.IsWindows() && shell.IsShell([]shell.ShellType{shell.Cmd, shell.PowerShell}) {
+		cmdDir := file.ResolvePath(directory, shell.Cmd.String())
+		logic.ProcessError(file.CreateDirectory(cmdDir, true))
 	}
 	return directory
 }
 
 func GetCoreUtilsShellAlias() string {
-	if !console.GetCurrentShell().IsValid() {
+	if !shell.GetCurrentShell().IsValid() {
 		return ""
 	}
 	directory := file.ResolvePath(GetCoreUtilsLocal(), "alias")
 	if !file.IsDir(directory) {
-		generic.ProcessError(file.CreateDirectory(directory, true))
+		logic.ProcessError(file.CreateDirectory(directory, true))
 	}
 	if platform.IsWindows() {
-		cmdDir := file.ResolvePath(directory, console.Cmd.String())
-		generic.ProcessError(file.CreateDirectory(cmdDir, true))
+		cmdDir := file.ResolvePath(directory, shell.Cmd.String())
+		logic.ProcessError(file.CreateDirectory(cmdDir, true))
 	}
 	return directory
 }

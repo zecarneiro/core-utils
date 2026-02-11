@@ -30,7 +30,7 @@ func process() {
 	for _, cmdDebGet := range []string{"sudo deb-get update", "sudo deb-get upgrade"} {
 		logic.ProcessError(golangutilslib.FuncExecRealTime(models.Command{Cmd: cmdDebGet, UseShell: true, Verbose: true}))
 	}
-	// TODO: Run script_updater_processor(["run", "--all"])
+	// TODO: script_updater_processor(["run", "--all"])
 }
 
 func main() {

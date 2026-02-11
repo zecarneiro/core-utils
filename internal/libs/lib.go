@@ -2,6 +2,7 @@ package libs
 
 import (
 	"golangutils/pkg/common"
+	"golangutils/pkg/env"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/platform"
@@ -37,4 +38,8 @@ func GetCurrentDir(exitOnError bool) string {
 
 func IsValidPathArg(path string) bool {
 	return logic.Ternary(path == "" || path == " " || path == "..", false, true)
+}
+
+func RunCoreUtilsCmd(cmdName string, args ...string) {
+	env.SetPath("AAA")
 }
