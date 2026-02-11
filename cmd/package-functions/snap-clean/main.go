@@ -38,12 +38,11 @@ func process() {
 		cmdGetListApps := "LANG=en_US.UTF-8 snap list --all | awk '/disabled/{print $1, $3}'"
 		cmdRes, err := exe.Exec(models.Command{Cmd: cmdGetListApps, UseShell: true})
 		logic.ProcessError(err)
-		cmdResList := strings.Split(cmdRes, common.Eol())
-		for _, cmdRespData := range cmdResList {
+		for cmdRespData := range strings.SplitSeq(cmdRes, common.Eol()) {
 			data := strings.Split(cmdRespData, " ")
 			if len(data) == 2 {
 				snapRemoveCmd := fmt.Sprintf("sudo snap remove \"%s\" --revision=\"%s\"", data[0], data[1])
-				err := exe.ExecRealTime(models.Command{Cmd: snapRemoveCmd, Verbose: true, UseShell: true})
+				err := exe.ExecRealTime(models.Command{Cmd: snapRemoveCmd, Verbose: true})
 				if err != nil {
 					logger.Error(err)
 				}

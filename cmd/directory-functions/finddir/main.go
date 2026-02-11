@@ -15,7 +15,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "finddir [directory_name]",
+		Use:   "finddir <directory_name>",
 		Short: "Find a directory by name",
 		Args:  cobra.MinimumNArgs(1),
 	}

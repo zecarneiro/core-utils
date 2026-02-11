@@ -15,11 +15,7 @@ RUN apt update && apt install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
-    && apt-get update \
-    && sudo apt install nodejs -y \
-    && npm install -g @google/gemini-cli@latest 
+ 
 
 # Install Go manual
 ENV GO_VERSION=1.24.11

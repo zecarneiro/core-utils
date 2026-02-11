@@ -20,7 +20,7 @@ func setupCommand() {
 }
 
 func process(msg string) {
-	logger.Error(msg)
+	logger.ErrorStr(msg)
 }
 
 func main() {

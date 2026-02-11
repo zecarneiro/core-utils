@@ -28,15 +28,14 @@ func setupCommand() {
 }
 
 func process() {
-	cmdInfo := models.Command{Cmd: "flatpak list --columns=application", UseShell: true}
+	cmdInfo := models.Command{Cmd: "flatpak list --columns=application"}
 	if len(filter) == 0 {
 		logic.ProcessError(exe.ExecRealTime(cmdInfo))
 	} else {
 		cmdRes, err := exe.Exec(cmdInfo)
 		logic.ProcessError(err)
-		packagesList := strings.Split(cmdRes, common.Eol())
-		for _, packageLine := range packagesList {
-			if str.StringContains(packageLine, filter, true) {
+		for packageLine := range strings.SplitSeq(cmdRes, common.Eol()) {
+			if str.Contains(packageLine, filter, true) {
 				fmt.Println(packageLine)
 			}
 		}

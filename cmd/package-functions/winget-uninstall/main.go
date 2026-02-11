@@ -15,16 +15,16 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "winget-uninstall [app]",
+		Use:   "winget-uninstall <app>",
 		Short: "Uninstall winget app",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.ExactArgs(1),
 	}
 	cobralib.WithRunArgsStr(process)
 }
 
 func process(app string) {
 	cmdStr := fmt.Sprintf("winget uninstall --purge %s", app)
-	err := exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true})
+	err := exe.ExecRealTime(models.Command{Cmd: cmdStr})
 	logic.ProcessError(err)
 }
 

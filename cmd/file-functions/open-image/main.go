@@ -17,7 +17,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "open-image [filepath]",
+		Use:   "open-image <filepath>",
 		Short: "Open image",
 		Args:  cobra.MinimumNArgs(1),
 	}

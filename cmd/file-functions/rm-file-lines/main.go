@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"golangutils/pkg/common"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logic"
-	"strings"
+	"golangutils/pkg/str"
 
 	"main/internal/libs/cobralib"
 
@@ -15,6 +14,7 @@ import (
 var (
 	filepath string
 	match    string
+	isRegex  bool
 	data     = ""
 )
 
@@ -29,22 +29,15 @@ func setupCommand() {
 	logic.ProcessError(cobralib.CobraCmd.MarkFlagRequired("file"))
 	cobralib.CobraCmd.Flags().StringVarP(&match, "match", "m", "", "Match content in lines to delete")
 	logic.ProcessError(cobralib.CobraCmd.MarkFlagRequired("match"))
+	cobralib.CobraCmd.Flags().BoolVarP(&isRegex, "is-regex", "r", false, "Apply Match content as regex")
 	cobralib.WithRun(process)
 }
 
-func filterFileData(fileLine string, err error) {
-	if !strings.Contains(fileLine, match) {
-		data += logic.Ternary(data == "", fileLine, common.Eol()+fileLine)
-	}
-	logic.ProcessError(err)
-}
-
 func process() {
-	if match == "" {
+	if str.IsEmpty(match) {
 		logic.ProcessError(fmt.Errorf("invalid given match"))
 	}
-	file.ReadFileLineByLine(filepath, filterFileData)
-	logic.ProcessError(file.WriteFile(filepath, data, false, false))
+	logic.ProcessError(file.DeleteFileLines(filepath, match, isRegex))
 }
 
 func main() {

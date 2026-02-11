@@ -15,16 +15,16 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "flatpak-uninstall [app]",
+		Use:   "flatpak-uninstall <app>",
 		Short: "Uninstall flatpak app",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.ExactArgs(1),
 	}
 	cobralib.WithRunArgsStr(process)
 }
 
 func process(app string) {
 	cmdStr := fmt.Sprintf("flatpak uninstall --delete-data -y %s", app)
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true}))
+	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr}))
 }
 
 func main() {

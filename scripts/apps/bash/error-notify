@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Author: José M. C. Noronha
+
+declare appId="$1"
+declare message="$2"
+declare icon="$3"
+if [[ "${appId}" == "-h" ]]||[[ "${appId}" == "--help" ]]; then
+    echo "$0 APP_ID MESSAGE ICON"
+    exit 0
+fi
+notify "$appId" "Success" "$message" "$icon"

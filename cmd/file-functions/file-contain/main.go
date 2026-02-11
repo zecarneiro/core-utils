@@ -5,7 +5,6 @@ import (
 	"golangutils/pkg/file"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/str"
-	"os"
 
 	"main/internal/libs/cobralib"
 
@@ -34,13 +33,12 @@ func setupCommand() {
 }
 
 func process() {
-	if match == "" {
+	if str.IsEmpty(match) {
 		logic.ProcessError(fmt.Errorf("invalid given match"))
-		os.Exit(1)
 	}
-	data, err := file.ReadFile(filepath)
+	status, err := file.FileTextContains(filepath, match, isCaseInsensitive)
 	logic.ProcessError(err)
-	fmt.Println(str.StringContains(data, match, isCaseInsensitive))
+	fmt.Println(status)
 }
 
 func main() {

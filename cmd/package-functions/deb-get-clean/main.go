@@ -25,7 +25,7 @@ func setupCommand() {
 
 func process() {
 	logger.Title("Cleanup DEB-GET")
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: "sudo deb-get clean", Verbose: true, UseShell: true}))
+	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: "sudo deb-get clean"}))
 }
 
 func main() {

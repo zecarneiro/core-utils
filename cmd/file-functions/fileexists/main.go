@@ -13,7 +13,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "fileexists [filepath]",
+		Use:   "fileexists <filepath>",
 		Short: "Check if a file exists",
 		Args:  cobra.MinimumNArgs(1),
 	}

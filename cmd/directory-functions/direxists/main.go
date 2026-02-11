@@ -13,7 +13,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "direxists [directory_path]",
+		Use:   "direxists <directory_path>",
 		Short: "Check if a directory exists",
 		Args:  cobra.MinimumNArgs(1),
 	}

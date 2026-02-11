@@ -5,6 +5,7 @@ import (
 	"golangutils/pkg/console"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logic"
+	"golangutils/pkg/str"
 
 	"main/internal/libs"
 	"main/internal/libs/cobralib"
@@ -38,7 +39,7 @@ func setupCommand() {
 
 func process() {
 	currentDir := libs.GetCurrentDir(true)
-	if source == "" || destination == "" || source == ".." || destination == ".." {
+	if str.IsEmpty(source) || str.IsEmpty(destination) || source == ".." || destination == ".." {
 		logic.ProcessError(fmt.Errorf("Source and/or destination must be provided"))
 	} else if source == destination {
 		logic.ProcessError(fmt.Errorf("Source and destination cannot be the same"))

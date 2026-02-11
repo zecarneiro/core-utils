@@ -9,6 +9,9 @@ import (
 var (
 	CobraCmd   *cobra.Command
 	workingDir string
+	cobraArgs  []string
+
+	enableFlagParsing = false
 )
 
 var (
@@ -17,6 +20,9 @@ var (
 )
 
 func Run() {
+	if FuncExecute == nil {
+		setFuncs()
+	}
 	if err := FuncExecute(); err != nil {
 		logic.ProcessError(err)
 	}

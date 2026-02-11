@@ -42,7 +42,7 @@ func afterEachTests(t *testing.T) {
 }
 
 func processTestProcessWithoutArg(t *testing.T, data ProcessData) {
-	currentDir := logic.Ternary(strings.Contains(data.Name, "Empty"), file.ResolvePath(testDir, "dir2"), testDir)
+	currentDir := logic.Ternary(strings.Contains(data.Name, "Empty"), file.JoinPath(testDir, "dir2"), testDir)
 	args := logic.Ternary(data.recursive, []string{"-r"}, []string{})
 	golangutilslib.FuncGetCurrentDir = mockFile.GetCurrentDir // Inject Mocks
 	mockFile.On("GetCurrentDir").Return(currentDir, nil).Once()
@@ -68,7 +68,7 @@ func TestProcessWithoutArg(t *testing.T) {
 }
 
 func processTestProcessWithArg(t *testing.T, data ProcessData) {
-	dir := logic.Ternary(strings.Contains(data.Name, "Empty"), file.ResolvePath(testDir, "dir2"), testDir)
+	dir := logic.Ternary(strings.Contains(data.Name, "Empty"), file.JoinPath(testDir, "dir2"), testDir)
 	args := logic.Ternary(data.recursive, []string{"-w", dir, "-r"}, []string{"-w", dir})
 	testutils.ForceCobraReadArgs(t, args...)
 	output, err := logic.CaptureOutput(process)

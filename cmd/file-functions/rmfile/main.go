@@ -13,7 +13,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "rmfile [filepath]",
+		Use:   "rmfile <filepath>",
 		Short: "Delete a file",
 		Args:  cobra.MinimumNArgs(1),
 	}

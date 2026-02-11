@@ -28,7 +28,7 @@ func process() {
 	}
 	logger.Title("Cleanup Flatpak")
 	for _, aptCmd := range cmdList {
-		logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: aptCmd, Verbose: true, UseShell: true}))
+		logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: aptCmd, Verbose: true}))
 	}
 }
 

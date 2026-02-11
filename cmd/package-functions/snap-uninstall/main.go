@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
@@ -19,12 +20,12 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	if !system.IsAdmin() {
-		logic.ProcessError(fmt.Errorf("Please, need root access to continue!"))
+		logic.ProcessError(errors.New(system.NeedAdminAccessMsg))
 	}
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "snap-uninstall [app]",
+		Use:   "snap-uninstall <app>",
 		Short: "Uninstall snap app",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.ExactArgs(1),
 	}
 	cobralib.WithRunArgsStr(process)
 }
@@ -37,12 +38,9 @@ func deleteDir(dir string) {
 }
 
 func process(app string) {
-	cmdInfo := models.Command{
-		Verbose:  true,
-		UseShell: true,
-	}
-	configDir := file.ResolvePath(system.HomeDir(), "snap", app)
-	configSystemDir := file.ResolvePath("/snap", app)
+	cmdInfo := models.Command{Verbose: true}
+	configDir := file.JoinPath(system.HomeDir(), "snap", app)
+	configSystemDir := file.JoinPath("/snap", app)
 	cmdInfo.Cmd = fmt.Sprintf("sudo snap remove --purge %s", app)
 	logic.ProcessError(exe.ExecRealTime(cmdInfo))
 	cmdInfo.Cmd = "snap saved"

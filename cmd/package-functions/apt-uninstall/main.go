@@ -15,7 +15,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "apt-uninstall [app]",
+		Use:   "apt-uninstall <app>",
 		Short: "Uninstall apt app",
 		Args:  cobra.MinimumNArgs(1),
 	}
@@ -24,7 +24,7 @@ func setupCommand() {
 
 func process(app string) {
 	cmdStr := fmt.Sprintf("sudo apt purge --autoremove -y %s", app)
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true}))
+	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr}))
 }
 
 func main() {

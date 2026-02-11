@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logic"
+	"golangutils/pkg/models"
 	"slices"
 
 	"main/internal/libs/cobralib"
@@ -36,17 +37,17 @@ func setupCommand() {
 }
 
 func process() {
-	var err error
 	if !slices.Contains([]string{"a", "w"}, mode) {
 		logic.ProcessError(fmt.Errorf("invalid mode: %q (must be 'w' or 'a')", mode))
 	}
-	isAppend := logic.Ternary(mode == "a", true, false)
-	if len(encoding) > 0 {
-		err = file.WriteFileWithEncoding(filepath, content, isAppend, forceDir, encoding)
-	} else {
-		err = file.WriteFile(filepath, content, isAppend, forceDir)
+	fileConfig := models.FileWriterConfig{
+		File:         filepath,
+		Data:         content,
+		IsAppend:     logic.Ternary(mode == "a", true, false),
+		IsCreateDir:  forceDir,
+		EncodingName: encoding,
 	}
-	logic.ProcessError(err)
+	logic.ProcessError(file.WriteFile(fileConfig))
 }
 
 func main() {

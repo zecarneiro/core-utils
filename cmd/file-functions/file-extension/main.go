@@ -14,7 +14,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "file-extension [filepath]",
+		Use:   "file-extension <filepath>",
 		Short: "Get extension of file",
 		Args:  cobra.MinimumNArgs(1),
 	}

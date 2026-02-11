@@ -7,4 +7,9 @@ wsl-configc
 wsl-list
 wsl-shutdown
 wsl-uninstall
-wsl2win-path
+wsl-resolve-path
+unix2win-path-conv
+set-ps-policy
+create-vbs-runner
+run-bin-processor
+pkillc

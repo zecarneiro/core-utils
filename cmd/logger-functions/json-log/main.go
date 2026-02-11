@@ -2,6 +2,8 @@ package main
 
 import (
 	"golangutils/pkg/logger"
+	"golangutils/pkg/logic"
+	"golangutils/pkg/obj"
 
 	"main/internal/libs/cobralib"
 
@@ -20,7 +22,11 @@ func setupCommand() {
 }
 
 func process(data string) {
-	logger.Json(data)
+	dataObj, err := obj.StringToObject[any](data)
+	logic.ProcessError(err)
+	newData, err := obj.ObjectToString(dataObj)
+	logic.ProcessError(err)
+	logger.Log(newData)
 }
 
 func main() {

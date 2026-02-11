@@ -7,6 +7,8 @@ deb-get-uninstall
 flatpak-clean
 flatpak-list
 flatpak-uninstall
+flatpak-set-permission
+flatpak-install
 pacstall-list
 snap-list
 snap-uninstall

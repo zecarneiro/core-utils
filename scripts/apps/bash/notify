@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Author: José M. C. Noronha
+
+declare appId="$1"
+declare title="$2"
+declare message="$3"
+declare icon="$4"
+if [[ "${appId}" == "-h" ]]||[[ "${appId}" == "--help" ]]; then
+    echo "$0 APP_ID TITLE MESSAGE ICON"
+    exit 0
+fi
+
+if [[ -n "${icon}" ]]; then
+    notify-send -a "$appId" -i "$icon" -t 60000 "$title" "$message"
+else
+    notify-send -a "$appId" -t 60000 "$title" "$message"
+fi

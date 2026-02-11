@@ -36,6 +36,7 @@
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "breadcrumbs.enabled": true,
+    "chat.disableAIFeatures": true,
     "console-ninja.featureSet": "Community",
     "editor.acceptSuggestionOnCommitCharacter": false,
     "editor.accessibilitySupport": "off",
@@ -98,8 +99,8 @@
     "go.coverMode": "atomic",
     "go.coverOnSave": false,
     "go.formatTool": "default",
-    "go.inferGopath": true,
-    "go.lintOnSave": "file",
+    "go.inferGopath": false,
+    "go.lintOnSave": "package",
     "go.lintTool": "golangci-lint",
     "go.testExplorer.enable": true,
     "go.testFlags": [
@@ -190,8 +191,7 @@
     "mechatroner.rainbow-csv",
     "DavidAnson.vscode-markdownlint",
     "shd101wyy.markdown-preview-enhanced",
-    "ahmadalli.vscode-nginx-conf",
-    "google.geminicodeassist"
+    "ahmadalli.vscode-nginx-conf"
   ],
   "postCreateCommand": ""
 }

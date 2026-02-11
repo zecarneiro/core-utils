@@ -14,7 +14,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "file-encoding [filepath]",
+		Use:   "file-encoding <filepath>",
 		Short: "Get encoding of file",
 		Args:  cobra.MinimumNArgs(1),
 	}

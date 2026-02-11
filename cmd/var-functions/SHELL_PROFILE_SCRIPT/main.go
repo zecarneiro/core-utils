@@ -3,30 +3,33 @@ package main
 import (
 	"fmt"
 	"golangutils/pkg/common"
+	"golangutils/pkg/enums"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logic"
+	"golangutils/pkg/models"
 	"golangutils/pkg/shell"
-
-	"main/internal/libs"
 )
 
 func main() {
-	currentShell := shell.GetCurrentShell()
+	currentShell := shell.GetCurrentShellSimple()
 	if !currentShell.IsValid() {
 		fmt.Println(common.Unknown)
 	} else {
-		shells := libs.GetAllShellProfilesFiles()
-		shellType := shells[currentShell]
-		if shell.IsShell([]shell.ShellType{shell.PowerShell, shell.Cmd}) {
-			shellType = shells[shell.PowerShell]
-		}
-		if shellType != "" {
-			if !file.IsFile(shellType) {
-				logic.ProcessError(file.WriteFile(shellType, "", false, false))
-			}
+		var shellFile string
+		if shell.IsShell([]enums.ShellType{enums.PowerShell, enums.Cmd}) {
+			shellFile = shell.GetShellProfileFile(enums.PowerShell)
 		} else {
-			shellType = common.Unknown
+			shellFile = shell.GetShellProfileFile(currentShell)
 		}
-		fmt.Println(shellType)
+		if shellFile != common.Unknown && !file.IsFile(shellFile) {
+			fileConfig := models.FileWriterConfig{
+				File:        shellFile,
+				Data:        "",
+				IsAppend:    false,
+				IsCreateDir: false,
+			}
+			logic.ProcessError(file.WriteFile(fileConfig))
+		}
+		fmt.Println(shellFile)
 	}
 }

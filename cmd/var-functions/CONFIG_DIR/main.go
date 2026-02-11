@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"main/internal/dir"
+	"golangutils/pkg/system"
 )
 
 func main() {
-	fmt.Println(dir.GetUserConfig())
+	fmt.Println(system.HomeUserConfigDir())
 }

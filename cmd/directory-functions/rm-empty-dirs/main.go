@@ -26,7 +26,7 @@ func setupCommand() {
 func showErrorOnReadDir(dir string, err error, isDelete bool) {
 	if err != nil {
 		msg := logic.Ternary(isDelete, "Get error on delete directory:", "Get error on read directory:")
-		logger.Error(msg + " " + dir)
+		logger.ErrorStr(msg + " " + dir)
 		logger.Error(err)
 	}
 }
@@ -53,7 +53,8 @@ func deleteAll(path string) {
 }
 
 func process() {
-	deleteAll(cobralib.GetWorkingDir())
+	workingDir := cobralib.GetWorkingDir()
+	deleteAll(workingDir)
 }
 
 func main() {

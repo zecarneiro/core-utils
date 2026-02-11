@@ -17,7 +17,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "rmdirc [directory_path]",
+		Use:   "rmdirc <directory_path>",
 		Short: "Delete a directory",
 		Args:  cobra.MinimumNArgs(1),
 	}

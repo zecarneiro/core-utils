@@ -34,9 +34,8 @@ func process() {
 	} else {
 		cmdRes, err := exe.Exec(cmdInfo)
 		logic.ProcessError(err)
-		packagesList := strings.Split(cmdRes, common.Eol())
-		for _, packageLine := range packagesList {
-			if str.StringContains(packageLine, filter, true) {
+		for packageLine := range strings.SplitSeq(cmdRes, common.Eol()) {
+			if str.Contains(packageLine, filter, true) {
 				fmt.Println(packageLine)
 			}
 		}

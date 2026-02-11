@@ -13,7 +13,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "mkdirc [directory_path]",
+		Use:   "mkdirc <directory_path>",
 		Short: "Create a directory if it doesn't exist",
 		Args:  cobra.MinimumNArgs(1),
 	}

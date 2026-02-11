@@ -15,7 +15,7 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "findfile [filename]",
+		Use:   "findfile <filename>",
 		Short: "Find a file by name",
 		Args:  cobra.MinimumNArgs(1),
 	}

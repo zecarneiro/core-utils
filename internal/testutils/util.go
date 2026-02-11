@@ -16,7 +16,7 @@ import (
 
 func GetDirToTest() string {
 	path := os.Getenv("ROOT_DIR")
-	path = file.ResolvePath(path, "test")
+	path = file.JoinPath(path, "test")
 	return path
 }
 

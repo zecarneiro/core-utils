@@ -30,7 +30,7 @@ func process() {
 	}
 	logger.Title("Cleanup APT")
 	for _, aptCmd := range aptCmdList {
-		logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: aptCmd, Verbose: true, UseShell: true}))
+		logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: aptCmd, Verbose: true}))
 	}
 }
 

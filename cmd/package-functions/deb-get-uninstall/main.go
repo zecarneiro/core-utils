@@ -15,16 +15,16 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "deb-get-uninstall [app]",
+		Use:   "deb-get-uninstall <app>",
 		Short: "Uninstall deb-get app",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.ExactArgs(1),
 	}
 	cobralib.WithRunArgsStr(process)
 }
 
 func process(app string) {
 	cmdStr := fmt.Sprintf("sudo deb-get purge %s", app)
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true}))
+	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr}))
 }
 
 func main() {
