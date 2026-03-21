@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Author: José M. C. Noronha
+
+declare selectedFile=$(zenity --file-selection --modal)
+echo "{ \"selected\": \"$selectedFile\" }"
+

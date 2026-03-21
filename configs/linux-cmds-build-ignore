@@ -1,0 +1,15 @@
+scoop-clean
+scoop-list
+scoop-uninstall
+winget-list
+winget-uninstall
+wsl-configc
+wsl-list
+wsl-shutdown
+wsl-uninstall
+wsl-resolve-path
+unix2win-path-conv
+set-ps-policy
+create-vbs-runner
+run-bin-processor
+pkillc

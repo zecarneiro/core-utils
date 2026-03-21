@@ -1,0 +1,32 @@
+package main
+
+import (
+	"fmt"
+	"golangutils/pkg/exe"
+	"golangutils/pkg/logic"
+	"golangutils/pkg/models"
+
+	"main/internal/libs/cobralib"
+
+	"github.com/spf13/cobra"
+)
+
+func init() { setupCommand() }
+
+func setupCommand() {
+	cobralib.CobraCmd = &cobra.Command{
+		Use:   "apt-uninstall <app>",
+		Short: "Uninstall apt app",
+		Args:  cobra.MinimumNArgs(1),
+	}
+	cobralib.WithRunArgsStr(process)
+}
+
+func process(app string) {
+	cmdStr := fmt.Sprintf("sudo apt purge --autoremove -y %s", app)
+	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr}))
+}
+
+func main() {
+	cobralib.Run()
+}

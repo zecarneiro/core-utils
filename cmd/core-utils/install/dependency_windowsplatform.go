@@ -1,0 +1,173 @@
+package main
+
+import (
+	"fmt"
+	"golangutils/pkg/console"
+	"golangutils/pkg/enums"
+	"golangutils/pkg/exe"
+	"golangutils/pkg/file"
+	"golangutils/pkg/logger"
+	"golangutils/pkg/logic"
+	"golangutils/pkg/models"
+	"golangutils/pkg/shell"
+	"golangutils/pkg/system"
+
+	"main/internal/dir"
+	"main/internal/libs"
+)
+
+type DependencyWindows struct {
+	scoopDir   string
+	gitBashBin string
+}
+
+func NewDependencyWindows() *DependencyWindows {
+	scoopDir := file.JoinPath(system.HomeDir(), "scoop")
+	return &DependencyWindows{
+		scoopDir:   scoopDir,
+		gitBashBin: file.JoinPath(scoopDir, "apps", "git", "current", "bin", "bash.exe"),
+	}
+}
+
+func (d *DependencyWindows) setConfigs() {
+	envManager.Sync(envPathName)
+	// Create menu entries
+	wtBin, err := console.Which("wt.exe")
+	if err == nil {
+		bashMenuEntryArgs := []string{
+			"-n", "Bash",
+			"-e", fmt.Sprintf("`\"%s`\"", wtBin),
+			"-a", fmt.Sprintf("--title Bash -d `\"%s`\" `\"%s`\" --login -i", system.HomeDir(), d.gitBashBin),
+			"-c", "ConsoleOnly;System;",
+		}
+		libs.RunCoreUtilsCmd("create-menu-entry", false, bashMenuEntryArgs...)
+	}
+	logger.Error(err)
+}
+
+func (d *DependencyWindows) instalScriptsAppsAndAlias() {
+	envManager.Sync(envPathName)
+	scriptAppsDir := file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "apps", "pwsh")
+	filesInfo, err := file.ReadDirRecursive(scriptAppsDir)
+	logic.ProcessError(err)
+	// Install All apps
+	logger.Header("Install all apps")
+	for _, fileInfo := range filesInfo.Files {
+		libs.RunCoreUtilsCmd("script-manager-cu", false, "install", fileInfo)
+	}
+	// Add alias
+	logger.Header("Install all alias")
+	alias := map[string]string{
+		"pwsh":       fmt.Sprintf("%s -nologo", shell.GetPowershellCmd()),
+		"powershell": "pwsh",
+		"now":        "date",
+		"bash":       d.gitBashBin,
+	}
+	for key, value := range alias {
+		if key == "now" {
+			libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value, "-o")
+		} else {
+			libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value)
+		}
+	}
+	// Install coreutils profile scripts
+	installShellScriptOnSystemProfile(shell.GetShellProfileFile(enums.Bash), fmt.Sprintf("source '%s'", file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "profiles", "init-bash-shell.sh")))
+	installShellScriptOnSystemProfile(shell.GetShellProfileFile(enums.PowerShell), fmt.Sprintf(". \"%s\"", file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "profiles", "init-pwsh-shell.ps1")))
+}
+
+func (d *DependencyWindows) installWinget(packagesStatus int) {
+	switch packagesStatus {
+	case 0:
+		logger.Header("Install Winget")
+		wingetInstallerScript := libs.GetScriptCmdPathByName("install-winget.ps1", "core-utils")
+		cmd := models.Command{
+			Cmd:      "sudo",
+			Args:     []string{shell.GetPowershellCmd(), "-Command", wingetInstallerScript},
+			UseShell: true,
+		}
+		logger.Error(exe.ExecRealTime(cmd))
+	}
+}
+
+func (d *DependencyWindows) installScoop(packagesStatus int) {
+	cmdInfo := getCmdInfo()
+	switch packagesStatus {
+	case 0:
+		logger.Header("Install Scoop")
+		cmdList := []string{
+			"Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression",
+			"Install-Module -AllowClobber -Name scoop-completion -Scope CurrentUser", // Project URL - https://github.com/Moeologist/scoop-completion",
+		}
+		for _, cmd := range cmdList {
+			cmdInfo.Cmd = cmd
+			logic.ProcessError(exe.ExecRealTime(cmdInfo))
+		}
+	case 1:
+		logger.Header(fmt.Sprintf("Install Scoop packages for status: %d", packagesStatus))
+		cmdList := []string{
+			"%s install main/git",
+			"%s install main/7zip",
+			"%s install main/vim",
+			"%s install main/nano",
+			"%s install main/curl",
+			"%s install main/grep",
+			"%s install main/sed",
+			"%s install main/clink",
+			"%s install main/uutils-coreutils",
+			"%s install main/dos2unix",
+			"%s install main/topgrade",
+			"%s install main/fzf",
+			"%s bucket add extras",
+			"%s install extras/psfzf",
+			"%s install extras/psreadline", // https://github.com/PowerShell/PSReadLine
+			"%s install extras/git-credential-manager",
+			"%s install https://github.com/c3er/mdview/releases/latest/download/mdview.json", // https://github.com/c3er/mdview
+		}
+		for _, cmd := range cmdList {
+			cmdInfo.Cmd = fmt.Sprintf(cmd, "scoop")
+			logic.ProcessError(exe.ExecRealTime(cmdInfo))
+		}
+	case 2:
+		logger.Header("Config Scoop packages")
+		cmdList := []string{
+			fmt.Sprintf("sudo cmd.exe /C %s\\apps\\7zip\\current\\install-context.reg", d.scoopDir),
+			"clink set clink.logo none",
+		}
+		for _, cmd := range cmdList {
+			cmdInfo.Cmd = cmd
+			logic.ProcessError(exe.ExecRealTime(cmdInfo))
+		}
+	}
+}
+
+func (d *DependencyWindows) start() {
+	if console.Confirm("Do you want to install all packages and package managers?", true) {
+		if askProcessPackage("Install Winget(Not Recommended)") {
+			d.installWinget(0)
+			console.Pause()
+		}
+		if askProcessPackage("Install Scoop") {
+			d.installScoop(0)
+		}
+		if askProcessPackage("Enable WSL") {
+			cmdWsl := getCmdInfo()
+			cmdWsl.Cmd = "wsl.exe --install"
+			logger.Error(exe.ExecRealTime(cmdWsl))
+		}
+		// Install packages
+		envManager.Sync(envPathName)
+		if askProcessPackage("Install Scoop Packages") {
+			d.installScoop(1)
+		}
+		// Config packages
+		envManager.Sync(envPathName)
+		if askProcessPackage("Config Scoop Packages") {
+			d.installScoop(2)
+		}
+	}
+	addUserBinOnPathEnv()
+	addCoreUtilsDirsOnPathEnv()
+	d.instalScriptsAppsAndAlias()
+	d.setConfigs()
+	cleanEnvPath()
+}
