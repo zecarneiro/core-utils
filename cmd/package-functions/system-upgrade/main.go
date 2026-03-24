@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 
 	"main/internal/libs"
@@ -27,9 +26,9 @@ func process() {
 	if !golangutilslib.FuncIsWindows() {
 		cmd = fmt.Sprintf("%s powershell", cmd)
 	}
-	logic.ProcessError(golangutilslib.FuncExecRealTime(models.Command{Cmd: cmd, UseShell: true}))
+	golangutilslib.FuncExecRealTime(models.Command{Cmd: cmd, UseShell: true})
 	for _, cmdDebGet := range []string{"sudo deb-get update", "sudo deb-get upgrade"} {
-		logic.ProcessError(golangutilslib.FuncExecRealTime(models.Command{Cmd: cmdDebGet, Verbose: true, UseShell: true}))
+		golangutilslib.FuncExecRealTime(models.Command{Cmd: cmdDebGet, Verbose: true, UseShell: true})
 	}
 	libs.RunCoreUtilsCmd("script-manager-cu", false, "run")
 }

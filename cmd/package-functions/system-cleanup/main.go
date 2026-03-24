@@ -19,7 +19,6 @@ func setupCommand() {
 }
 
 func process() {
-	libs.RunCoreUtilsCmd("npm-clean", true)
 	if platform.IsWindows() {
 		libs.RunCoreUtilsCmd("scoop-clean", true)
 	} else if platform.IsLinux() {

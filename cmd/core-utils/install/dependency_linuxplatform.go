@@ -196,6 +196,22 @@ func (d *DependencyLinux) instalDebGet(packagesStatus int) {
 	}
 }
 
+func (d *DependencyLinux) instalOthers(packagesStatus int) {
+	cmdInfo := getCmdInfo()
+	switch packagesStatus {
+	case 1:
+		logger.Header("Install Git Credentials Manager(GCM)")
+		tempDirGCM := system.GenerateTempFile("gcm")
+		file.CreateDirectory(tempDirGCM, true)
+		cmdInfo.Cmd = "sudo bash -c \"$(curl -fsSL https://aka.ms/gcm/linux-install-source.sh)\""
+		cmdInfo.Cwd = tempDirGCM
+		logic.ProcessError(exe.ExecRealTime(cmdInfo))
+		if file.IsDir(tempDirGCM) {
+			exe.ExecRealTime(models.Command{Cmd: fmt.Sprintf(`sudo rm -rf "%s"`, tempDirGCM), Verbose: true, UseShell: true})
+		}
+	}
+}
+
 func (d *DependencyLinux) instalScriptsAppsAndAlias() {
 	envManager.Sync(envPathName)
 	scriptAppsDir := file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "apps", "bash")
@@ -266,6 +282,9 @@ func (d *DependencyLinux) start() {
 		}
 		if askProcessPackage("Install DEB-GET Packages") {
 			d.instalDebGet(1)
+		}
+		if askProcessPackage("Install Others Packages") {
+			d.instalOthers(1)
 		}
 	}
 	addUserBinOnPathEnv()
