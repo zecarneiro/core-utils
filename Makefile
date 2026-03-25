@@ -1,10 +1,11 @@
 SHELL := /bin/bash
 
+COREUTILS_VERSION := 2.3.0
 ROOT := $(CURDIR)
 SCRIPTS_DIR := $(ROOT)/scripts
 BINARY_DIR := $(ROOT)/bin
 PKG_DIR := $(ROOT)/pkg
-INSTALLER_DIR := $(ROOT)/installer
+INSTALLER_DIR := $(ROOT)/coretils-$(COREUTILS_VERSION)
 INSTALLER_WIN_DIR := $(INSTALLER_DIR)/coreutils-win
 INSTALLER_LINUX_DIR := $(INSTALLER_DIR)/coreutils-linux
 EXTERNAL_DIR := $(ROOT)/vendor/golangutils
@@ -21,7 +22,7 @@ help:
 	@echo "Usage: make [target]"
 	@echo
 	@echo "Targets:"
-	@echo "  generate-install                       Generate installer folder"
+	@echo "  generate-installer						Generate installer folder"
 	@echo "  build [|CMD_NAME]                      Build windows and linux binaries. Ex: CMD_NAME=system-upgrade"
 	@echo "  clean                                  Remove build outputs"
 	@echo "  check-deps                             Verify required tools (go)"

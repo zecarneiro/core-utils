@@ -93,10 +93,10 @@ func (d *DependencyLinux) installApt(packagesStatus int) {
 		}
 		for _, cmd := range cmdList {
 			cmdInfo.Cmd = cmd
-			logic.ProcessError(exe.ExecRealTime(cmdInfo))
+			logger.Error(exe.ExecRealTime(cmdInfo))
 		}
 		envManager.Sync(envPathName)
-		logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: "Install-Module -Name PSFzf -Scope CurrentUser", Verbose: true, UseShell: true, ShellToUse: enums.PowerShell}))
+		logger.Error(exe.ExecRealTime(models.Command{Cmd: "Install-Module -Name PSFzf -Scope CurrentUser", Verbose: true, UseShell: true, ShellToUse: enums.PowerShell}))
 	}
 }
 
@@ -147,10 +147,10 @@ func (d *DependencyLinux) instalAppImage(packagesStatus int) {
 		logger.Separator()
 		logger.Info("Install mdview")
 		mdviewFilepath := file.JoinPath(system.TempDir(), "mdview.AppImage")
-		logic.ProcessError(netc.Download("https://github.com/c3er/mdview/releases/download/v3.2.0/mdview-3.2.0-x86_64.AppImage", mdviewFilepath))
+		logger.Error(netc.Download("https://github.com/c3er/mdview/releases/download/v3.2.0/mdview-3.2.0-x86_64.AppImage", mdviewFilepath))
 		appImageManagerScript := libs.GetScriptAppPathByName("appimage-manager-cu")
-		logic.ProcessError(exe.Chmod777(appImageManagerScript, false))
-		logic.ProcessError(exe.ExecRealTime(models.Command{
+		logger.Error(exe.Chmod777(appImageManagerScript, false))
+		logger.Error(exe.ExecRealTime(models.Command{
 			Cmd:      fmt.Sprintf("%s --install %s", appImageManagerScript, str.GetInSingleQuotes(mdviewFilepath)),
 			UseShell: true,
 		}))
@@ -172,7 +172,7 @@ func (d *DependencyLinux) instalPacstall(packagesStatus int) {
 		}
 		for _, cmd := range cmdList {
 			cmdInfo.Cmd = cmd
-			logic.ProcessError(exe.ExecRealTime(cmdInfo))
+			logger.Error(exe.ExecRealTime(cmdInfo))
 		}
 	}
 }
@@ -188,26 +188,11 @@ func (d *DependencyLinux) instalDebGet(packagesStatus int) {
 		logger.Header(fmt.Sprintf("Install Deb-Get packages for status: %d", packagesStatus))
 		cmdList := []string{
 			"sudo deb-get install topgrade",
+			"sudo deb-get install gcm", // git-credential-manager
 		}
 		for _, cmd := range cmdList {
 			cmdInfo.Cmd = cmd
-			logic.ProcessError(exe.ExecRealTime(cmdInfo))
-		}
-	}
-}
-
-func (d *DependencyLinux) instalOthers(packagesStatus int) {
-	cmdInfo := getCmdInfo()
-	switch packagesStatus {
-	case 1:
-		logger.Header("Install Git Credentials Manager(GCM)")
-		tempDirGCM := system.GenerateTempFile("gcm")
-		file.CreateDirectory(tempDirGCM, true)
-		cmdInfo.Cmd = "sudo bash -c \"$(curl -fsSL https://aka.ms/gcm/linux-install-source.sh)\""
-		cmdInfo.Cwd = tempDirGCM
-		logic.ProcessError(exe.ExecRealTime(cmdInfo))
-		if file.IsDir(tempDirGCM) {
-			exe.ExecRealTime(models.Command{Cmd: fmt.Sprintf(`sudo rm -rf "%s"`, tempDirGCM), Verbose: true, UseShell: true})
+			logger.Error(exe.ExecRealTime(cmdInfo))
 		}
 	}
 }
@@ -240,6 +225,7 @@ func (d *DependencyLinux) instalScriptsAppsAndAlias() {
 		"cls":                 "clear",
 		"update-menu-entries": "sudo update-desktop-database",
 		"gearlever":           "flatpak run it.mijorus.gearlever",
+		"open-md":             "markdown_viewer",
 	}
 	for key, value := range alias {
 		libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value)
@@ -282,9 +268,6 @@ func (d *DependencyLinux) start() {
 		}
 		if askProcessPackage("Install DEB-GET Packages") {
 			d.instalDebGet(1)
-		}
-		if askProcessPackage("Install Others Packages") {
-			d.instalOthers(1)
 		}
 	}
 	addUserBinOnPathEnv()

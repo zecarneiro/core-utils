@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"golangutils/pkg/common"
 	"golangutils/pkg/enums"
+	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
+	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 	"golangutils/pkg/platform"
@@ -15,7 +17,6 @@ import (
 	"golangutils/pkg/system"
 	"strings"
 
-	"main/internal/libs"
 	"main/internal/libs/cobralib"
 
 	"github.com/spf13/cobra"
@@ -84,8 +85,16 @@ func process() {
 		IsCreateDir: true,
 	}
 	logic.ProcessError(file.WriteFile(fileConfig))
+	if !platform.IsWindows() {
+		logic.ProcessError(exe.Chmod777(tempFile, false))
+	}
 	shellType := logic.Ternary(platform.IsWindows(), enums.PowerShell, shell.GetCurrentShellSimple())
-	libs.RunCoreUtilsCmd("run-shell-script", false, "-f", tempFile, "-s", shellType.String())
+	cmd := models.Command{
+		Cmd:        fmt.Sprintf(`. "%s"`, tempFile),
+		UseShell:   true,
+		ShellToUse: shellType,
+	}
+	logger.Error(exe.ExecRealTime(cmd))
 	logic.ProcessError(file.DeleteFile(tempFile))
 }
 

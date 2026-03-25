@@ -62,6 +62,7 @@ func (d *DependencyWindows) instalScriptsAppsAndAlias() {
 		"powershell": "pwsh",
 		"now":        "date",
 		"bash":       d.gitBashBin,
+		"open-md":    "mdview",
 	}
 	for key, value := range alias {
 		if key == "now" {
@@ -125,7 +126,7 @@ func (d *DependencyWindows) installScoop(packagesStatus int) {
 		}
 		for _, cmd := range cmdList {
 			cmdInfo.Cmd = fmt.Sprintf(cmd, "scoop")
-			logic.ProcessError(exe.ExecRealTime(cmdInfo))
+			logger.Error(exe.ExecRealTime(cmdInfo))
 		}
 	case 2:
 		logger.Header("Config Scoop packages")
@@ -135,7 +136,7 @@ func (d *DependencyWindows) installScoop(packagesStatus int) {
 		}
 		for _, cmd := range cmdList {
 			cmdInfo.Cmd = cmd
-			logic.ProcessError(exe.ExecRealTime(cmdInfo))
+			logger.Error(exe.ExecRealTime(cmdInfo))
 		}
 	}
 }

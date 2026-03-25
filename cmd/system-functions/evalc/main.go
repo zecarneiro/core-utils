@@ -20,20 +20,18 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "evalc",
+		Use:   "evalc <command>",
 		Short: "Run given commands",
+		Args:  cobra.MinimumNArgs(1),
 	}
-	cobralib.CobraCmd.Flags().StringVarP(&command, "command", "c", "", "Command to run (required)")
-	cobralib.CobraCmd.Flags().StringArrayVarP(&args, "arguments", "a", []string{}, "Arguments for command")
-	logic.ProcessError(cobralib.CobraCmd.MarkFlagRequired("command"))
-	cobralib.WithRun(process)
+	cobralib.WithRunArgsStr(process)
 }
 
-func process() {
-	if str.IsEmpty(command) {
+func process(args string) {
+	if str.IsEmpty(args) {
 		logic.ProcessError(fmt.Errorf("Invalid given command!"))
 	}
-	exe.ExecRealTime(models.Command{Cmd: command, Args: args, Verbose: true, UseShell: true})
+	exe.ExecRealTime(models.Command{Cmd: args, Verbose: true, UseShell: true})
 }
 
 func main() {

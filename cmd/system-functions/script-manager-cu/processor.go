@@ -14,7 +14,6 @@ import (
 	"slices"
 	"strings"
 
-	"main/internal/dir"
 	"main/internal/libs"
 
 	"github.com/spf13/cobra"
@@ -73,13 +72,15 @@ func uninstall(name string) {
 
 func run(name string) {
 	// Validate
-	validateName(name)
+	if !str.IsEmpty(name) {
+		validateName(name)
+	}
 	// Process
 	logger.Title("Run all script(s) to install/update/remove package(s)")
 	for _, script := range getScriptList() {
 		basename := file.Basename(script)
 		canRun := true
-		if !str.IsEmpty(name) && !(name == script || name == file.FileName(basename)) {
+		if !str.IsEmpty(name) && !(name == script || name == basename || name == file.FileName(basename)) {
 			canRun = false
 		}
 		if slices.Contains(config.ScriptPackageManager, basename) && canRun {
@@ -105,10 +106,8 @@ func list(filter string) {
 
 func update() {
 	if platform.IsWindows() {
-		promptDir := dir.CoreUtilsPrompt()
 		for _, script := range getScriptList() {
 			libs.CreateExecPwshFromPromptCMD(script)
 		}
-		logger.Ok(fmt.Sprintf("Update PROMPT dir with all coreutils scripts: %s", promptDir))
 	}
 }

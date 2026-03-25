@@ -12,6 +12,7 @@ import (
 	"golangutils/pkg/shell"
 	"golangutils/pkg/slice"
 	"golangutils/pkg/str"
+	"golangutils/pkg/system"
 
 	"main/internal/dir"
 	"main/internal/libs"
@@ -35,6 +36,9 @@ func isCoreUtilsInstallFolderEmpty() bool {
 }
 
 func validate() {
+	if !system.IsValidUserHomeDir(true) {
+		logic.ProcessError(errors.New("Invalid Username/User home directory"))
+	}
 	if !(platform.IsLinux() && shell.IsBashInstalled()) && !(platform.IsWindows() && shell.IsPowershellInstalled() && shell.IsPromptCMDInstalled()) {
 		logic.ProcessError(errors.New(common.NotImplementedYetMSG))
 	}
@@ -72,5 +76,6 @@ func main() {
 		windowsProcessor := NewDependencyWindows()
 		windowsProcessor.start()
 	}
+	createDirs()
 	logger.Ok("Install Done. Please, restart your terminal")
 }

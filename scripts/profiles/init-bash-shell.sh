@@ -5,8 +5,9 @@
 # shellcheck disable=SC2155
 
 # Global Vars
-declare __COREUTILS_SCRIPT_DIR__=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+declare __COREUTILS_SCRIPT_DIR__=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 declare __COREUTILS_LIBS_SCRIPT_DIR__="${__COREUTILS_SCRIPT_DIR__}/../libs"
+
 
 # Do if on Windows SO
 if [[ "$OSTYPE" == "cygwin" ]]||[[ "$OSTYPE" == "msys" ]]||[[ "$OSTYPE" == "win32" ]]; then

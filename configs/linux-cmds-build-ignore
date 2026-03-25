@@ -13,3 +13,4 @@ set-ps-policy
 create-vbs-runner
 run-bin-processor
 pkillc
+change-user-full-name

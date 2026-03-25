@@ -14,6 +14,7 @@ import (
 	"golangutils/pkg/shell"
 	"golangutils/pkg/system"
 	"main/internal/dir"
+	"main/internal/libs"
 )
 
 func getCmdInfo() models.Command {
@@ -96,4 +97,19 @@ func cleanEnvPath() {
 	envPathValues := envManager.GetEnvValues(envPathName)
 	envPathValues = envManager.RemoveDuplicated(envPathValues)
 	envManager.UpdateEnv(envPathName, envPathValues)
+}
+
+func createDirs() {
+	logger.Header("Create System Dirs")
+	cmds := []string{
+		"CONFIG_DIR",
+		"OTHER_APPS_DIR",
+		"TEMP_DIR",
+		"USER_BIN_DIR",
+		"USER_STARTUP_DIR",
+		"USER_TEMP_DIR",
+	}
+	for _, cmd := range cmds {
+		libs.RunCoreUtilsCmd(cmd, false)
+	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"golangutils/pkg/enums"
 	"golangutils/pkg/exe"
@@ -17,7 +18,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const globalFlags = "--global"
+const (
+	globalFlags = "--global"
+	cmdGit      = "git"
+)
 
 func init() { setupCommand() }
 
@@ -34,7 +38,15 @@ func runCmd(cmdStr string) {
 }
 
 func runGitConfig(args string) {
-	runCmd(fmt.Sprintf("git %s", args))
+	runCmd(fmt.Sprintf("%s %s", cmdGit, args))
+}
+
+func hasSubmodules(repoPath string) bool {
+	output, err := exe.Exec(models.Command{Cmd: cmdGit, Args: []string{"submodule", "status"}, Cwd: repoPath})
+	if err != nil {
+		return false
+	}
+	return len(strings.TrimSpace(output)) > 0
 }
 
 func process() {
@@ -67,8 +79,13 @@ func process() {
 	logic.ProcessError(err)
 	if file.IsDir(file.JoinPath(currentDir, ".git")) {
 		logger.Header("Set local configurations")
+		isRepoHasSubmodules := hasSubmodules(currentDir)
 		for _, cmd := range localCmds {
-			runGitConfig(fmt.Sprintf(cmd, ""))
+			cmd = fmt.Sprintf(cmd, "")
+			runGitConfig(cmd)
+			if isRepoHasSubmodules {
+				runGitConfig(fmt.Sprintf("submodule foreach --recursive '%s %s'", cmdGit, cmd))
+			}
 		}
 	}
 	runCmd("git-credential-manager configure")
