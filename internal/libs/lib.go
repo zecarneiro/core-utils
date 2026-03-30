@@ -37,13 +37,9 @@ func IsValidPathArg(path string) bool {
 }
 
 func RunCoreUtilsCmdWithShell(cmdName string, verbose bool, shellToUse enums.ShellType, args ...string) {
-	coreUtilExecDir, err := exe.GetExecutableDir()
-	logic.ProcessError(err)
-	if runningFromCoreUtilsInstallDir {
-		coreUtilExecDir = dir.CoreUtilsSystemInstallBin()
-	}
+	coreUtilsExecDir := dir.CoreutilsExecDir(runningFromCoreUtilsInstallDir)
 	useShell := logic.Ternary(shellToUse.IsValid(), true, false)
-	env.InsertOnPath(coreUtilExecDir)
+	env.InsertOnPath(coreUtilsExecDir)
 	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdName, Args: args, Verbose: verbose, UseShell: useShell, ShellToUse: shellToUse}))
 }
 
@@ -52,13 +48,9 @@ func RunCoreUtilsCmd(cmdName string, verbose bool, args ...string) {
 }
 
 func RunCoreUtilsCmdWithOutputWithShell(cmdName string, verbose bool, shellToUse enums.ShellType, args ...string) string {
-	coreUtilExecDir, err := exe.GetExecutableDir()
-	logic.ProcessError(err)
-	if runningFromCoreUtilsInstallDir {
-		coreUtilExecDir = dir.CoreUtilsSystemInstallBin()
-	}
+	coreUtilsExecDir := dir.CoreutilsExecDir(runningFromCoreUtilsInstallDir)
 	useShell := logic.Ternary(shellToUse.IsValid(), true, false)
-	env.InsertOnPath(coreUtilExecDir)
+	env.InsertOnPath(coreUtilsExecDir)
 	output, err := exe.Exec(models.Command{Cmd: cmdName, Args: args, Verbose: verbose, UseShell: useShell, ShellToUse: shellToUse})
 	logic.ProcessError(err)
 	return strings.TrimSuffix(output, common.Eol())

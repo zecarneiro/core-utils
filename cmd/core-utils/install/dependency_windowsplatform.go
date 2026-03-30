@@ -29,6 +29,90 @@ func NewDependencyWindows() *DependencyWindows {
 	}
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                   WINGET                                   */
+/* -------------------------------------------------------------------------- */
+func (d *DependencyWindows) installWinget() {
+	logger.Header("Install Winget")
+	wingetInstallerScript := libs.GetScriptCmdPathByName("install-winget.ps1", "core-utils")
+	cmd := models.Command{
+		Cmd:      "sudo",
+		Args:     []string{shell.GetPowershellCmd(), fmt.Sprintf(`-Command "%s"`, wingetInstallerScript)},
+		UseShell: true,
+		Verbose:  true,
+	}
+	logger.Error(exe.ExecRealTime(cmd))
+}
+
+func (d *DependencyWindows) installWingetPackages() {
+	logger.Header("Install Winget packages")
+	idList := []string{
+		"topgrade-rs.topgrade",
+	}
+	for _, id := range idList {
+		libs.RunCoreUtilsCmd("winget-install", false, id)
+	}
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                    SCOOP                                   */
+/* -------------------------------------------------------------------------- */
+func (d *DependencyWindows) installScoop() {
+	cmdInfo := getCmdInfo()
+	logger.Header("Install Scoop")
+	cmdList := []string{
+		"Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression",
+		"Install-Module -AllowClobber -Name scoop-completion -Scope CurrentUser -SkipPublisherCheck", // Project URL - https://github.com/Moeologist/scoop-completion",
+	}
+	for _, cmd := range cmdList {
+		cmdInfo.Cmd = cmd
+		logic.ProcessError(exe.ExecRealTime(cmdInfo))
+	}
+}
+
+func (d *DependencyWindows) installScoopPackages() {
+	cmdInfo := getCmdInfo()
+	logger.Header("Install Scoop packages")
+	cmdList := []string{
+		"%s install main/7zip",
+		"%s install main/git",
+		"%s install main/vim",
+		"%s install main/nano",
+		"%s install main/curl",
+		"%s install main/grep",
+		"%s install main/sed",
+		"%s install main/clink",
+		"%s install main/uutils-coreutils",
+		"%s install main/dos2unix",
+		"%s install main/fzf",
+		"%s bucket add extras",
+		"%s install extras/psfzf",
+		"%s install extras/psreadline", // https://github.com/PowerShell/PSReadLine
+		"%s install extras/git-credential-manager",
+		"%s install https://github.com/c3er/mdview/releases/latest/download/mdview.json", // https://github.com/c3er/mdview
+	}
+	for _, cmd := range cmdList {
+		cmdInfo.Cmd = fmt.Sprintf(cmd, "scoop")
+		logger.Error(exe.ExecRealTime(cmdInfo))
+	}
+}
+
+func (d *DependencyWindows) configScoopPackages() {
+	cmdInfo := getCmdInfo()
+	logger.Header("Config Scoop packages")
+	cmdList := []string{
+		fmt.Sprintf("sudo cmd.exe /C %s\\apps\\7zip\\current\\install-context.reg", d.scoopDir),
+		"clink set clink.logo none",
+	}
+	for _, cmd := range cmdList {
+		cmdInfo.Cmd = cmd
+		logger.Error(exe.ExecRealTime(cmdInfo))
+	}
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   OTHERS                                   */
+/* -------------------------------------------------------------------------- */
 func (d *DependencyWindows) setConfigs() {
 	envManager.Sync(envPathName)
 	// Create menu entries
@@ -62,7 +146,7 @@ func (d *DependencyWindows) instalScriptsAppsAndAlias() {
 		"powershell": "pwsh",
 		"now":        "date",
 		"bash":       d.gitBashBin,
-		"open-md":    "mdview",
+		"pausec":     "powershell.cmd pause",
 	}
 	for key, value := range alias {
 		if key == "now" {
@@ -71,84 +155,40 @@ func (d *DependencyWindows) instalScriptsAppsAndAlias() {
 			libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value)
 		}
 	}
+	systemAlias := []string{
+		"cp",
+		"cat",
+		"mkdir",
+		"ls",
+		"mv",
+		"ps",
+		"rm",
+		"rmdir",
+		"sleep",
+		"sort",
+		"tee",
+		"curl",
+		"grep",
+		"sed",
+	}
+	for _, value := range systemAlias {
+		libs.RunCoreUtilsCmd("disable-system-alias-cu", false, "-n", value)
+	}
 	// Install coreutils profile scripts
 	installShellScriptOnSystemProfile(shell.GetShellProfileFile(enums.Bash), fmt.Sprintf("source '%s'", file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "profiles", "init-bash-shell.sh")))
 	installShellScriptOnSystemProfile(shell.GetShellProfileFile(enums.PowerShell), fmt.Sprintf(". \"%s\"", file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "profiles", "init-pwsh-shell.ps1")))
 }
 
-func (d *DependencyWindows) installWinget(packagesStatus int) {
-	switch packagesStatus {
-	case 0:
-		logger.Header("Install Winget")
-		wingetInstallerScript := libs.GetScriptCmdPathByName("install-winget.ps1", "core-utils")
-		cmd := models.Command{
-			Cmd:      "sudo",
-			Args:     []string{shell.GetPowershellCmd(), "-Command", wingetInstallerScript},
-			UseShell: true,
-		}
-		logger.Error(exe.ExecRealTime(cmd))
-	}
-}
-
-func (d *DependencyWindows) installScoop(packagesStatus int) {
-	cmdInfo := getCmdInfo()
-	switch packagesStatus {
-	case 0:
-		logger.Header("Install Scoop")
-		cmdList := []string{
-			"Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression",
-			"Install-Module -AllowClobber -Name scoop-completion -Scope CurrentUser", // Project URL - https://github.com/Moeologist/scoop-completion",
-		}
-		for _, cmd := range cmdList {
-			cmdInfo.Cmd = cmd
-			logic.ProcessError(exe.ExecRealTime(cmdInfo))
-		}
-	case 1:
-		logger.Header(fmt.Sprintf("Install Scoop packages for status: %d", packagesStatus))
-		cmdList := []string{
-			"%s install main/git",
-			"%s install main/7zip",
-			"%s install main/vim",
-			"%s install main/nano",
-			"%s install main/curl",
-			"%s install main/grep",
-			"%s install main/sed",
-			"%s install main/clink",
-			"%s install main/uutils-coreutils",
-			"%s install main/dos2unix",
-			"%s install main/topgrade",
-			"%s install main/fzf",
-			"%s bucket add extras",
-			"%s install extras/psfzf",
-			"%s install extras/psreadline", // https://github.com/PowerShell/PSReadLine
-			"%s install extras/git-credential-manager",
-			"%s install https://github.com/c3er/mdview/releases/latest/download/mdview.json", // https://github.com/c3er/mdview
-		}
-		for _, cmd := range cmdList {
-			cmdInfo.Cmd = fmt.Sprintf(cmd, "scoop")
-			logger.Error(exe.ExecRealTime(cmdInfo))
-		}
-	case 2:
-		logger.Header("Config Scoop packages")
-		cmdList := []string{
-			fmt.Sprintf("sudo cmd.exe /C %s\\apps\\7zip\\current\\install-context.reg", d.scoopDir),
-			"clink set clink.logo none",
-		}
-		for _, cmd := range cmdList {
-			cmdInfo.Cmd = cmd
-			logger.Error(exe.ExecRealTime(cmdInfo))
-		}
-	}
-}
-
+/* -------------------------------------------------------------------------- */
+/*                                    START                                   */
+/* -------------------------------------------------------------------------- */
 func (d *DependencyWindows) start() {
 	if console.Confirm("Do you want to install all packages and package managers?", true) {
-		if askProcessPackage("Install Winget(Not Recommended)") {
-			d.installWinget(0)
-			console.Pause()
+		if askProcessPackage("Install Winget") {
+			d.installWinget()
 		}
 		if askProcessPackage("Install Scoop") {
-			d.installScoop(0)
+			d.installScoop()
 		}
 		if askProcessPackage("Enable WSL") {
 			cmdWsl := getCmdInfo()
@@ -157,13 +197,16 @@ func (d *DependencyWindows) start() {
 		}
 		// Install packages
 		envManager.Sync(envPathName)
+		if askProcessPackage("Install Winget Packages") {
+			d.installWingetPackages()
+		}
 		if askProcessPackage("Install Scoop Packages") {
-			d.installScoop(1)
+			d.installScoopPackages()
 		}
 		// Config packages
 		envManager.Sync(envPathName)
 		if askProcessPackage("Config Scoop Packages") {
-			d.installScoop(2)
+			d.configScoopPackages()
 		}
 	}
 	addUserBinOnPathEnv()

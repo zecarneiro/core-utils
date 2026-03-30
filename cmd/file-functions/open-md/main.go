@@ -10,6 +10,7 @@ import (
 	"golangutils/pkg/models"
 	"golangutils/pkg/platform"
 
+	"main/internal/libs"
 	"main/internal/libs/cobralib"
 
 	"github.com/spf13/cobra"
@@ -19,8 +20,8 @@ func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
-		Use:   "open-image <filepath>",
-		Short: "Open image",
+		Use:   "open-md <filepath>",
+		Short: "Open and view markdown file",
 		Args:  cobra.MinimumNArgs(1),
 	}
 	cobralib.WithRunArgsStr(process)
@@ -35,19 +36,16 @@ func process(filepath string) {
 		logic.ProcessError(fmt.Errorf("Invalid given file: %s", filepath))
 	}
 	if platform.IsWindows() {
-		cmdInfo = models.Command{Cmd: "Start-Process", Args: []string{filepath}, UseShell: true}
+		cmdPath, err := console.Which("mdview")
+		logic.ProcessError(err)
+		libs.RunCoreUtilsCmd("run-bin-processor", false, cmdPath, "-a", filepath)
 	} else if platform.IsLinux() {
-		cmdInfo = models.Command{Cmd: "xdg-open", Args: []string{filepath}, UseShell: false}
-	} else if platform.IsDarwin() {
-		cmdInfo = models.Command{Cmd: "open", Args: []string{filepath}, UseShell: true}
+		cmdInfo = models.Command{Cmd: "markdown_viewer", Args: []string{filepath}, UseShell: false}
 	} else {
 		logic.ProcessError(errors.New(platform.UnsupportedMSG))
 	}
 	cmdInfo.Verbose = false
 	logic.ProcessError(exe.ExecRealTime(cmdInfo))
-	if platform.IsWindows() {
-		console.PauseWithMsg("Press Enter to continue after you close the image viewer....")
-	}
 }
 
 func main() {

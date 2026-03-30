@@ -49,6 +49,7 @@ func (c *Config) Write() {
 		logic.ProcessError(fmt.Errorf("available PromptStyle: %s", slice.ObjArrayToString(c.availablePromptStyle)))
 	}
 	c.loadConfig()
+	c.ScriptPackageManager = slice.RemoveDuplicate(c.ScriptPackageManager)
 	logic.ProcessError(file.WriteJsonFile(c.configFile, c, false))
 }
 

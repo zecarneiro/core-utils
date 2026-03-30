@@ -20,6 +20,8 @@ alias ..='cd ..'
 # DEPENDENCY AREA
 eval "$(fzf --bash)" # ENABLE FZF
 
+[ -f "$HOME/.local/share/coreutils/system-aliases/system-alias-bash" ] && source "$HOME/.local/share/coreutils/system-aliases/system-alias-bash"
+
 build_prompt() {
   style_to_use="-1"
   if ! case "$(uname -s)" in

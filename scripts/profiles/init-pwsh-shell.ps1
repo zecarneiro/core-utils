@@ -36,6 +36,8 @@ try {
   # Failed to ENABLE FZF
 }
 
+if (Test-Path "$home\.local\share\coreutils\system-aliases\system-alias-pwsh.ps1") { . "$home\.local\share\coreutils\system-aliases\system-alias-pwsh.ps1" }
+
 function prompt {
   $style_to_use = -1
   if ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {

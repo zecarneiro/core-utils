@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"golangutils/pkg/console"
 	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logger"
@@ -17,14 +16,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	fileArgs     string
+	forceArg     bool
+	acceptExtMsg = "Only accept file with ext: .exe|.msi|.msixbundle"
+)
+
 func init() { setupCommand() }
 
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
 		Use:   "run-bin-processor <file_or_directory>",
-		Short: "Run a binary file or all binaries in a directory (Windows only)",
+		Short: fmt.Sprintf("Run a binary file or all binaries in a directory (Windows only - %s)", acceptExtMsg),
 		Args:  cobra.MinimumNArgs(1),
 	}
+	cobralib.CobraCmd.Flags().StringVarP(&fileArgs, "args", "a", "", "File args in one string. If pass directory, each bin file will receive the same args")
+	cobralib.CobraCmd.Flags().BoolVarP(&forceArg, "force", "f", false, "Enable force flag for AppxPackage")
 	cobralib.WithRunArgsStr(process)
 }
 
@@ -38,9 +45,8 @@ func process(fileOrDir string) {
 	} else if file.IsDir(fileOrDir) {
 		runDir(fileOrDir)
 	} else {
-		logic.ProcessError(fmt.Errorf("invalid given bin file or directory"))
+		logic.ProcessError(fmt.Errorf("invalid given bin file or directory. Only work for .exe and .msi files"))
 	}
-	console.Pause()
 }
 
 func runBin(binary string) {
@@ -49,19 +55,23 @@ func runBin(binary string) {
 
 	switch ext {
 	case "exe", "msi":
+		cmd := fmt.Sprintf("Start-Process '%s' -Wait", binary)
+		if !str.IsEmpty(fileArgs) {
+			cmd = fmt.Sprintf("%s -ArgumentList %s", cmd, fileArgs)
+		}
 		execCmd = models.Command{
-			Cmd:      fmt.Sprintf("Start-Process '%s' -Wait", binary),
+			Cmd:      cmd,
 			UseShell: true,
 			Verbose:  true,
 		}
-	case "msixbundle":
+	case "msixbundle", "appx":
 		execCmd = models.Command{
-			Cmd:      fmt.Sprintf("Add-AppxPackage -Path \"%s\"", binary),
+			Cmd:      fmt.Sprintf("Add-AppxPackage -Path \"%s\" %s", binary, logic.Ternary(forceArg, "-ForceApplicationShutdown", "")),
 			UseShell: true,
 			Verbose:  true,
 		}
 	default:
-		logger.Info("Only accept file with ext: .exe|.msi|.msixbundle")
+		logger.Info(acceptExtMsg)
 		logic.ProcessError(fmt.Errorf("can not run this bin file: %s", binary))
 	}
 	logic.ProcessError(exe.ExecRealTime(execCmd))

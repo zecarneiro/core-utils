@@ -78,12 +78,16 @@ func run(name string) {
 	// Process
 	logger.Title("Run all script(s) to install/update/remove package(s)")
 	for _, script := range getScriptList() {
-		basename := file.Basename(script)
-		canRun := true
-		if !str.IsEmpty(name) && !(name == script || name == basename || name == file.FileName(basename)) {
-			canRun = false
+		canRun := false
+		scriptFileName := file.FileName(script)
+		if slices.Contains(config.ScriptPackageManager, scriptFileName) {
+			canRun = true
+			basename := file.Basename(script)
+			if !str.IsEmpty(name) && !(name == script || name == basename || name == scriptFileName) {
+				canRun = false
+			}
 		}
-		if slices.Contains(config.ScriptPackageManager, basename) && canRun {
+		if canRun {
 			cmd := models.Command{Cmd: fmt.Sprintf(". \"%s\"", script), UseShell: true, Verbose: true}
 			logger.Error(exe.ExecRealTime(cmd))
 		}

@@ -1,6 +1,7 @@
 package dir
 
 import (
+	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/system"
@@ -53,4 +54,13 @@ func CoreUtilsUserConfig() string {
 	directory := file.JoinPath(system.HomeUserConfigDir(), "coreutils")
 	logic.ProcessError(file.CreateDirectory(directory, true))
 	return directory
+}
+
+func CoreutilsExecDir(isRunningFromInstaller bool) string {
+	coreUtilsExecDir, err := exe.GetExecutableDir()
+	logic.ProcessError(err)
+	if isRunningFromInstaller {
+		coreUtilsExecDir = CoreUtilsSystemInstallBin()
+	}
+	return coreUtilsExecDir
 }

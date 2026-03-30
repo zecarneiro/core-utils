@@ -21,7 +21,7 @@ var (
 
 	template = `Dim WinScriptHost
 Set WinScriptHost = CreateObject("WScript.Shell")
-WinScriptHost.Run "%s", %d, False
+WinScriptHost.Run """%s""", %d, False
 Set WinScriptHost = Nothing
 `
 )
@@ -36,7 +36,7 @@ func setupCommand() {
 	}
 	cobralib.CobraCmd.Flags().StringVarP(&nameArg, "name", "n", "", "VBS filename (required)")
 	cobralib.CobraCmd.Flags().StringVarP(&commandArg, "command", "c", "", "Command to run (required)")
-	cobralib.CobraCmd.Flags().BoolVarP(&waitArg, "wait", "w", false, "Wait for command to finish")
+	cobralib.CobraCmd.Flags().BoolVarP(&waitArg, "keep-window", "k", false, "Wait for command to finish")
 	cobralib.WithWorkingDirDefault()
 	cobralib.WithRun(process)
 }

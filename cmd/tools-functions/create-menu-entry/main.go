@@ -112,7 +112,7 @@ func createWindowsShortcut() {
 	}
 	if terminalArg {
 		targetPath = "cmd.exe"
-		arguments = fmt.Sprintf("/c \"%s %s\"", execArg, slice.ArrayToString(argsArg))
+		arguments = fmt.Sprintf("/c `\"%s %s`\"", execArg, slice.ArrayToString(argsArg))
 	}
 	if !str.IsEmpty(commentArg) {
 		othersData = fmt.Sprintf("%s%s$Shortcut.Description = \"%s\"", othersData, eol, commentArg)
