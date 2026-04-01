@@ -8,4 +8,5 @@ var (
 	envPathName      string
 	envManager       *libs.EnvManager
 	installTitleMsg  = "Install Core Utils on the system"
+	isUpdateOnly     bool
 )

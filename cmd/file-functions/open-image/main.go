@@ -44,10 +44,9 @@ func process(filepath string) {
 		logic.ProcessError(errors.New(platform.UnsupportedMSG))
 	}
 	cmdInfo.Verbose = false
+	cmdInfo.Cwd = file.Dirname(filepath)
 	logic.ProcessError(exe.ExecRealTime(cmdInfo))
-	if platform.IsWindows() {
-		console.PauseWithMsg("Press Enter to continue after you close the image viewer....")
-	}
+	console.PauseWithMsg("Press Enter to continue after you close the image viewer....")
 }
 
 func main() {

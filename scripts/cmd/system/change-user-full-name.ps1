@@ -1,5 +1,9 @@
 ﻿# Author: José M. C. Noronha
 
+if ((is-admin) -eq "false") {
+    sudopwsh "$PSScriptRoot\change-user-full-name.ps1"
+    exit 0
+}
 $username = $env:username
 Get-WmiObject Win32_UserAccount | ForEach-Object {
     $name = $_.Name
@@ -9,7 +13,7 @@ Get-WmiObject Win32_UserAccount | ForEach-Object {
         Write-Host "Current user full name: $fullname"
         $newFullname = (Read-Host "Insert the new full name for the username '$username' (PRESS ENTER TO KEEP)")
         if (!([string]::IsNullOrEmpty($newFullname)) -and "$newFullname" -ne "$fullname") {
-            sudopwsh Set-LocalUser -Name "$username" -FullName "'$newFullname'"
+            Set-LocalUser -Name "$username" -FullName "$newFullname"
             ok-log "Change User Full name will be done when you logout or restart PC."
         }
     }

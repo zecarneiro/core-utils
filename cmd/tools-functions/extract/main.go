@@ -65,23 +65,23 @@ func getExtractCmd(filePath, ext string) string {
 	}
 	// Others Platforms
 	switch ext {
-	case ".zip":
+	case "zip":
 		return fmt.Sprintf("unzip \"%s\" -d \"%s\"", filePath, destination)
-	case ".tar.bz2", ".tbz2":
+	case "tar.bz2", "tbz2":
 		return fmt.Sprintf("tar xvjf \"%s\"", filePath)
-	case ".tar.gz", ".tgz":
+	case "tar.gz", "tgz":
 		return fmt.Sprintf("tar xvzf \"%s\"", filePath)
-	case ".bz2":
+	case "bz2":
 		return fmt.Sprintf("bunzip2 \"%s\"", filePath)
-	case ".rar":
+	case "rar":
 		return fmt.Sprintf("rar x \"%s\"", filePath)
-	case ".gz":
+	case "gz":
 		return fmt.Sprintf("gunzip \"%s\"", filePath)
-	case ".tar":
+	case "tar":
 		return fmt.Sprintf("tar xvf \"%s\"", filePath)
-	case ".Z":
+	case "Z":
 		return fmt.Sprintf("uncompress \"%s\"", filePath)
-	case ".7z":
+	case "7z":
 		return fmt.Sprintf("7z x \"%s\"", filePath)
 	}
 	return ""

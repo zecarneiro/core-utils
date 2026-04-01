@@ -84,7 +84,7 @@ func process() {
 			cmd = fmt.Sprintf(cmd, "")
 			runGitConfig(cmd)
 			if isRepoHasSubmodules {
-				runGitConfig(fmt.Sprintf("submodule foreach --recursive '%s %s'", cmdGit, cmd))
+				runGitConfig(fmt.Sprintf("submodule foreach --recursive \"%s %s\"", cmdGit, cmd))
 			}
 		}
 	}

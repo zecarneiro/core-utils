@@ -69,7 +69,7 @@ func process() {
 		logic.ProcessError(file.CreateDirectory(bootDir, true))
 		content := fmt.Sprintf(templateLinux, nameArg, commandArg)
 		fileConfig := models.FileWriterConfig{
-			File:        file.JoinPath(bootDir, nameArg),
+			File:        fmt.Sprintf("%s.desktop", file.JoinPath(bootDir, nameArg)),
 			Data:        content,
 			IsAppend:    false,
 			WithUtf8BOM: false,

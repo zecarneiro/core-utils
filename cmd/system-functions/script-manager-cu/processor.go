@@ -28,9 +28,11 @@ func install(cmd *cobra.Command, args []string) {
 	logic.ProcessError(err)
 	// Process
 	if file.IsFile(path) {
+		forceArg, errForce := cmd.Flags().GetBool("force")
+		logic.ProcessError(errForce)
 		dest := file.JoinPath(shellDir, logic.Ternary(platform.IsWindows(), file.Basename(path), filename))
 		canInstall := true
-		if file.IsFile(dest) {
+		if !forceArg && file.IsFile(dest) {
 			canInstall = console.Confirm(fmt.Sprintf("Script '%s' already exists. Continue?", dest), true)
 		}
 		if canInstall {
@@ -88,6 +90,7 @@ func run(name string) {
 			}
 		}
 		if canRun {
+			logger.Header(fmt.Sprintf("Running %s", scriptFileName))
 			cmd := models.Command{Cmd: fmt.Sprintf(". \"%s\"", script), UseShell: true, Verbose: true}
 			logger.Error(exe.ExecRealTime(cmd))
 		}

@@ -19,13 +19,15 @@ import (
 type DependencyWindows struct {
 	scoopDir   string
 	gitBashBin string
+	isUpdate   bool
 }
 
-func NewDependencyWindows() *DependencyWindows {
+func NewDependencyWindows(isUpdate bool) *DependencyWindows {
 	scoopDir := file.JoinPath(system.HomeDir(), "scoop")
 	return &DependencyWindows{
 		scoopDir:   scoopDir,
 		gitBashBin: file.JoinPath(scoopDir, "apps", "git", "current", "bin", "bash.exe"),
+		isUpdate:   isUpdate,
 	}
 }
 
@@ -76,6 +78,7 @@ func (d *DependencyWindows) installScoopPackages() {
 	cmdList := []string{
 		"%s install main/7zip",
 		"%s install main/git",
+		"%s install main/openssl",
 		"%s install main/vim",
 		"%s install main/nano",
 		"%s install main/curl",
@@ -113,9 +116,8 @@ func (d *DependencyWindows) configScoopPackages() {
 /* -------------------------------------------------------------------------- */
 /*                                   OTHERS                                   */
 /* -------------------------------------------------------------------------- */
-func (d *DependencyWindows) setConfigs() {
-	envManager.Sync(envPathName)
-	// Create menu entries
+func (d *DependencyWindows) createMenus() {
+	logger.Header("Create Menu Entries")
 	wtBin, err := console.Which("wt.exe")
 	if err == nil {
 		bashMenuEntryArgs := []string{
@@ -123,21 +125,29 @@ func (d *DependencyWindows) setConfigs() {
 			"-e", fmt.Sprintf("`\"%s`\"", wtBin),
 			"-a", fmt.Sprintf("--title Bash -d `\"%s`\" `\"%s`\" --login -i", system.HomeDir(), d.gitBashBin),
 			"-c", "ConsoleOnly;System;",
+			"-i", "C:\\Windows\\System32\\cmd.exe,0",
 		}
 		libs.RunCoreUtilsCmd("create-menu-entry", false, bashMenuEntryArgs...)
 	}
 	logger.Error(err)
 }
 
+func (d *DependencyWindows) setConfigs() {
+	envManager.Sync(envPathName)
+	// Create menu entries
+	d.createMenus()
+}
+
 func (d *DependencyWindows) instalScriptsAppsAndAlias() {
 	envManager.Sync(envPathName)
+	forceArg := logic.Ternary(d.isUpdate, "-f", "")
 	scriptAppsDir := file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "apps", "pwsh")
 	filesInfo, err := file.ReadDirRecursive(scriptAppsDir)
 	logic.ProcessError(err)
 	// Install All apps
 	logger.Header("Install all apps")
 	for _, fileInfo := range filesInfo.Files {
-		libs.RunCoreUtilsCmd("script-manager-cu", false, "install", fileInfo)
+		libs.RunCoreUtilsCmd("script-manager-cu", false, "install", fileInfo, forceArg)
 	}
 	// Add alias
 	logger.Header("Install all alias")
@@ -149,12 +159,10 @@ func (d *DependencyWindows) instalScriptsAppsAndAlias() {
 		"pausec":     "powershell.cmd pause",
 	}
 	for key, value := range alias {
-		if key == "now" {
-			libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value, "-o")
-		} else {
-			libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value)
-		}
+		isShellNoArgs := logic.Ternary(key == "now", "-o", "")
+		libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value, isShellNoArgs, forceArg)
 	}
+	logger.Header("Disable system alias")
 	systemAlias := []string{
 		"cp",
 		"cat",
@@ -180,9 +188,14 @@ func (d *DependencyWindows) instalScriptsAppsAndAlias() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                    START                                   */
+/*                                START/UPDATE                                */
 /* -------------------------------------------------------------------------- */
-func (d *DependencyWindows) start() {
+func (d *DependencyWindows) update() {
+	d.instalScriptsAppsAndAlias()
+	d.createMenus()
+}
+
+func (d *DependencyWindows) install() {
 	if console.Confirm("Do you want to install all packages and package managers?", true) {
 		if askProcessPackage("Install Winget") {
 			d.installWinget()
@@ -214,4 +227,14 @@ func (d *DependencyWindows) start() {
 	d.instalScriptsAppsAndAlias()
 	d.setConfigs()
 	cleanEnvPath()
+	libs.RunCoreUtilsCmd("change-user-full-name", false)
+	changeAndCreateDefaultDirs()
+}
+
+func (d *DependencyWindows) start() {
+	if d.isUpdate {
+		d.update()
+	} else {
+		d.install()
+	}
 }

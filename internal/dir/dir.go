@@ -26,6 +26,10 @@ func CoreUtilsSystemInstallBin() string {
 	return dir
 }
 
+func CoreUtilsSystemInstallImages(imgFileName string) string {
+	return file.JoinPath(CoreUtilsSystemInstall(), "images", imgFileName)
+}
+
 func CoreUtilsLocal() string {
 	directory := file.JoinPath(system.HomeUserLocalDir(), "share", "coreutils")
 	if !file.IsDir(directory) {

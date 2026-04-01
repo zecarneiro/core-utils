@@ -31,7 +31,7 @@ func setupCommand() {
 func process() {
 	alreadyRun := false
 	globalFlag := ""
-	if file.FileExist(".git") {
+	if !file.FileExist(".git") {
 		globalFlag = "--global"
 	}
 	baseArgs := []string{"config", globalFlag}

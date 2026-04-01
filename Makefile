@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-COREUTILS_VERSION := 2.4.0
+COREUTILS_VERSION := 2.4.1
 ROOT := $(CURDIR)
 SCRIPTS_DIR := $(ROOT)/scripts
 BINARY_DIR := $(ROOT)/bin
@@ -48,6 +48,7 @@ generate-installer:
 	cp -r "$(SCRIPTS_DIR)/cmd" "$(INSTALLER_WIN_DIR)/scripts/"
 	cp -r "$(SCRIPTS_DIR)/libs" "$(INSTALLER_WIN_DIR)/scripts/"
 	cp -r "$(SCRIPTS_DIR)/profiles" "$(INSTALLER_WIN_DIR)/scripts/"
+	cp -r "$(ROOT)/images" "$(INSTALLER_WIN_DIR)/images"
 	cp "$(SCRIPTS_DIR)/start.bat" "$(INSTALLER_WIN_DIR)/"
 	mv "$(INSTALLER_WIN_DIR)/bin/install.exe" "$(INSTALLER_WIN_DIR)/installers/"
 	mv "$(INSTALLER_WIN_DIR)/bin/uninstall.exe" "$(INSTALLER_WIN_DIR)/installers/"
@@ -59,8 +60,10 @@ generate-installer:
 	@echo ">>> Move/Copy files and dirs..."
 	cp -r "$(BINARY_DIR)/linux/." "$(INSTALLER_LINUX_DIR)/bin"
 	cp -r "$(SCRIPTS_DIR)/apps" "$(INSTALLER_LINUX_DIR)/scripts/"
+	cp -r "$(SCRIPTS_DIR)/cmd" "$(INSTALLER_LINUX_DIR)/scripts/"
 	cp -r "$(SCRIPTS_DIR)/libs" "$(INSTALLER_LINUX_DIR)/scripts/"
 	cp -r "$(SCRIPTS_DIR)/profiles" "$(INSTALLER_LINUX_DIR)/scripts/"
+	cp -r "$(ROOT)/images" "$(INSTALLER_LINUX_DIR)/images"
 	cp "$(SCRIPTS_DIR)/start.sh" "$(INSTALLER_LINUX_DIR)/"
 	mv "$(INSTALLER_LINUX_DIR)/bin/install" "$(INSTALLER_LINUX_DIR)/installers/"
 	mv "$(INSTALLER_LINUX_DIR)/bin/uninstall" "$(INSTALLER_LINUX_DIR)/installers/"

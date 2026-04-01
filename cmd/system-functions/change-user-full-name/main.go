@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"golangutils/pkg/console"
 	"golangutils/pkg/exe"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
@@ -27,12 +28,14 @@ func process() {
 	if !platform.IsWindows() {
 		logic.ProcessError(errors.New(platform.UnsupportedMSG))
 	}
-	scriptFile := libs.GetScriptCmdPathByName("change-user-full-name.ps1", "system")
-	cmd := models.Command{
-		Cmd:      scriptFile,
-		UseShell: true,
+	if console.Confirm("Do you want to change user display name(Not the user home dir)?", true) {
+		scriptFile := libs.GetScriptCmdPathByName("change-user-full-name.ps1", "system")
+		cmd := models.Command{
+			Cmd:      scriptFile,
+			UseShell: true,
+		}
+		logic.ProcessError(exe.ExecRealTime(cmd))
 	}
-	logic.ProcessError(exe.ExecRealTime(cmd))
 }
 
 func main() {

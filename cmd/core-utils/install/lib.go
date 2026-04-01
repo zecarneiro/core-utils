@@ -113,3 +113,10 @@ func createDirs() {
 		libs.RunCoreUtilsCmd(cmd, false)
 	}
 }
+
+func changeAndCreateDefaultDirs() {
+	if !isUpdateOnly {
+		libs.RunCoreUtilsCmd("change-user-default-dir", false)
+		createDirs()
+	}
+}

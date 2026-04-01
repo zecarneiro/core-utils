@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Author: José M. C. Noronha
+
+set -e
+
+echo "🔍 Detecting NTFS and EXT4 partitions..."
+echo
+
+# Backup of fstab
+sudo cp /etc/fstab /etc/fstab.backup
+# Save only a valid partitions
+mapfile -t RAW < <(lsblk -ln -o NAME,LABEL,UUID,FSTYPE,SIZE,MOUNTPOINT)
+
+# VARS
+declare -A PARTS
+USER_ID=$(id -u)
+GROUP_ID=$(id -g)
+INDEX=1
+CAN_MOUNT=false
+
+echo "📋 Available partitions:"
+echo "----------------------------------------------------"
+for PART in "${RAW[@]}"; do
+    NAME=$(echo "$PART" | awk '{print $1}')
+    LABEL=$(echo "$PART" | awk '{print $2}')
+    UUID=$(echo "$PART" | awk '{print $3}')
+    FSTYPE=$(echo "$PART" | awk '{print $4}')
+    SIZE=$(echo "$PART" | awk '{print $5}')
+    MOUNTPOINT=$(echo "$PART" | awk '{print $6}')
+
+    # MAIN FILTER
+    if [[ "$FSTYPE" != "ntfs" && "$FSTYPE" != "ext4" ]]; then
+        continue
+    fi
+
+    # Ignore already mounted root
+    if [[ "$MOUNTPOINT" == "/" || "$MOUNTPOINT" == "/boot" || "$MOUNTPOINT" == "/boot/efi" || "$MOUNTPOINT" =~ ^"/media/$USER" ]]; then
+        continue
+    fi
+
+    # Label fallback
+    if [ -z "$LABEL" ]; then
+        LABEL="$NAME"
+    fi
+
+    echo "[$INDEX] $LABEL ($FSTYPE, $SIZE) → /dev/$NAME"
+    PARTS[$INDEX]="$NAME|$LABEL|$UUID|$FSTYPE"
+    ((INDEX++))
+
+done
+
+echo "----------------------------------------------------"
+echo "👉 Select the partitions (e.g. 1 3). Press Enter to exit without making changes:"
+read -r CHOICES
+
+for CHOICE in $CHOICES; do
+    IFS="|" read -r NAME LABEL UUID FSTYPE <<< "${PARTS[$CHOICE]}"
+    if [ -z "$UUID" ]; then
+        echo "⚠️  invalid: $CHOICE"
+        continue
+    fi
+
+    # Mount safe point
+    SAFE_LABEL=$(echo "$LABEL" | tr ' ' '_')
+    MOUNT_DIR="/mnt/$SAFE_LABEL"
+    sudo mkdir -p "$MOUNT_DIR"
+
+    # Filesystem options
+    PASS=""
+    if [[ "$FSTYPE" == "ntfs" ]]; then
+    	FSTYPE="ntfs-3g"
+    	OPTIONS="defaults,nofail,uid=$USER_ID,gid=$GROUP_ID,x-gvfs-show"
+    	PASS=0
+    elif [[ "$FSTYPE" == "ext4" ]]; then
+    	OPTIONS="defaults,nofail"
+    	PASS=2
+    else
+    	echo "⚠️  Ignored: $LABEL ($FSTYPE Not supported)"
+    	continue
+    fi
+
+    # Avoid duplicates
+    if grep -q "$UUID" /etc/fstab; then
+        echo "⚠️  Configuration already exists: $SAFE_LABEL (skipped)"
+        continue
+    fi
+
+    # Write to fstab file
+    echo "UUID=$UUID $MOUNT_DIR $FSTYPE $OPTIONS 0 $PASS" | sudo tee -a /etc/fstab
+    echo "✅ $SAFE_LABEL → $MOUNT_DIR"
+    CAN_MOUNT=true
+
+done
+
+if [[ "$CAN_MOUNT" == "true" ]]; then
+	echo
+	echo "🚀 Configuration completed. Applying changes: sudo mount -a"
+	sudo mount -a
+fi

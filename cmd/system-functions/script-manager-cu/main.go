@@ -27,6 +27,7 @@ func setupCommand() {
 		Run:   install,
 	}
 	installCmd.Flags().BoolP("is-package-manager", "p", false, "Set if script is package manager")
+	installCmd.Flags().BoolP("force", "f", false, "Force install")
 
 	// Uninstall
 	uninstallCmd := &cobra.Command{

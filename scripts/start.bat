@@ -12,6 +12,6 @@ if "%1"=="install" (
     echo Uninstalling...
     "%coreutil_rootdir%\installers\uninstall.exe"
 ) else (
-    echo Uso: start.bat [install|uninstall]
+    echo Uso: start.bat [install^|uninstall]
     exit /b 1
 )

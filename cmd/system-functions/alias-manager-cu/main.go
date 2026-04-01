@@ -22,6 +22,7 @@ import (
 var (
 	appName   = "alias-manager-cu"
 	noAllArgs bool
+	forceAgr  bool
 )
 
 func init() {
@@ -38,6 +39,7 @@ func setupCommand() {
 	cobralib.CobraCmd.Flags().StringVarP(&nameArg, "name", "n", "", "Name of alias (required)")
 	cobralib.CobraCmd.Flags().StringVarP(&contentArg, "command", "c", "", "Command for alias. All args will be passed automatic (required)")
 	cobralib.CobraCmd.Flags().BoolVarP(&noAllArgs, "no-args", "o", false, "No insert shell all args(Ex: $args in Powershell)")
+	cobralib.CobraCmd.Flags().BoolVarP(&forceAgr, "force", "f", false, "Force install")
 	logic.ProcessError(cobralib.CobraCmd.MarkFlagRequired("name"))
 	logic.ProcessError(cobralib.CobraCmd.MarkFlagRequired("command"))
 	cobralib.WithRun(process)
@@ -66,7 +68,11 @@ func process() {
 	shellArgs := logic.Ternary(noAllArgs, "", shell.GetShellAllArgsVarStr())
 	fileInfo.Data = fmt.Sprintf("%s%s", fileInfo.Data, fmt.Sprintf("%s %s", contentArg, shellArgs))
 	logic.ProcessError(file.WriteFile(fileInfo))
-	libs.RunCoreUtilsCmd("script-manager-cu", false, "install", aliasFile)
+	scriptManagerArgs := []string{"install", aliasFile}
+	if forceAgr {
+		scriptManagerArgs = append(scriptManagerArgs, "-f")
+	}
+	libs.RunCoreUtilsCmd("script-manager-cu", false, scriptManagerArgs...)
 }
 
 func main() {

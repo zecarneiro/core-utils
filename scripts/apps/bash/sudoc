@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Author: José M. C. Noronha
+
+if [ $# -eq 0 ]; then
+    error-log "No args passed"
+    exit 1
+fi
+
+prompt-log "$@"
+sudo "$@"

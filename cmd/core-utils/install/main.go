@@ -48,6 +48,7 @@ func validate() {
 }
 
 func loadAndValidate() {
+	isUpdateOnly = false
 	console.EnableFeatures()
 	libs.EnableRunningFromCUInstallDir()
 	rootDir = slice.ArrayToString(console.GetArgsList())
@@ -57,7 +58,12 @@ func loadAndValidate() {
 	envManager.SetSystemConfig()
 	systemInstallDir = dir.CoreUtilsSystemInstall() // necessary to next lines
 	if !isCoreUtilsInstallFolderEmpty() {
-		logic.ProcessError(errors.New("Detected that CoreUtils is already installed on this system. Please, uninstall before to continue."))
+		logger.Info("Detected that CoreUtils is already installed on this system.")
+		if console.Confirm("Will be process update CU only. Continue?", false) {
+			isUpdateOnly = true
+		} else {
+			logic.ProcessError(errors.New("Please, uninstall before to continue."))
+		}
 	}
 }
 
@@ -70,12 +76,16 @@ func main() {
 	}
 	envManager.Sync(envPathName)
 	if platform.IsLinux() {
-		linuxProcessor := NewDependencyLinux()
+		linuxProcessor := NewDependencyLinux(isUpdateOnly)
 		linuxProcessor.start()
 	} else if platform.IsWindows() {
-		windowsProcessor := NewDependencyWindows()
+		windowsProcessor := NewDependencyWindows(isUpdateOnly)
 		windowsProcessor.start()
 	}
-	createDirs()
-	logger.Ok("Install Done. Please, restart your terminal")
+	logger.Ok("Done.")
+	if isUpdateOnly {
+		logger.Warn("Please, restart your terminal.")
+	} else {
+		logger.Error(system.Reboot())
+	}
 }

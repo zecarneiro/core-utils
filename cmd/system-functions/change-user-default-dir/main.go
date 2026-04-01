@@ -28,7 +28,7 @@ func setupCommand() {
 }
 
 func process() {
-	if console.Confirm("Insert all User Dirs?", true) {
+	if console.Confirm("Do you want to change default User Dirs(like Documents, etc...)?", true) {
 		args := []string{}
 		scriptExtension := ".sh"
 		if platform.IsWindows() {

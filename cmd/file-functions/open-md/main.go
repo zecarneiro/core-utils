@@ -6,11 +6,11 @@ import (
 	"golangutils/pkg/console"
 	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
+	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 	"golangutils/pkg/platform"
 
-	"main/internal/libs"
 	"main/internal/libs/cobralib"
 
 	"github.com/spf13/cobra"
@@ -38,13 +38,19 @@ func process(filepath string) {
 	if platform.IsWindows() {
 		cmdPath, err := console.Which("mdview")
 		logic.ProcessError(err)
-		libs.RunCoreUtilsCmd("run-bin-processor", false, cmdPath, "-a", filepath)
+		cmdInfo = models.Command{
+			Cmd:      "Start-Process",
+			Args:     []string{fmt.Sprintf("'%s' -Wait -NoNewWindow -ArgumentList '%s'", cmdPath, filepath)},
+			UseShell: true,
+		}
 	} else if platform.IsLinux() {
 		cmdInfo = models.Command{Cmd: "markdown_viewer", Args: []string{filepath}, UseShell: false}
 	} else {
 		logic.ProcessError(errors.New(platform.UnsupportedMSG))
 	}
 	cmdInfo.Verbose = false
+	cmdInfo.Cwd = file.Dirname(filepath)
+	logger.Info(fmt.Sprintf("Opening: %s", filepath))
 	logic.ProcessError(exe.ExecRealTime(cmdInfo))
 }
 

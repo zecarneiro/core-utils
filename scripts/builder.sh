@@ -26,7 +26,6 @@ build_commands() {
     local goos="$2"
     local dest_dir="$3"
     local SKIP_ICON="⚠️"
-    local space_separator="  "
     for dir in $COMMANDS; do
         name=$(basename "$dir")
         if [[ -z "${CMD_NAME}" ]]||[[ "${CMD_NAME}" == "${name}" ]]; then

@@ -19,10 +19,12 @@ import (
 	"main/internal/libs"
 )
 
-type DependencyLinux struct{}
+type DependencyLinux struct {
+	isUpdate bool
+}
 
-func NewDependencyLinux() *DependencyLinux {
-	return &DependencyLinux{}
+func NewDependencyLinux(isUpdate bool) *DependencyLinux {
+	return &DependencyLinux{isUpdate: isUpdate}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -47,15 +49,16 @@ func (d *DependencyLinux) installApt() {
 	d.runAptUpdate()
 	d.runAptCmdWithUpdate("sudo add-apt-repository universe -y")
 	d.runAptCmdWithUpdate("sudo add-apt-repository multiverse -y")
-	cmdList := []string{
-		"sudo apt install apt-transport-https -y",
-		"sudo apt install wget -y",
-		"sudo apt install curl -y",
-		"sudo apt install libnotify-bin -y",
-		"sudo apt install lsb-release -y",
+	appList := []string{
+		"apt-transport-https",
+		"wget",
+		"curl",
+		"libnotify-bin",
+		"lsb-release",
+		"openssl",
 	}
-	for _, cmd := range cmdList {
-		cmdInfo.Cmd = cmd
+	for _, app := range appList {
+		cmdInfo.Cmd = fmt.Sprintf("sudo apt install %s -y", app)
 		logic.ProcessError(exe.ExecRealTime(cmdInfo))
 	}
 	logger.Separator()
@@ -73,7 +76,35 @@ func (d *DependencyLinux) installApt() {
 func (d *DependencyLinux) installAptPackages() {
 	cmdInfo := getCmdInfo()
 	logger.Header("Install APT packages")
-	cmdList := []string{"zenity", "dos2unix", "git", "powershell"}
+	cmdList := []string{
+		"zenity",
+		"dos2unix",
+		"git",
+		"powershell",
+		"file-roller",
+		"packagekit",
+		"arj",
+		"lzip",
+		"lzma",
+		"lzop",
+		"ncompress",
+		"rpm2cpio",
+		"rzip",
+		"sharutils",
+		"unace",
+		"unalz",
+		"unar",
+		"p7zip-full",
+		"p7zip-rar",
+		"unrar",
+		"zip",
+		"unzip",
+		"rar",
+		"uudeview",
+		"mpack",
+		"cabextract",
+		"gnome-disk-utility",
+	}
 	for _, cmd := range cmdList {
 		cmdInfo.Cmd = fmt.Sprintf(`sudo apt install %s -y`, cmd)
 		logger.Error(exe.ExecRealTime(cmdInfo))
@@ -197,6 +228,7 @@ func (d *DependencyLinux) instalDebGetPackages() {
 /* -------------------------------------------------------------------------- */
 func (d *DependencyLinux) instalScriptsAppsAndAlias() {
 	envManager.Sync(envPathName)
+	forceArg := logic.Ternary(d.isUpdate, "-f", "")
 	scriptAppsDir := file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "apps", "bash")
 	filesInfo, err := file.ReadDirRecursive(scriptAppsDir)
 	logic.ProcessError(err)
@@ -206,7 +238,14 @@ func (d *DependencyLinux) instalScriptsAppsAndAlias() {
 	// Install All apps
 	logger.Header("Install all apps")
 	for _, fileInfo := range filesInfo.Files {
-		libs.RunCoreUtilsCmd("script-manager-cu", false, "install", fileInfo)
+		args := []string{
+			"install",
+			fileInfo,
+		}
+		if !str.IsEmpty(forceArg) {
+			args = append(args, forceArg)
+		}
+		libs.RunCoreUtilsCmd("script-manager-cu", false, args...)
 	}
 	// Add alias
 	logger.Header("Install all alias")
@@ -225,15 +264,12 @@ func (d *DependencyLinux) instalScriptsAppsAndAlias() {
 		"gearlever":           "flatpak run it.mijorus.gearlever",
 	}
 	for key, value := range alias {
-		libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value)
+		libs.RunCoreUtilsCmd("alias-manager-cu", false, "-n", key, "-c", value, forceArg)
 	}
 }
 
-func (d *DependencyLinux) setConfigs() {
-	// Set config again, because the last time I ran, the powershell is not installed
-	envManager.SetSystemConfig()
-	envManager.Sync(envPathName)
-	// Create menu entries
+func (d *DependencyLinux) createMenus() {
+	logger.Header("Create Menu Entries")
 	powershellMenuEntryArgs := []string{
 		"-n", "Powershell",
 		"-e", shell.GetPowershellCmd(),
@@ -245,10 +281,33 @@ func (d *DependencyLinux) setConfigs() {
 	libs.RunCoreUtilsCmd("create-menu-entry", false, powershellMenuEntryArgs...)
 }
 
+func (d *DependencyLinux) setConfigs() {
+	// Set config again, because the last time I ran, the powershell is not installed
+	envManager.SetSystemConfig()
+	envManager.Sync(envPathName)
+	// Create menu entries
+	d.createMenus()
+}
+
+func (d *DependencyLinux) configDataPartition() {
+	logger.Header("Configure partitions to auto mount")
+	autoMountScript := libs.GetScriptAppPathByName("auto-mount-ntfs-ext4")
+	logger.Error(exe.Chmod777(autoMountScript, false))
+	logger.Error(exe.ExecRealTime(models.Command{
+		Cmd:      autoMountScript,
+		UseShell: true,
+	}))
+}
+
 /* -------------------------------------------------------------------------- */
-/*                                    START                                   */
+/*                                START/UPDATE                                */
 /* -------------------------------------------------------------------------- */
-func (d *DependencyLinux) start() {
+func (d *DependencyLinux) update() {
+	d.instalScriptsAppsAndAlias()
+	d.createMenus()
+}
+
+func (d *DependencyLinux) install() {
 	if console.Confirm("Do you want to install all packages and package managers?", true) {
 		// PACKAGE APP
 		if askProcessPackage("Install APT") {
@@ -294,4 +353,14 @@ func (d *DependencyLinux) start() {
 	// Set configs
 	d.setConfigs()
 	cleanEnvPath()
+	d.configDataPartition()
+	changeAndCreateDefaultDirs()
+}
+
+func (d *DependencyLinux) start() {
+	if d.isUpdate {
+		d.update()
+	} else {
+		d.install()
+	}
 }

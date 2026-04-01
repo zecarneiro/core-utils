@@ -2,6 +2,11 @@ param(
     [string] $shellProfileDir
 )
 
+if ((is-admin) -eq "false") {
+    sudopwsh "$PSScriptRoot\change-user-default-dir.ps1 `"$shellProfileDir`""
+    exit 0
+}
+
 $isDocumentsChange = $false
 $newShellProfileDir = ""
 $userDirs = @{}

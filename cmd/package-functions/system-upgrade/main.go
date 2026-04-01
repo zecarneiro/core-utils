@@ -23,7 +23,7 @@ func setupCommand() {
 }
 
 func process() {
-	cmd := "topgrade --cleanup --allow-root --skip-notify --yes --disable helm uv deb_get"
+	cmd := "topgrade --cleanup --allow-root --skip-notify --yes --disable helm uv deb_get containers"
 	if !golangutilslib.FuncIsWindows() {
 		cmd = fmt.Sprintf("%s powershell", cmd)
 	} else {

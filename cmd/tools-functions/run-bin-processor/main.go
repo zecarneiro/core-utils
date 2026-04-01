@@ -54,10 +54,17 @@ func runBin(binary string) {
 	ext := strings.ToLower(file.FileExtension(binary))
 
 	switch ext {
-	case "exe", "msi":
-		cmd := fmt.Sprintf("Start-Process '%s' -Wait", binary)
+	case "msi":
+		cmd := fmt.Sprintf("Start-Process msiexec.exe -ArgumentList '/i \"%s\" %s' -Wait -NoNewWindow", binary, fileArgs)
+		execCmd = models.Command{
+			Cmd:      cmd,
+			UseShell: true,
+			Verbose:  true,
+		}
+	case "exe":
+		cmd := fmt.Sprintf("Start-Process \"%s\" -Wait -NoNewWindow", binary)
 		if !str.IsEmpty(fileArgs) {
-			cmd = fmt.Sprintf("%s -ArgumentList %s", cmd, fileArgs)
+			cmd = fmt.Sprintf("%s -ArgumentList \"%s\"", cmd, fileArgs)
 		}
 		execCmd = models.Command{
 			Cmd:      cmd,
