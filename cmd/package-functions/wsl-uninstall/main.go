@@ -24,7 +24,7 @@ func setupCommand() {
 
 func process(distro string) {
 	cmdStr := fmt.Sprintf("wsl --unregister %s", distro)
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr}))
+	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true}))
 }
 
 func main() {

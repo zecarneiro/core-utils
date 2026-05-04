@@ -11,9 +11,9 @@ import (
 	"golangutils/pkg/platform"
 	"golangutils/pkg/slice"
 	"golangutils/pkg/str"
-	"slices"
 	"strings"
 
+	"main/internal/dir"
 	"main/internal/libs"
 
 	"github.com/spf13/cobra"
@@ -82,7 +82,7 @@ func run(name string) {
 	for _, script := range getScriptList() {
 		canRun := false
 		scriptFileName := file.FileName(script)
-		if slices.Contains(config.ScriptPackageManager, scriptFileName) {
+		if config.ExistScriptPackageManager(scriptFileName) {
 			canRun = true
 			basename := file.Basename(script)
 			if !str.IsEmpty(name) && !(name == script || name == basename || name == scriptFileName) {
@@ -104,7 +104,7 @@ func list(filter string) {
 	for _, script := range getScriptList() {
 		filename := file.FileName(script)
 		if len(filter) == 0 || strings.Contains(filename, filter) {
-			packageManagerInfo := logic.Ternary(slices.Contains(config.ScriptPackageManager, file.Basename(script)), "(Package Manager)", "")
+			packageManagerInfo := logic.Ternary(config.ExistScriptPackageManager(file.Basename(script)), "(Package Manager)", "")
 			logger.Log(fmt.Sprintf("%d. %s %s", count, file.FileName(script), packageManagerInfo))
 			count++
 		}
@@ -115,6 +115,29 @@ func update() {
 	if platform.IsWindows() {
 		for _, script := range getScriptList() {
 			libs.CreateExecPwshFromPromptCMD(script)
+		}
+	}
+}
+
+func scriptVersionManager(cmd *cobra.Command, args []string) {
+	scriptArg := file.FileName(slice.ArrayToString(args))
+	versionArg, err := cmd.Flags().GetString("version")
+	logic.ProcessError(err)
+	directory := file.JoinPath(dir.CoreUtilsUserConfig(), "version")
+	logic.ProcessError(file.CreateDirectory(directory, true))
+	if config.ExistScriptPackageManager(scriptArg) {
+		versionFilepath := file.JoinPath(directory, scriptArg)
+		scriptVersion := ""
+		if file.IsFile(versionFilepath) {
+			version, _ := file.ReadFile(versionFilepath)
+			scriptVersion = version
+		}
+		if str.IsEmpty(versionArg) {
+			fmt.Println(scriptVersion)
+		} else {
+			if versionArg != versionFilepath {
+				file.WriteFile(models.FileWriterConfig{File: versionFilepath, Data: versionArg, IsAppend: false, IsCreateDir: true, WithUtf8BOM: false})
+			}
 		}
 	}
 }

@@ -24,7 +24,7 @@ func setupCommand() {
 
 func process(app string) {
 	cmdStr := fmt.Sprintf("sudo deb-get purge %s", app)
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr}))
+	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true}))
 }
 
 func main() {

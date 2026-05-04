@@ -7,8 +7,8 @@ $__COREUTILS_LIBS_SCRIPT_DIR__="${__COREUTILS_SCRIPT_DIR__}\..\libs"
 
 # If is on Windows Server OS, change security protocol
 try {
-  if ($PSVersionTable.Platform -ne "Unix" -and (Get-CimInstance Win32_OperatingSystem).Caption -contains "Server") {
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+  if ($PSVersionTable.Platform -ne "Unix") {
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls,Tls11,Tls12'
   }
 } catch {
   # Do Nothing
