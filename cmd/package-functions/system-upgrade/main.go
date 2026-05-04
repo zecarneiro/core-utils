@@ -36,6 +36,7 @@ func process() {
 		}
 	}
 	libs.RunCoreUtilsCmd("script-manager-cu", false, "run")
+	libs.RunCoreUtilsCmd("vscode-extension-upgrade", false)
 }
 
 func main() {

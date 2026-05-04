@@ -24,7 +24,7 @@ func setupCommand() {
 
 func process(app string) {
 	cmdStr := fmt.Sprintf("winget uninstall --purge %s", app)
-	err := exe.ExecRealTime(models.Command{Cmd: cmdStr})
+	err := exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true})
 	logic.ProcessError(err)
 }
 

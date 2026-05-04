@@ -44,6 +44,10 @@ func (c *Config) IsValidPromptStyle(value int) bool {
 	return slices.Contains(c.availablePromptStyle, value)
 }
 
+func (c *Config) ExistScriptPackageManager(script string) bool {
+	return slices.Contains(c.ScriptPackageManager, script)
+}
+
 func (c *Config) Write() {
 	if !c.IsValidPromptStyle(c.PromptStyle) {
 		logic.ProcessError(fmt.Errorf("available PromptStyle: %s", slice.ObjArrayToString(c.availablePromptStyle)))

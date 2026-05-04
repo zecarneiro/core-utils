@@ -66,8 +66,16 @@ func setupCommand() {
 		},
 	}
 
+	// Script Version
+	scriptVersionCmd := &cobra.Command{
+		Use:   "script-version <script>",
+		Short: "Version of specific script package manager",
+		Run:   scriptVersionManager,
+	}
+	scriptVersionCmd.Flags().StringP("version", "v", "", "Script version")
+
 	// Set
-	cobralib.CobraCmd.AddCommand(installCmd, uninstallCmd, runCmd, listCmd, updateCmd)
+	cobralib.CobraCmd.AddCommand(installCmd, uninstallCmd, runCmd, listCmd, updateCmd, scriptVersionCmd)
 }
 
 func main() {
