@@ -17,6 +17,8 @@ import (
 var (
 	sourceArg        string
 	isInteractiveArg bool
+	appVersionArg    string
+	isForceArg       bool
 	validSource      = []string{"winget", "msstore"}
 )
 
@@ -29,6 +31,8 @@ func setupCommand() {
 	}
 	cobralib.CobraCmd.Flags().StringVarP(&sourceArg, "source", "s", validSource[0], fmt.Sprintf("Source(repository) to use. Valid value: %s. (Defalult: %s)", slice.ArrayToStringBySep(validSource, ","), validSource[0]))
 	cobralib.CobraCmd.Flags().BoolVarP(&isInteractiveArg, "interactive", "i", false, "Enable Interactive instalation")
+	cobralib.CobraCmd.Flags().BoolVarP(&isForceArg, "force", "f", false, "Force instalation")
+	cobralib.CobraCmd.Flags().StringVarP(&appVersionArg, "app-version", "v", "", "App specific version to install")
 	cobralib.WithRunArgsStr(process)
 }
 
@@ -37,7 +41,9 @@ func process(appId string) {
 		logic.ProcessError(errors.New("invalid given app id"))
 	}
 	interactiveFlag := logic.Ternary(isInteractiveArg, "--interactive", "")
-	cmd := fmt.Sprintf("winget install %s --accept-source-agreements --accept-package-agreements --source %s %s", appId, sourceArg, interactiveFlag)
+	forceFlag := logic.Ternary(isForceArg, "--force", "")
+	versionFlag := logic.Ternary(str.IsEmpty(appVersionArg), "", fmt.Sprintf("--version %s", appVersionArg))
+	cmd := fmt.Sprintf("winget install %s --accept-source-agreements --accept-package-agreements --source %s %s %s %s", appId, sourceArg, interactiveFlag, forceFlag, versionFlag)
 	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmd, Verbose: true}))
 }
 

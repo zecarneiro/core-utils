@@ -28,6 +28,7 @@ func process() {
 		cmd = fmt.Sprintf("%s powershell", cmd)
 	} else {
 		cmd = fmt.Sprintf("%s system", cmd)
+		golangutilslib.FuncExecRealTime(models.Command{Cmd: "winget upgrade topgrade-rs.topgrade --force", UseShell: true, Verbose: true})
 	}
 	golangutilslib.FuncExecRealTime(models.Command{Cmd: cmd, UseShell: true})
 	if platform.IsLinux() {

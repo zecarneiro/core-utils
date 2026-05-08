@@ -23,8 +23,7 @@ func setupCommand() {
 }
 
 func process(app string) {
-	cmdStr := fmt.Sprintf("sudo apt purge --autoremove -y %s", app)
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true}))
+	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: fmt.Sprintf("sudo apt purge --autoremove -y %s", app), Verbose: true}))
 }
 
 func main() {
