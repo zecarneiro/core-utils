@@ -16,7 +16,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var result string
+var (
+	result           string
+	noDescriptionArg bool
+)
 
 func init() { setupCommand() }
 
@@ -26,6 +29,7 @@ func setupCommand() {
 		Short: "Find given command",
 		Args:  cobra.ExactArgs(1),
 	}
+	cobralib.CobraCmd.Flags().BoolVarP(&noDescriptionArg, "no-description", "n", false, "Print only the full path of the command, etc, without description.")
 	cobralib.WithRunArgsStr(process)
 }
 
@@ -38,7 +42,7 @@ func findCmdPath(command string) bool {
 	path, _ := console.Which(command)
 	result = path
 	exist := logic.Ternary(len(path) > 0, true, false)
-	if exist {
+	if exist && !noDescriptionArg {
 		result = fmt.Sprintf("APP/CMD: %s", path)
 	}
 	return exist
@@ -67,7 +71,7 @@ func findAlias(command string) bool {
 			exist = true
 		}
 		if exist {
-			result = fmt.Sprintf("ALIAS: %s", command)
+			result = logic.Ternary(noDescriptionArg, command, fmt.Sprintf("ALIAS: %s", command))
 		}
 	}
 	return exist
@@ -96,7 +100,7 @@ func findFuncion(command string) bool {
 			exist = true
 		}
 		if exist {
-			result = fmt.Sprintf("FUNCTION: %s", command)
+			result = logic.Ternary(noDescriptionArg, command, fmt.Sprintf("FUNCTION: %s", command))
 		}
 	}
 	return exist

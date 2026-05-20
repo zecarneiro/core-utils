@@ -80,9 +80,17 @@ func GetScriptLibPathByName(name string) string {
 }
 
 func GetScriptCmdPathByName(name string, group string) string {
-	return file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "cmd", group, name)
+	script := file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "cmd", group, name)
+	if platform.IsLinux() {
+		exe.Chmod777(script, false)
+	}
+	return script
 }
 
 func GetScriptAppPathByName(name string) string {
-	return file.JoinPath(dir.CoreUtilsShellScripts(), name)
+	script := file.JoinPath(dir.CoreUtilsShellScripts(), name)
+	if platform.IsLinux() {
+		exe.Chmod777(script, false)
+	}
+	return script
 }

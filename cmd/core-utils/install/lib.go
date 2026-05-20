@@ -1,42 +1,34 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"golangutils/pkg/common"
 	"golangutils/pkg/console"
-	"golangutils/pkg/enums"
+	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 	"golangutils/pkg/platform"
-	"golangutils/pkg/shell"
+	"golangutils/pkg/slice"
 	"golangutils/pkg/system"
+
 	"main/internal/dir"
 	"main/internal/libs"
 )
 
-func getCmdInfo() models.Command {
-	cmdInfo := models.Command{
-		Verbose:  true,
+func runScript(scriptFileName string, operation string, scriptArgs ...string) {
+	// Update ENV's
+	envManager.Sync(envPathName)
+	scriptFile := libs.GetScriptCmdPathByName(scriptFileName, "core-utils")
+	if platform.IsWindows() {
+		operation = fmt.Sprintf(`-OPERATION_ARG %s`, operation)
+	}
+	cmd := models.Command{
+		Cmd:      fmt.Sprintf(`%s %s %s`, scriptFile, operation, slice.ArrayToString(scriptArgs)),
 		UseShell: true,
-		IsThrow:  true,
+		Verbose:  false,
 	}
-	if platform.IsLinux() && shell.IsBashInstalled() {
-		cmdInfo.ShellToUse = enums.Bash
-	} else if platform.IsWindows() && shell.IsPowershellInstalled() && shell.IsPromptCMDInstalled() {
-		cmdInfo.ShellToUse = enums.PowerShell
-	} else {
-		logic.ProcessError(errors.New(common.NotImplementedYetMSG))
-	}
-	return cmdInfo
-}
-
-func resetCmdInfo(cmdInfo models.Command) models.Command {
-	cmdInfo.Cmd = ""
-	cmdInfo.Args = []string{}
-	return cmdInfo
+	logic.ProcessError(exe.ExecRealTime(cmd))
 }
 
 func askProcessPackage(packageName string) bool {
@@ -71,6 +63,7 @@ func addUserBinOnPathEnv() {
 }
 
 func installShellScriptOnSystemProfile(fileScript string, data string) {
+	envManager.Sync(envPathName)
 	canInsert := true
 	if file.IsFile(fileScript) {
 		exist, err := file.FileTextContains(fileScript, data, false)

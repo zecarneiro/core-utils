@@ -78,7 +78,6 @@ func run(name string) {
 		validateName(name)
 	}
 	// Process
-	logger.Title("Run all script(s) to install/update/remove package(s)")
 	for _, script := range getScriptList() {
 		canRun := false
 		scriptFileName := file.FileName(script)

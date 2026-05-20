@@ -24,7 +24,6 @@ func setupCommand() {
 
 func process() {
 	cmd := `code --profile "%s" --update-extensions`
-	logger.Title("Update All Extensions from all VSCode Profiles")
 	for _, userDataProfile := range libs.GetVscodeUserDataProfiles() {
 		err := exe.ExecRealTime(models.Command{Cmd: fmt.Sprintf(cmd, userDataProfile.Name), Verbose: true, UseShell: true})
 		logger.Error(err)

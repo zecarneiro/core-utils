@@ -1,11 +1,12 @@
 SHELL := /bin/bash
 
-COREUTILS_VERSION := 2.5.1
+COREUTILS_VERSION := 2.6.0
 ROOT := $(CURDIR)
 SCRIPTS_DIR := $(ROOT)/scripts
 BINARY_DIR := $(ROOT)/bin
 PKG_DIR := $(ROOT)/pkg
-INSTALLER_DIR := $(ROOT)/coretils-$(COREUTILS_VERSION)
+INSTALLER_PREFIX_DIR := $(ROOT)/coreutils
+INSTALLER_DIR := $(INSTALLER_PREFIX_DIR)-$(COREUTILS_VERSION)
 INSTALLER_WIN_DIR := $(INSTALLER_DIR)/coreutils-win
 INSTALLER_LINUX_DIR := $(INSTALLER_DIR)/coreutils-linux
 EXTERNAL_DIR := $(ROOT)/vendor/golangutils
@@ -119,4 +120,4 @@ clean:
 	rm -rf "$(BINARY_DIR)/"
 	rm -rf "$(PKG_DIR)/"
 	rm -rf "$(COVERAGE_DIR)/"
-	rm -rf "$(INSTALLER_DIR)/"
+	rm -rf $(INSTALLER_PREFIX_DIR)-*

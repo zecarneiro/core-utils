@@ -67,6 +67,13 @@ func loadAndValidate() {
 	}
 }
 
+func deleteUnnecessaryFiles() {
+	logger.Info("Removing unnecessary files")
+	scriptsDir := file.JoinPath(systemInstallDir, "scripts")
+	logger.Error(file.DeleteDirectory(file.JoinPath(scriptsDir, "apps")))
+	logger.Error(file.DeleteDirectory(file.JoinPath(scriptsDir, "cmd", "core-utils")))
+}
+
 func main() {
 	loadAndValidate()
 	logger.Title(installTitleMsg)
@@ -82,6 +89,7 @@ func main() {
 		windowsProcessor := NewDependencyWindows(isUpdateOnly)
 		windowsProcessor.start()
 	}
+	deleteUnnecessaryFiles()
 	logger.Ok("Done.")
 	if isUpdateOnly {
 		logger.Warn("Please, restart your terminal.")

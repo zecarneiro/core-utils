@@ -3,6 +3,7 @@ package main
 import (
 	"golangutils/pkg/logger"
 	"golangutils/pkg/system"
+
 	"main/internal/libs/cobralib"
 
 	"github.com/spf13/cobra"
@@ -19,7 +20,7 @@ func setupCommand() {
 }
 
 func process() {
-	logger.Log(system.OSName())
+	logger.Log(system.OSFullName())
 }
 
 func main() {
