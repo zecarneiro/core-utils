@@ -1,6 +1,7 @@
 package main
 
 import (
+	"golangutils/pkg/console"
 	"golangutils/pkg/exe"
 	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
@@ -25,7 +26,11 @@ func setupCommand() {
 
 func process() {
 	logger.Title("Cleanup DEB-GET")
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: "sudo deb-get clean"}))
+	if console.CmdExists("deb-get") {
+		logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: "sudo deb-get clean"}))
+	} else {
+		logger.Warn("DEB-GET not found on your system")
+	}
 }
 
 func main() {

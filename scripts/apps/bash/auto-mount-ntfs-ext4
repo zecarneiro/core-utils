@@ -53,6 +53,9 @@ echo "----------------------------------------------------"
 echo "👉 Select the partitions (e.g. 1 3). Press Enter to exit without making changes:"
 read -r CHOICES
 
+echo "Please, Unmount this partition: $CHOICES. (Only if this partition is mounted.)"
+read -r -p "Please, ENTER to continue: " wait_user
+
 for CHOICE in $CHOICES; do
     IFS="|" read -r NAME LABEL UUID FSTYPE <<< "${PARTS[$CHOICE]}"
     if [ -z "$UUID" ]; then
@@ -94,6 +97,13 @@ done
 
 if [[ "$CAN_MOUNT" == "true" ]]; then
 	echo
-	echo "🚀 Configuration completed. Applying changes: sudo mount -a"
+	echo "🚀 Configuration completed. Applying changes: 'sudo mount -a' and 'sudo systemctl daemon-reload'"
 	sudo mount -a
+	sudo systemctl daemon-reload
+
+	echo "----------------------------------------------------"
+	echo "Please, check if this partition: $CHOICES was mounted"
+	echo "If not, mount the partition with disk manager or file manager"
+	echo "And check if mounted in '$MOUNT_DIR'"
+	read -r -p "Please, ENTER to continue: " wait_user
 fi

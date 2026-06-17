@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"golangutils/pkg/common"
+	"golangutils/pkg/console"
 	"golangutils/pkg/exe"
+	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 	"golangutils/pkg/str"
@@ -29,6 +31,10 @@ func setupCommand() {
 
 func process() {
 	cmdInfo := models.Command{Cmd: "deb-get list | grep installed | grep -v deb-get | awk '{print $1}'", UseShell: true}
+	if !console.CmdExists("deb-get") {
+		logger.Warn("DEB-GET not found on your system")
+		logic.Exit(0)
+	}
 	if len(filter) == 0 {
 		logic.ProcessError(exe.ExecRealTime(cmdInfo))
 	} else {

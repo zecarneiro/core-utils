@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-COREUTILS_VERSION := 2.6.0
+COREUTILS_VERSION := 2.6.1
 ROOT := $(CURDIR)
 SCRIPTS_DIR := $(ROOT)/scripts
 BINARY_DIR := $(ROOT)/bin

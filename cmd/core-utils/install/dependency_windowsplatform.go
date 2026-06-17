@@ -51,6 +51,7 @@ func (d *DependencyWindows) instalScriptsAppsAndAlias() {
 	// Add alias
 	logger.Header("Install all alias")
 	runScript("install-scripts-apps-and-alias.ps1", "alias", "-FORCE_ARG", forceArg, "-SCOOP_DIR_ARG", d.scoopDir)
+	logger.Separator()
 	// Install coreutils profile scripts
 	installShellScriptOnSystemProfile(shell.GetShellProfileFile(enums.Bash), fmt.Sprintf("source '%s'", file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "profiles", "init-bash-shell.sh")))
 	installShellScriptOnSystemProfile(shell.GetShellProfileFile(enums.PowerShell), fmt.Sprintf(". \"%s\"", file.JoinPath(dir.CoreUtilsSystemInstallShellScripts(), "profiles", "init-pwsh-shell.ps1")))

@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"golangutils/pkg/console"
 	"golangutils/pkg/exe"
+	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 
@@ -24,7 +26,11 @@ func setupCommand() {
 
 func process(app string) {
 	cmdStr := fmt.Sprintf("sudo deb-get purge %s", app)
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true}))
+	if console.CmdExists("deb-get") {
+		logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: true}))
+	} else {
+		logger.Warn("DEB-GET not found on your system")
+	}
 }
 
 func main() {

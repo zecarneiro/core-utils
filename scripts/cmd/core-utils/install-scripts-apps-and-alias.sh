@@ -22,6 +22,7 @@ function install_alias() {
         ["restart-pipewire"]="systemctl --user restart pipewire.service"
         ["zenity"]="$(whichc zenity -n) 2>/dev/null"
         ["now"]="date"
+        ["powershell"]="pwsh"
         ["pause"]="echo -n \"Press Enter to continue...: \"; read var_name"
         ["cls"]="clear"
         ["start-menu-refresh"]="sudo update-desktop-database"
@@ -37,8 +38,8 @@ function install_alias() {
 function install_menus_entries() {
     create-menu-entry -n "Powershell" -e "$(whichc pwsh -n) -nologo" -t
     create-menu-entry -n "ChangeDNS" -e "$(whichc bash -n) -i -c '$(whichc change-dns -n)'" -t
-    create-menu-entry -n "Update System CU" -e "bash -c '$(which system-upgrade); $(which pause)'" -i "utilities-terminal" -c "ConsoleOnly;System;" -t
-    create-menu-entry -n "Cleanup System CU" -e "bash -c '$(which system-cleanup); $(which pause)'" -i "utilities-terminal" -c "ConsoleOnly;System;" -t
+    create-menu-entry -n "Update System CU" -e "bash -i -c '$(which system-upgrade); $(which pause)'" -i "utilities-terminal" -c "ConsoleOnly;System;" -t
+    create-menu-entry -n "Cleanup System CU" -e "bash -i -c '$(which system-cleanup); $(which pause)'" -i "utilities-terminal" -c "ConsoleOnly;System;" -t
 }
 
 case "${OPERATION_ARG}" in

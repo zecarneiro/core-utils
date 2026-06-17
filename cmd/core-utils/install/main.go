@@ -8,6 +8,7 @@ import (
 	"golangutils/pkg/file"
 	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
+	"golangutils/pkg/netc"
 	"golangutils/pkg/platform"
 	"golangutils/pkg/shell"
 	"golangutils/pkg/slice"
@@ -50,6 +51,10 @@ func validate() {
 func loadAndValidate() {
 	isUpdateOnly = false
 	console.EnableFeatures()
+	if !netc.HasInternetWithoutErr() {
+		logger.Warn("Need internet connection to continue.")
+		console.PauseWithMsg("Press ENTER after connect the internet...")
+	}
 	libs.EnableRunningFromCUInstallDir()
 	rootDir = slice.ArrayToString(console.GetArgsList())
 	envManager = libs.NewEnvManager()
