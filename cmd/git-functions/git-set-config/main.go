@@ -8,11 +8,11 @@ import (
 	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logger"
-	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 	"golangutils/pkg/platform"
 	"golangutils/pkg/system"
 
+	"main/internal/libs"
 	"main/internal/libs/cobralib"
 
 	"github.com/spf13/cobra"
@@ -21,6 +21,18 @@ import (
 const (
 	globalFlags = "--global"
 	cmdGit      = "git"
+)
+
+var (
+	localCmds = []string{
+		"config %s core.autocrlf input",
+		"config %s core.fileMode false",
+		"config %s core.logAllRefUpdates true",
+		"config %s pull.rebase true",
+		"config %s --unset safe.directory",
+		"config %s --add safe.directory '*'",
+		"config %s merge.ff false",
+	}
 )
 
 func init() { setupCommand() }
@@ -49,34 +61,29 @@ func hasSubmodules(repoPath string) bool {
 	return len(strings.TrimSpace(output)) > 0
 }
 
-func process() {
-	localCmds := []string{
-		"config %s core.autocrlf input",
-		"config %s core.fileMode false",
-		"config %s core.logAllRefUpdates true",
-		"config %s core.ignorecase true",
-		"config %s pull.rebase true",
-		"config %s --unset safe.directory",
-		"config %s --add safe.directory '*'",
-		"config %s merge.ff false",
-	}
+func setGlobal() {
 	globalCmds := append(localCmds, []string{
 		"config %s --unset-all credential.helper",
 		"config %s --unset credential.credentialstore",
 	}...)
-	currentDir, err := file.GetCurrentDir()
 	// Process configs
 	if platform.IsLinux() {
+		globalCmds = append(globalCmds, "config %s core.ignorecase false")
 		if system.IsDesktopEnv(enums.KdeDE) {
 			globalCmds = append(globalCmds, "config %s credential.credentialStore kwallet")
 		} else {
 			globalCmds = append(globalCmds, "config %s credential.credentialStore secretservice")
 		}
+	} else {
+		globalCmds = append(globalCmds, "config %s core.ignorecase true")
 	}
 	for _, cmd := range globalCmds {
 		runGitConfig(fmt.Sprintf(cmd, globalFlags))
 	}
-	logic.ProcessError(err)
+}
+
+func setLocal() {
+	currentDir := libs.GetCurrentDir(true)
 	if file.IsDir(file.JoinPath(currentDir, ".git")) {
 		logger.Header("Set local configurations")
 		isRepoHasSubmodules := hasSubmodules(currentDir)
@@ -88,6 +95,11 @@ func process() {
 			}
 		}
 	}
+}
+
+func process() {
+	setGlobal()
+	setLocal()
 	runCmd("git-credential-manager configure")
 }
 

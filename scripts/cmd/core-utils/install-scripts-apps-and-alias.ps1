@@ -55,7 +55,7 @@ function Install-Alias {
 
 function Install-MenusEntries {
     create-menu-entry -n Bash -e "$(whichc wt.exe -n)" -a "--title Bash -d `"$(HOME_DIR.exe)`" `"$(whichc bash.cmd -n)`" --login -i" -c "ConsoleOnly;System;" -i "C:\Windows\System32\cmd.exe,0"
-    create-menu-entry -n "ChangeDNS" -e "$(whichc change-dns.exe -n)" -i "C:\Windows\System32\cmd.exe,0" -t -A
+    create-menu-entry -n "ChangeDNS" -e "$(whichc change-dns -n)" -i "C:\Windows\System32\cmd.exe,0" -t
     create-menu-entry -n "Update System CU" -e "system-upgrade & pause" -t
     create-menu-entry -n "Cleanup System CU" -e "system-cleanup & pause" -t
 }

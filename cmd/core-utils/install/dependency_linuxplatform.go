@@ -89,7 +89,7 @@ func (d *DependencyLinux) install() {
 			runScript("install-pacstall-and-packages.sh", "manager")
 		}
 		if askProcessPackage("Install DEB-GET") {
-			runScript("install-deb-get-and-packages.sh", "manager", system.OSVersion())
+			runScript("install-deb-get-and-packages.sh", "manager")
 		}
 		// INSTALL APP PACKAGES
 		if askProcessPackage("Install APT Packages") {

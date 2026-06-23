@@ -33,6 +33,8 @@ function install_packages() {
         "zenity"
 		"dos2unix"
 		"git"
+		"libsecret-1-0"         # For Git GCM
+		"libsecret-1-dev"    # For Git GCM
 		"file-roller"
 		"packagekit"
 		"arj"

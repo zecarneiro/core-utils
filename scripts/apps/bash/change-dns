@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+mapfile -t CONNECTION_NAMES < <(
+  nmcli -t -f NAME,TYPE connection show |
+  awk -F: '$2 ~ /ethernet|wifi|wireless|wireguard/ { print $1 }'
+)
+declare -A dns_ipv4
+declare -A dns_ipv6
+# Add google
+dns_ipv4["google"]="8.8.8.8,8.8.4.4"
+dns_ipv6["google"]="2001:4860:4860::8888,2001:4860:4860::8844"
+# Add quad9
+dns_ipv4["quad9"]="9.9.9.9,149.112.112.112"
+dns_ipv6["quad9"]="2620:fe::fe::8888,2620:fe::9"
+# Add opendns
+dns_ipv4["opendns"]="208.67.222.222,208.67.220.220"
+dns_ipv6["opendns"]="2620:0:ccc::2,2620:0:ccd::2"
+# Add cloudflare
+dns_ipv4["cloudflare"]="1.1.1.1,1.0.0.1"
+dns_ipv6["cloudflare"]="2606:4700:4700::1111,2606:4700:4700::1001"
+
+restartAdapters() {
+    sudo systemctl restart NetworkManager.service
+    ok-log "Restart Systemd and Network services processing is done."
+}
+
+setDns() {
+    local ip="$1"
+    local ip_type="$2"
+    if [[ "${ip_type}" != "IPv4" ]]&&[[ "${ip_type}" != "IPv6" ]]; then
+        error-log "Invalid given type of IPs(IPv4 or IPv6)"
+        exit 1
+    fi
+    for connection_name in "${CONNECTION_NAMES[@]}"; do
+        if [[ -n "${connection_name}" ]] && [[ "${connection_name}" != "--" ]]&&[[ -n "$ip" ]]; then
+            if [[ "${ip_type}" == "IPv4" ]]; then
+            	nmcli connection modify "${connection_name}" ipv4.dns "$ip" ipv4.ignore-auto-dns yes
+            fi
+            if [[ "${ip_type}" == "IPv6" ]]; then
+            	nmcli connection modify "${connection_name}" ipv6.dns "$ip" ipv6.ignore-auto-dns yes
+            fi
+            ok-log "$ip_type DNS settings was changed for '${connection_name}' to '$ip'"
+        fi
+    done
+}
+
+setDefault() {
+    header-log "Change IPv4 and IPv6 DNS server settings"
+    select PROVIDER in "${!dns_ipv4[@]}" "Exit"
+    do
+        if [ "$PROVIDER" == "Exit" ]; then
+            break
+        fi
+        if [ -n "${dns_ipv4[$PROVIDER]}" ]; then
+            ipv4="${dns_ipv4[$PROVIDER]}"
+            ipv6="${dns_ipv6[$PROVIDER]}"
+            echo "Server selected: $PROVIDER"
+            separator-log
+            setDns "$ipv4" "IPv4"
+            setDns "$ipv6" "IPv6"
+            restartAdapters
+            break
+        else
+            warn-log "❌ Invalid option. Try again."
+        fi
+    done
+}
+
+resetDns() {
+    for connectionName in "${CONNECTION_NAMES[@]}"; do
+        if [[ -n "${connectionName}" ]]&&[[ "${connectionName}" != "--" ]]; then
+            nmcli connection modify "${connectionName}" ipv4.dns "" ipv4.ignore-auto-dns false
+            nmcli connection modify "${connectionName}" ipv6.dns "" ipv6.ignore-auto-dns false
+            ok-log "All process to reset DNS settings was done for '${connectionName}'"
+            restartAdapters
+        fi
+    done
+}
+
+while true; do
+    title-log "Change DNS server settings"
+	echo "1. Set Default Server"
+	echo "2. Reset"
+	echo "3. Exit"
+	read -r -p "Insert an option: " choice
+	case "$choice" in
+	    1) setDefault ;;
+		2) resetDns ;;
+		3) exit 0 ;;
+		*) warn-log "Invalid option inserted" ;;
+	esac
+done
