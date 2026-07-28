@@ -17,7 +17,7 @@ func init() { setupCommand() }
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
 		Use:   "create-menu-entry",
-		Short: "Create a menu entry (.desktop file on Linux)",
+		Short: "Create a menu entry (.desktop file on Linux and .lnk on Windows)",
 		Long:  "Creates a menu entry in the system",
 	}
 	cobralib.CobraCmd.Flags().StringVarP(&menuEntryData.name, "name", "n", "", "Application name (required)")

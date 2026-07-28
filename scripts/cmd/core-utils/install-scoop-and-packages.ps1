@@ -20,6 +20,7 @@ function Install-Packages {
         "install main/clink",
         "install main/dos2unix",
         "install main/fzf",
+        "install main/imagemagick",
         "bucket add extras",
         "install extras/psfzf",
         "install extras/psreadline", # https://github.com/PowerShell/PSReadLine

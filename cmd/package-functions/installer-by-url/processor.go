@@ -29,7 +29,7 @@ func github(cmd *cobra.Command) {
 	saveOrCreateConfigFile(*data)
 	saveShellScript(githubArgs.ScriptOrCommand, data.FileRunner.ShellScript)
 	if githubArgs.RunAfterInit {
-		run(data.Name)
+		run(data.Name, false)
 	}
 }
 
@@ -73,7 +73,7 @@ func generic(cmd *cobra.Command) {
 	saveOrCreateConfigFile(*data)
 	saveShellScript(genericArgs.ScriptOrCommand, data.FileRunner.ShellScript)
 	if genericArgs.RunAfterInit {
-		run(data.Name)
+		run(data.Name, false)
 	}
 }
 
@@ -103,7 +103,7 @@ func listAll() {
 	}
 }
 
-func run(appNameArg string) {
+func run(appNameArg string, isAll bool) {
 	for _, fileConfig := range getAllFilesConfigs() {
 		data, err := file.ReadJsonFile[entities.AppInfo](fileConfig)
 		if err == nil {
@@ -113,7 +113,9 @@ func run(appNameArg string) {
 				case cmdenums.GITHUB_SOURCE:
 					runGithub(&data)
 				case cmdenums.GENERIC_SOURCE:
-					runGeneric(&data)
+					if !isAll || !str.IsEmpty(appNameArg) {
+						runGeneric(&data)
+					}
 				default:
 					logger.Error(fmt.Errorf("Invalid Source: %s", data.Name))
 				}

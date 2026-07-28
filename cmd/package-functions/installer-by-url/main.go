@@ -48,7 +48,7 @@ func setupCommand() {
 	// Generic
 	genericCmd := &cobra.Command{
 		Use:   "generic",
-		Short: "Only download the file from URL",
+		Short: "Only download the file from URL.",
 		Run: func(cmd *cobra.Command, args []string) {
 			generic(cmd)
 		},
@@ -67,9 +67,9 @@ func setupCommand() {
 	// Run
 	runCmd := &cobra.Command{
 		Use:   "run [APP_NAME| ]",
-		Short: "Run installer. If name not set, will run all apps",
+		Short: "Run installer. If name not set, will run all apps except the generic apps.",
 		Run: func(cmd *cobra.Command, args []string) {
-			run(slice.ArrayToString(args))
+			run(slice.ArrayToString(args), true)
 		},
 	}
 	runCmd.Flags().BoolVarP(&forceInstallArg, "force", "f", false, "Force install")
