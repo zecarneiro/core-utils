@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"golangutils/pkg/exe"
+	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 	"golangutils/pkg/str"
@@ -27,8 +28,16 @@ func process(appId string) {
 	if str.IsEmpty(appId) {
 		logic.ProcessError(errors.New("invalid given app id"))
 	}
-	cmd := fmt.Sprintf("sudo flatpak override %s --filesystem=host", appId)
-	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmd, Verbose: true}))
+	cmds := []string{
+		"--filesystem=host",
+		"--device=all",
+		"--share=network",
+		"--share=ipc",
+	}
+	for _, cmdSuffix := range cmds {
+		cmd := fmt.Sprintf("sudo flatpak override %s %s", appId, cmdSuffix)
+		logger.Error(exe.ExecRealTime(models.Command{Cmd: cmd, Verbose: true}))
+	}
 }
 
 func main() {
