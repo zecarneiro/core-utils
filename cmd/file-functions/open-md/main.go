@@ -44,7 +44,7 @@ func process(filepath string) {
 			UseShell: true,
 		}
 	} else if platform.IsLinux() {
-		cmdInfo = models.Command{Cmd: "markdown_viewer", Args: []string{filepath}, UseShell: false}
+		cmdInfo = models.Command{Cmd: fmt.Sprintf(`markdown_viewer "%s"`, filepath), UseShell: true}
 	} else {
 		logic.ProcessError(errors.New(platform.UnsupportedMSG))
 	}

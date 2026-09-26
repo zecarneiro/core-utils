@@ -24,7 +24,7 @@ func setupCommand() {
 		Args:  cobra.MinimumNArgs(1),
 	}
 	cobralib.CobraCmd.Flags().StringVarP(&delimiterArg, "delimiter", "d", "", "Delimiter (required)")
-	cobralib.CobraCmd.Flags().StringVarP(&directionArg, "direction", "dr", "", "Direction: L or R (required)")
+	cobralib.CobraCmd.Flags().StringVarP(&directionArg, "direction", "D", "", "Direction: L or R (required)")
 	cobralib.CobraCmd.MarkFlagRequired("delimiter")
 	cobralib.CobraCmd.MarkFlagRequired("direction")
 	cobralib.WithRunArgsStr(process)

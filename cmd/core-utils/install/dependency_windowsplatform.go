@@ -9,7 +9,6 @@ import (
 	"golangutils/pkg/file"
 	"golangutils/pkg/logger"
 	"golangutils/pkg/shell"
-	"golangutils/pkg/system"
 
 	"main/internal/dir"
 	"main/internal/libs"
@@ -21,7 +20,7 @@ type DependencyWindows struct {
 }
 
 func NewDependencyWindows(isUpdate bool) *DependencyWindows {
-	scoopDir := file.JoinPath(system.HomeDir(), "scoop")
+	scoopDir := dir.GetScoopRootDir()
 	return &DependencyWindows{
 		scoopDir: scoopDir,
 		isUpdate: isUpdate,

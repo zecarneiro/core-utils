@@ -21,6 +21,7 @@ function Install-Packages {
         "install main/dos2unix",
         "install main/fzf",
         "install main/imagemagick",
+        "install main/zip",
         "bucket add extras",
         "install extras/psfzf",
         "install extras/psreadline", # https://github.com/PowerShell/PSReadLine
@@ -33,9 +34,10 @@ function Install-Packages {
 }
 
 function ConfigPackages {
-    evalc "sudo cmd.exe /C ${SCOOP_DIR_ARG}\apps\7zip\current\install-context.reg"
-    evalc "sudo cmd.exe /C ${SCOOP_DIR_ARG}\apps\git\current\install-associations.reg"
+    evalc "sudo cmd.exe /C $(scoop-get-app-dir 7zip)\install-context.reg"
+    evalc "sudo cmd.exe /C $(scoop-get-app-dir git)\install-associations.reg"
     evalc "clink set clink.logo none"
+    register-open-with-app scoop -f "Markdown Viewer" -n "mdview"
 }
 
 switch ($OPERATION_ARG) {

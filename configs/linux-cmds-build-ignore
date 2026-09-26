@@ -17,3 +17,6 @@ change-user-full-name
 appx-package-list
 appx-package-uninstall
 winget-install
+restore-folder-icon
+scoop-get-app-dir
+register-open-with-app
