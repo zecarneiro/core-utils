@@ -7,7 +7,8 @@ BINARY_DIR="$ROOT_DIR/bin"
 BINARY_WIN_DIR="$BINARY_DIR/windows"
 BINARY_LINUX_DIR="$BINARY_DIR/linux"
 CMD_DIR="$ROOT_DIR/cmd"
-CONFIG_DIR="$ROOT_DIR/configs"
+SCRIPTS_DIR="$ROOT_DIR/scripts"
+CONFIG_DIR="$SCRIPTS_DIR/installer-and-others/configs"
 
 # Set safe dir on git. Necessary for go
 if [[ -z "$(git config --global safe.directory)" ]]; then
