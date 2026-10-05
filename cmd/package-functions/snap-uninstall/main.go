@@ -3,13 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
+	"golangutils/pkg/console"
 	"golangutils/pkg/exe"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
 	"golangutils/pkg/system"
-	"strings"
 
 	"main/internal/libs/cobralib"
 
@@ -45,10 +45,7 @@ func process(app string) {
 	logic.ProcessError(exe.ExecRealTime(cmdInfo))
 	cmdInfo.Cmd = "snap saved"
 	logic.ProcessError(exe.ExecRealTime(cmdInfo))
-	fmt.Print("Insert the number on the line of App(ENTER TO SKIP): ")
-	var response string
-	fmt.Scanln(&response)
-	response = strings.Trim(response, " ")
+	response := console.ReadUserInput("Insert the number on the line of App(ENTER TO SKIP): ")
 	if len(response) > 0 {
 		cmdInfo.Cmd = fmt.Sprintf("sudo snap forget %s", response)
 		logic.ProcessError(exe.ExecRealTime(cmdInfo))
