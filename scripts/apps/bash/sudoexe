@@ -10,13 +10,27 @@ fi
 cmd="$1"
 shift
 
-# Resolver o caminho completo
-cmd_path="$(command -v "$cmd")"
-
-if [ -z "$cmd_path" ]; then
-    echo "Erro: comando '$cmd' não encontrado no PATH."
-    exit 1
+# Resolver o caminho do executável
+if [[ "$cmd" == */* ]]; then
+    cmd_path="$cmd"
+else
+    cmd_path="$(type -P -- "$cmd" 2>/dev/null)"
 fi
 
-# Executar com sudo -E preservando ambiente
-exec sudo -E "$cmd_path" "$@"
+# Verificar se existe e é executável
+if [[ -z "$cmd_path" || ! -x "$cmd_path" || -d "$cmd_path" ]]; then
+    echo "Error: command '$cmd' not found or not executable." >&2
+    exit 127
+fi
+
+# Executar com privilégios de root
+# Preservar o PATH original do root e acrescentar o PATH do utilizador
+sudo -- bash -c '
+    user_path="$1"
+    cmd_path="$2"
+    shift 2
+
+    export PATH="$user_path:$PATH"
+
+    exec "$cmd_path" "$@"
+' _ "$PATH" "$cmd_path" "$@"

@@ -20,7 +20,6 @@ function install_alias() {
     local -A alias_map
     alias_map=(
         ["restart-pipewire"]="systemctl --user restart pipewire.service"
-        ["zenity"]="$(whichc zenity -n) 2>/dev/null"
         ["now"]="date"
         ["powershell"]="pwsh"
         ["pause"]="echo -n \"Press Enter to continue...: \"; read var_name"

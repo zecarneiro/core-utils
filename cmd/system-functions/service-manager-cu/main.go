@@ -29,9 +29,6 @@ var (
 )
 
 func init() {
-	if !system.IsAdmin() {
-		logic.ProcessError(errors.New(system.NeedAdminAccessMsg))
-	}
 	setupCommand()
 }
 
@@ -83,6 +80,9 @@ func validateCommand() {
 }
 
 func process() {
+	if !system.IsAdmin() {
+		logic.ProcessError(errors.New(system.NeedAdminAccessMsg))
+	}
 	if !platform.IsWindows() && !platform.IsLinux() {
 		logic.ProcessError(errors.New(platform.UnsupportedMSG))
 	}

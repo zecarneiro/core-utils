@@ -33,10 +33,16 @@ func process(appId string) {
 		"--device=all",
 		"--share=network",
 		"--share=ipc",
+		"--socket=pulseaudio",
 	}
 	for _, cmdSuffix := range cmds {
-		cmd := fmt.Sprintf("sudo flatpak override %s %s", appId, cmdSuffix)
-		logger.Error(exe.ExecRealTime(models.Command{Cmd: cmd, Verbose: true}))
+		permCmds := []string{
+			fmt.Sprintf("flatpak --user override %s %s", appId, cmdSuffix),
+			fmt.Sprintf("sudo flatpak --system override %s %s", appId, cmdSuffix),
+		}
+		for _, cmd := range permCmds {
+			logger.Error(exe.ExecRealTime(models.Command{Cmd: cmd, Verbose: true}))
+		}
 	}
 }
 

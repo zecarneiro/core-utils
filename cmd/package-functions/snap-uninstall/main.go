@@ -19,9 +19,6 @@ import (
 func init() { setupCommand() }
 
 func setupCommand() {
-	if !system.IsAdmin() {
-		logic.ProcessError(errors.New(system.NeedAdminAccessMsg))
-	}
 	cobralib.CobraCmd = &cobra.Command{
 		Use:   "snap-uninstall <app>",
 		Short: "Uninstall snap app",
@@ -38,6 +35,9 @@ func deleteDir(dir string) {
 }
 
 func process(app string) {
+	if !system.IsAdmin() {
+		logic.ProcessError(errors.New(system.NeedAdminAccessMsg))
+	}
 	cmdInfo := models.Command{Verbose: true}
 	configDir := file.JoinPath(system.HomeDir(), "snap", app)
 	configSystemDir := file.JoinPath("/snap", app)
