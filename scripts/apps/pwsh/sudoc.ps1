@@ -3,5 +3,5 @@ if ([string]::IsNullOrWhiteSpace($args))
     error-log "No args passed"
     exit 1
 }
-prompt-log "$args"
+Write-Host ">>> " -ForegroundColor DarkGray -NoNewline; Write-Host "$args"
 sudopwsh "$args"

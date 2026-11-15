@@ -19,7 +19,7 @@ func setupCommand() {
 }
 
 func process() {
-	logic.ProcessError(system.Shutdown())
+	logic.ProcessError(system.Shutdown(false))
 }
 
 func main() {

@@ -99,6 +99,6 @@ func main() {
 	if isUpdateOnly {
 		logger.Warn("Please, restart your terminal.")
 	} else {
-		logger.Error(system.Reboot())
+		logger.Error(system.Reboot(false))
 	}
 }

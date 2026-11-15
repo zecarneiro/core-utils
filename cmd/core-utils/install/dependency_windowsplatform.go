@@ -75,8 +75,8 @@ func (d *DependencyWindows) install() {
 		if askProcessPackage("Install SCOOP") {
 			runScript("install-scoop-and-packages.ps1", "manager")
 		}
-		if askProcessPackage("Enable WSL") {
-			runScript("install-wsl.ps1", "manager")
+		if askProcessPackage("Enable WSL and System Features") {
+			runScript("enable-wsl-and-system-features.ps1", "manager")
 		}
 		// INSTALL APP PACKAGES
 		if askProcessPackage("Install Winget Packages") {

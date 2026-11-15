@@ -37,7 +37,4 @@ else
     cd "$ROOT_DIR" || exit 1
 fi
 
-echo ">>> Delete unnecessary files and directories..."
-rm -rf "$BINARY_DIR"
-
 echo "✅ Deployment finished!"

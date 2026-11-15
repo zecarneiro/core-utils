@@ -22,6 +22,7 @@ function Install-Alias {
         "now" = "date"
         "bash" = "& '$SCOOP_DIR_ARG\apps\git\current\bin\bash.exe'" # I put & because, I got error with path "C:\Program ", i.e., has space between Program and Files
         "ps" = "tasklist.exe"
+        "which" = "where.exe"
     }
     $systemAliasList = @(
         "cp",
