@@ -3,12 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
+	"golangutils/pkg/common"
 	"golangutils/pkg/file"
 	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/platform"
 	"golangutils/pkg/str"
 	"regexp"
+	"strings"
 
 	"main/internal/dir"
 	"main/internal/libs"
@@ -42,4 +44,17 @@ func getScriptList() []string {
 		logic.ProcessError(err)
 	}
 	return files.Files
+}
+
+func getScriptVersion(scriptName string) string {
+	directory := file.JoinPath(dir.CoreUtilsUserConfig(), "version")
+	logic.ProcessError(file.CreateDirectory(directory, true))
+	if config.ExistScriptPackageManager(scriptName) {
+		versionFilepath := file.JoinPath(directory, scriptName)
+		if file.IsFile(versionFilepath) {
+			version, _ := file.ReadFile(versionFilepath)
+			return strings.Trim(version, common.Eol())
+		}
+	}
+	return ""
 }

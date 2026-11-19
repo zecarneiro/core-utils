@@ -91,6 +91,9 @@ func (d *DependencyLinux) install() {
 		if askProcessPackage("Install DEB-GET") {
 			runScript("install-deb-get-and-packages.sh", "manager")
 		}
+		if askProcessPackage("Install Homebrew") {
+			runScript("install-homebrew-and-packages.sh", "manager")
+		}
 		// INSTALL APP PACKAGES
 		if askProcessPackage("Install APT Packages") {
 			runScript("install-apt-and-packages.sh", "packages")
@@ -100,6 +103,12 @@ func (d *DependencyLinux) install() {
 		}
 		if askProcessPackage("Install PACKSTALL Packages") {
 			runScript("install-pacstall-and-packages.sh", "packages")
+		}
+		if askProcessPackage("Install DEB-GET Packages") {
+			runScript("install-deb-get-and-packages.sh", "packages")
+		}
+		if askProcessPackage("Install Homebrew Packages") {
+			runScript("install-homebrew-and-packages.sh", "packages")
 		}
 		if askProcessPackage("Install github Packages") {
 			runScript("install-github-packages.sh", "packages")

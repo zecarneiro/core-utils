@@ -108,11 +108,16 @@ func run(appNameArg string, isAll bool) {
 		data, err := file.ReadJsonFile[entities.AppInfo](fileConfig)
 		if err == nil {
 			if str.IsEmpty(appNameArg) || data.Name == appNameArg {
-				logger.Header(fmt.Sprintf("Install/Update %s", data.Name))
+				showHeader := func(name string, version string) {
+					message := logic.Ternary(str.IsEmpty(version), "", fmt.Sprintf(" (Current installed version: %s)", version))
+					logger.Header(fmt.Sprintf("Install/Update %s%s", name, message))
+				}
 				switch data.Source {
 				case cmdenums.GITHUB_SOURCE:
+					showHeader(data.Name, data.Github.InstalledVersion)
 					runGithub(&data)
 				case cmdenums.GENERIC_SOURCE:
+					showHeader(data.Name, "")
 					if !isAll || !str.IsEmpty(appNameArg) {
 						runGeneric(&data)
 					}

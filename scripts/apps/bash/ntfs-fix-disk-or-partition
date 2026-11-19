@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# Author: José M. C. Noronha
+
+set -u
+
+PARTITION="${1:-}"
+
+# Validate argument
+if [[ -z "$PARTITION" ]]; then
+    error-log "Usage: $0 <partition>"
+    exit 1
+fi
+
+# Validate device
+if [[ ! -b "$PARTITION" ]]; then
+    error-log "Not found partition: $PARTITION"
+    exit 1
+fi
+
+# Required commands
+for cmd in blkid ntfsfix findmnt lsblk; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        error-log "Required command not found: $cmd"
+        exit 1
+    fi
+done
+
+# Identify filesystem
+FSTYPE=$(blkid -o value -s TYPE "$PARTITION" 2>/dev/null || true)
+
+if [[ "$FSTYPE" != "ntfs" ]]; then
+    error-log "Unsupported filesystem: ${FSTYPE:-unknown}"
+    exit 1
+fi
+
+# Check if partition is mounted
+if findmnt -rn -S "$PARTITION" >/dev/null 2>&1; then
+    error-log "Partition is mounted. Unmount it before continuing."
+    exit 1
+fi
+
+# Display partition information
+info-log "NTFS partition detected: $PARTITION"
+lsblk -o NAME,SIZE,FSTYPE,LABEL,UUID,MOUNTPOINTS "$PARTITION"
+
+# Request sudo credentials before starting
+if ! sudo -v; then
+    error-log "Authentication failed."
+    exit 1
+fi
+
+# Read-only diagnostic
+info-log "Checking NTFS filesystem (read-only)..."
+
+sudo ntfsfix -n "$PARTITION"
+CHECK_STATUS=$?
+
+if [[ $CHECK_STATUS -eq 0 ]]; then
+    ok-log "NTFS check completed successfully."
+else
+    warn-log "NTFS check reported problems (exit code: $CHECK_STATUS)."
+fi
+
+# Confirm repair
+echo
+info-log "The next operation may modify the filesystem."
+read -r -p "Run ntfsfix -d on $PARTITION? [y/N]: " USER_INPUT
+
+if [[ ! "$USER_INPUT" =~ ^[yY]$ ]]; then
+    info-log "Operation cancelled."
+    exit 0
+fi
+
+# Repair filesystem
+info-log "Repairing NTFS partition: $PARTITION"
+
+if ! sudo ntfsfix -d "$PARTITION"; then
+    error-log "NTFS repair failed: $PARTITION"
+    exit 1
+fi
+
+# Verify result
+info-log "Verifying NTFS filesystem..."
+
+if sudo ntfsfix -n "$PARTITION"; then
+    ok-log "NTFS filesystem check completed successfully."
+else
+    error-log "NTFS filesystem still reports problems."
+    exit 1
+fi
+
+ok-log "Operation completed: $PARTITION"

@@ -89,8 +89,10 @@ func run(name string) {
 			}
 		}
 		if canRun {
-			logger.Header(fmt.Sprintf("Running %s", scriptFileName))
-			cmd := models.Command{Cmd: fmt.Sprintf(". \"%s\"", script), UseShell: true, Verbose: true}
+			scriptCurrentVersion := getScriptVersion(scriptFileName)
+			message := logic.Ternary(str.IsEmpty(scriptCurrentVersion), "", fmt.Sprintf(" (Current installed version: %s)", scriptCurrentVersion))
+			logger.Header(fmt.Sprintf("Running %s%s", scriptFileName, message))
+			cmd := models.Command{Cmd: fmt.Sprintf(". \"%s\"", script), UseShell: true, Verbose: false}
 			logger.Error(exe.ExecRealTime(cmd))
 		}
 	}
@@ -122,19 +124,13 @@ func scriptVersionManager(cmd *cobra.Command, args []string) {
 	scriptArg := file.FileName(slice.ArrayToString(args))
 	versionArg, err := cmd.Flags().GetString("version")
 	logic.ProcessError(err)
-	directory := file.JoinPath(dir.CoreUtilsUserConfig(), "version")
-	logic.ProcessError(file.CreateDirectory(directory, true))
 	if config.ExistScriptPackageManager(scriptArg) {
-		versionFilepath := file.JoinPath(directory, scriptArg)
-		scriptVersion := ""
-		if file.IsFile(versionFilepath) {
-			version, _ := file.ReadFile(versionFilepath)
-			scriptVersion = version
-		}
+		currentVersion := getScriptVersion(scriptArg)
 		if str.IsEmpty(versionArg) {
-			fmt.Println(scriptVersion)
+			fmt.Println(currentVersion)
 		} else {
-			if versionArg != versionFilepath {
+			if versionArg != currentVersion {
+				versionFilepath := file.JoinPath(file.JoinPath(dir.CoreUtilsUserConfig(), "version"), scriptArg)
 				file.WriteFile(models.FileWriterConfig{File: versionFilepath, Data: versionArg, IsAppend: false, IsCreateDir: true, WithUtf8BOM: false})
 			}
 		}
