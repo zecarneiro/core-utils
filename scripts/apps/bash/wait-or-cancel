@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Author: José M. C. Noronha and ChatGPT
+# If User CANCEL the exit status code will be 130
+timeToWait=${1:-5}
+
+for ((i = timeToWait; i >= 1; i--)); do
+    echo -ne "\r(Press ENTER to continue or others to CANCEL) Continue in ${i}... "
+    if IFS= read -rsn1 -t 1 key; then
+        if [[ -n $key ]]; then
+            echo
+            exit 130 # SIGINT exit status
+        fi
+        break
+    fi
+done
+echo
