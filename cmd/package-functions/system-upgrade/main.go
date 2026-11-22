@@ -23,7 +23,7 @@ func setupCommand() {
 }
 
 func process() {
-	cmd := "topgrade --cleanup --allow-root --skip-notify --yes --disable helm uv containers"
+	cmd := "topgrade --cleanup --allow-root --skip-notify --yes --disable helm uv containers opencode"
 	logger.WithIgnoreExitStatusError(true)
 	if golangutilslib.FuncIsWindows() {
 		cmd = fmt.Sprintf("%s system", cmd)
