@@ -5,6 +5,11 @@ set -u
 
 PARTITION="${1:-}"
 
+if [[ $(is-admin) == false ]]; then
+    error-log "Need Admin permission to continue."
+    exit 1
+fi
+
 # Validate argument
 if [[ -z "$PARTITION" ]]; then
     error-log "Usage: $0 <partition>"
