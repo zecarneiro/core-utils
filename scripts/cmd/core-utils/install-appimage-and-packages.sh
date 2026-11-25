@@ -3,7 +3,7 @@
 OPERATION_ARG="$1"
 
 function install_appimage() {
-    base_packages=("libfuse2" "libfuse2t64")
+    base_packages=("libfuse2" "libfuse2t64" "fuse")
     for base_package in "${base_packages[@]}"; do
         evalc "sudo apt install $base_package -y"
     done
