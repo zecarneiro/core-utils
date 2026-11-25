@@ -23,7 +23,7 @@ func process() {
 		libs.RunCoreUtilsCmd("scoop-clean", true)
 	} else if platform.IsLinux() {
 		for _, cmd := range []string{"apt-clean", "flatpak-clean", "deb-get-clean", "snap-clean"} {
-			libs.RunCoreUtilsCmd(cmd, true)
+			libs.RunCoreUtilsCmd(cmd, false)
 		}
 	}
 }
