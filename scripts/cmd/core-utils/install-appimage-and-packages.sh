@@ -11,7 +11,7 @@ function install_appimage() {
 
 function install_packages() {
     mdview_url="https://github.com/c3er/mdview/releases/download/v__VERSION_APP__/mdview-__VERSION_APP__-x86_64.AppImage"
-    installer-by-url github -n mdview -u "$mdview_url" -e AppImage -C "appimage-manager-cu --install '__DOWNLOADED_FILE_ARG__'" -o c3er -r mdview -c
+    installer-by-url github -n mdview -u "$mdview_url" -e AppImage -C "appimage-install '__DOWNLOADED_FILE_ARG__'" -o c3er -r mdview -c -R
 }
 
 case "${OPERATION_ARG}" in

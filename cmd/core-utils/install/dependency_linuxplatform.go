@@ -120,7 +120,6 @@ func (d *DependencyLinux) install() {
 	addUserBinOnPathEnv()
 	addCoreUtilsDirsOnPathEnv()
 	d.instalScriptsAppsAndAlias()
-	libs.RunCoreUtilsCmd("installer-by-url", false, "run")
 
 	// Set configs
 	d.setConfigs()

@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 # APP Info
 NAME := core-utils
-APP_VERSION := 2.6.18
+APP_VERSION := 2.6.19
 DISPLAY_NAME := "CoreUtils"
 # Make file data
 GO := go

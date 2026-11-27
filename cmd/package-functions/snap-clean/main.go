@@ -5,7 +5,6 @@ import (
 	"golangutils/pkg/common"
 	"golangutils/pkg/console"
 	"golangutils/pkg/exe"
-	"golangutils/pkg/file"
 	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
@@ -27,12 +26,7 @@ func setupCommand() {
 }
 
 func process() {
-	snapCacheDir := "/var/lib/snapd/cache"
 	logger.Title("Cleanup SNAP")
-	if file.IsDir(snapCacheDir) {
-		snapCacheCmd := fmt.Sprintf("rm -rf %s/*", snapCacheDir)
-		logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: fmt.Sprintf("sudo sh -c '%s'", snapCacheCmd), Verbose: true}))
-	}
 	logger.Warn("Removes old revisions of snaps")
 	if console.Confirm("Please, CLOSE ALL SNAPS BEFORE RUNNING THIS. Continue?", false) {
 		cmdGetListApps := "LANG=en_US.UTF-8 snap list --all | awk '/disabled/{print $1, $3}'"
