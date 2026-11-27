@@ -24,6 +24,23 @@ func setupCommand() {
 	cobralib.WithRunArgsStr(process)
 }
 
+func installAllCmds() {
+	logger.Info("Creating terminal comand...")
+	for _, appInstalled := range libs.GetGearlevelListOfInstalledApps().Installed {
+		execCmdStr, err := system.GetExecDataFromDesktopFile(appInstalled.GetDesktopFile())
+		if err != nil {
+			logger.Error(err)
+		} else {
+			aliasArgs := []string{
+				"--force",
+				"-n", appInstalled.GetRegisterName(),
+				"-c", execCmdStr,
+			}
+			libs.RunCoreUtilsCmdWithOutput("alias-manager-cu", false, aliasArgs...)
+		}
+	}
+}
+
 func process(packageFile string) {
 	if !file.IsFile(packageFile) {
 		logic.ProcessError(fmt.Errorf("Invalid given appimage file."))
@@ -34,21 +51,10 @@ func process(packageFile string) {
 	logger.Info("Installing...")
 	cmdStr := fmt.Sprintf("flatpak run it.mijorus.gearlever --integrate '%s' -y", packageFileTemp)
 	logic.ProcessError(exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: false}))
-	installedApps := libs.GetGearlevelListOfInstalledApps().Installed
-	for _, appInstalled := range installedApps {
-		execCmdStr, err := system.GetExecDataFromDesktopFile(appInstalled.GetDesktopFile())
-		if err != nil {
-			logger.Error(err)
-		} else {
-			aliasArgs := []string{
-				"--force",
-				"-n", appInstalled.GetRegisterName(),
-				"-c", execCmdStr,
-			}
-			libs.RunCoreUtilsCmd("alias-manager-cu", false, aliasArgs...)
-		}
-	}
+	logger.Info(fmt.Sprintf("Deleting copied file: %s", packageFileTemp))
 	logger.Error(file.DeleteFile(packageFileTemp))
+	installAllCmds()
+	logger.Ok("Installation is done.")
 }
 
 func main() {
