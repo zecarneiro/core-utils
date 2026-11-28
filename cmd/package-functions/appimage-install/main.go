@@ -19,26 +19,14 @@ func init() { setupCommand() }
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
 		Use:   "appimage-install <package-file>",
-		Short: "Install AppImage package.",
+		Short: "Install AppImage package using Gear Lever.",
 	}
 	cobralib.WithRunArgsStr(process)
 }
 
 func installAllCmds() {
 	logger.Info("Creating terminal comand...")
-	for _, appInstalled := range libs.GetGearlevelListOfInstalledApps().Installed {
-		execCmdStr, err := system.GetExecDataFromDesktopFile(appInstalled.GetDesktopFile())
-		if err != nil {
-			logger.Error(err)
-		} else {
-			aliasArgs := []string{
-				"--force",
-				"-n", appInstalled.GetRegisterName(),
-				"-c", execCmdStr,
-			}
-			libs.RunCoreUtilsCmdWithOutput("alias-manager-cu", false, aliasArgs...)
-		}
-	}
+	libs.RunCoreUtilsCmdWithOutput("appimage-install-cmds", false)
 }
 
 func process(packageFile string) {

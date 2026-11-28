@@ -8,7 +8,6 @@ import (
 	"golangutils/pkg/logger"
 	"golangutils/pkg/logic"
 	"golangutils/pkg/models"
-	"golangutils/pkg/system"
 	"main/internal/libs"
 	"main/internal/libs/cobralib"
 
@@ -17,7 +16,6 @@ import (
 
 var (
 	commandOnlyArg bool
-	forceArg       bool
 )
 
 func init() { setupCommand() }
@@ -25,60 +23,41 @@ func init() { setupCommand() }
 func setupCommand() {
 	cobralib.CobraCmd = &cobra.Command{
 		Use:   "appimage-uninstall <app>",
-		Short: "Uninstall appimage app",
+		Short: "Uninstall appimage app(By Gear Lever)",
 		Args:  cobra.MinimumNArgs(1),
 	}
 	cobralib.CobraCmd.Flags().BoolVarP(&commandOnlyArg, "command-only", "c", false, "Uninstall command only.")
-	cobralib.CobraCmd.Flags().BoolVarP(&forceArg, "force", "f", false, "Force uninstall.")
 	cobralib.WithRunArgsStr(process)
 }
 
-func getInstalledApp(app string) *libs.GearlevelInstalledAppInfo {
-	var findedApp *libs.GearlevelInstalledAppInfo
-	for _, appInstalled := range libs.GetGearlevelListOfInstalledApps().Installed {
-		if appInstalled.GetRegisterName() == app {
-			findedApp = &appInstalled
+func process(app string) {
+	var foundedApp *libs.GearLeverInstalledAppInfo
+	installedAppList := libs.GetGearLeverListOfInstalledApps().Installed
+	for _, appInstalled := range installedAppList {
+		registerName := appInstalled.GetRegisterName()
+		if registerName == app {
+			if !appInstalled.IsNotRegisted || console.Confirm("This app is not registed. Continue?", false) {
+				foundedApp = &appInstalled
+			}
 			break
 		}
 	}
-	if findedApp == nil && forceArg {
-		appImageDir := fmt.Sprintf(`%s/AppImages`, system.HomeDir())
-		dirInfo, err := file.ReadDir(appImageDir)
-		findedApp = &libs.GearlevelInstalledAppInfo{
-			Id:           fmt.Sprintf("%s.desktop", app),
-			AppimageFile: "",
-		}
-		logic.ProcessError(err)
-		for _, fileDir := range dirInfo.Files {
-			if file.FileName(fileDir) == app {
-				findedApp.AppimageFile = fmt.Sprintf(`%s/%s`, appImageDir, fileDir)
-				break
-			}
-		}
-	}
-	return findedApp
-}
-
-func process(app string) {
-	installedApp := getInstalledApp(app)
-	if installedApp != nil {
-		registerName := installedApp.GetRegisterName()
+	if foundedApp != nil {
+		registerName := foundedApp.GetRegisterName()
 		if !commandOnlyArg {
-			cmdStr := fmt.Sprintf("flatpak run it.mijorus.gearlever --remove '%s' -y", installedApp.AppimageFile)
-			desktopFile := installedApp.GetDesktopFile()
-			err := exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: false})
-			if !forceArg {
+			desktopFile := foundedApp.GetDesktopFile()
+			if !foundedApp.IsNotRegisted {
+				cmdStr := fmt.Sprintf("flatpak run it.mijorus.gearlever --remove '%s' -y", foundedApp.AppimageFile)
+				err := exe.ExecRealTime(models.Command{Cmd: cmdStr, Verbose: false})
 				logic.ProcessError(err)
-			} else {
-				logger.Error(err)
 			}
 			if file.IsFile(desktopFile) {
 				logger.Info(fmt.Sprintf("Deleting .desktop file: %s", desktopFile))
 				logger.Error(file.DeleteFile(desktopFile))
 			}
-			if file.IsFile(installedApp.AppimageFile) {
-				logger.Info(fmt.Sprintf("Deleting .appimage file: %s", installedApp.AppimageFile))
-				logger.Error(file.DeleteFile(installedApp.AppimageFile))
+			if file.IsFile(foundedApp.AppimageFile) {
+				logger.Info(fmt.Sprintf("Deleting .appimage file: %s", foundedApp.AppimageFile))
+				logger.Error(file.DeleteFile(foundedApp.AppimageFile))
 			}
 		}
 		if console.CmdExists(registerName) {

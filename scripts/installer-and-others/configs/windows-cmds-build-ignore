@@ -19,6 +19,7 @@ sudo-set-user-env-path
 system-log
 homebrew-list
 appimage-install
+appimage-install-cmds
 appimage-list
 appimage-uninstall
 snap-connect-all
